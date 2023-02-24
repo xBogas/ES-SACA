@@ -1,5 +1,7 @@
 # Prerequisites
 *.d
+*.json
+ignore
 
 # Compiled Object files
 *.slo
