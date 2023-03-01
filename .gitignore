@@ -1,7 +1,14 @@
+# Cmake
+CMakeFiles
+*.cmake
+Makefile
+CMakeCache.txt
+
 # Prerequisites
 *.d
 *.json
 ignore
+.vscode
 
 # Compiled Object files
 *.slo
