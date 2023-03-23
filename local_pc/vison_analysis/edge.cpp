@@ -38,7 +38,7 @@ void filterPoints_v2(std::vector<std::pair<cv::Point,cv::Point>>& lines, const c
 
 int main(int argc, char const *argv[])
 {
-	const std::string IMAGPATH = "images/img.jpg";
+	const std::string IMAGPATH = "../images/img.jpg";
 	cv::Mat src = cv::imread(IMAGPATH, cv::IMREAD_COLOR);
 	cv::Mat src_gray = cv::imread(IMAGPATH, cv::IMREAD_GRAYSCALE);
 	cv::Mat t_bin, t_mean, t_gauss;
