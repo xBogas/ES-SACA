@@ -1,23 +1,58 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
+#include <limits>
 
-const int RANGE = 50;
+const int RANGE = 50; 
 
-void getIntersections(std::vector<std::pair<cv::Point,cv::Point>>& lines)
+void getIntersections(std::vector<cv::Vec2f>& input, std::vector<cv::Point>& output)
 {
-	for (auto&& [first, second] : lines)
+	output.reserve(4);
+	float rho1, theta1, rho2, theta2;
+	float x, y;
+	for (size_t i = 0; i < input.size(); i++)
 	{
-		std::cout << "For line: " << first << " - " << second << "\n";
-
-		if ((first.x - second.x) < (first.y - second.y))
+		rho1 = input[i][0];
+		theta1 = input[i][1];
+		for (size_t j = i+1; j < input.size(); j++)
 		{
-			std::cout << "This line is Horizontal\n";
+			rho2 = input[j][0];
+			theta2 = input[j][1];
+			
+			if (theta1 > CV_PI/4.0f && theta2 > CV_PI/4.0f)
+			{
+				continue;
+			}
+			if (theta1 < CV_PI/4.0f && theta2 < CV_PI/4.0f)
+			{
+				continue;
+			}
+			
+			/*
+			A = [ 	
+					cos(theta1)		sin(theta1) 
+					cos(theta2)		sin(theta2)
+				]
+			
+			B = [ 	
+					rho1
+					rho2
+				]
+
+			P = [
+					X
+					Y
+				]
+
+			A*P = B
+			*/
+
+			x = (sin(theta2)*rho1 - sin(theta1)*rho2) / (cos(theta1)*sin(theta2) - sin(theta1)*cos(theta2));
+			y = (cos(theta1)*rho2 - cos(theta2)*rho1) / (cos(theta1)*sin(theta2) - sin(theta1)*cos(theta2));
+			output.emplace_back(cvRound(x),cvRound(y));
+			std::cout << "Found: (" << x << "," << y <<")\n";
 		}
-		else
-			std::cout << "This line is Vertical\n";
 	}
-	
 }
 
 void filterLines(std::vector<cv::Vec2f>& input, std::vector<cv::Vec2f>& output)
@@ -31,18 +66,19 @@ void filterLines(std::vector<cv::Vec2f>& input, std::vector<cv::Vec2f>& output)
 
 	int pos = 0;
 	bool inside = false;
+	float i_rho, i_theta, o_rho, o_theta;
 	for (auto &&i : input)
 	{
-		float i_rho = i[0];
-		float i_theta = i[1];
+		i_rho = i[0];
+		i_theta = i[1];
 		
 		std::cout << "In pos: " << pos << "\n" 
 				<< "rho is " << i_rho << " and theta is " << i_theta << "\n";
 		pos++;
 		for (auto &&j : output)
 		{
-			float o_rho = j[0];
-			float o_theta = j[0];
+			o_rho = j[0];
+			o_theta = j[0];
 
 			if (std::abs(o_rho - i_rho) < RANGE)
 			{
@@ -106,9 +142,39 @@ int main(int argc, char const *argv[])
 		cv::line(src, pt1, pt2, cv::Scalar(255,0,0), 1, cv::LINE_AA);
 	}
 	cv::imshow("Filtered rho and theta", src);
-	//exit(0);
 
-	// TODO: Select intersections
+	std::vector<cv::Point> points;
+	getIntersections(filtered, points);
+
+	for (auto &&i : points)
+	{
+		cv::circle(src, i, 2, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+	}
+	cv::imshow("Draw points", src);
+
+	int min_x, min_y, max_x, max_y;
+	min_x = min_y = std::numeric_limits<int>::max();
+	max_x = max_y = std::numeric_limits<int>::min();
+
+	for (auto &&i : points)
+	{
+		if (i.x < min_x)
+			min_x = i.x;
+		if (i.y < min_y)
+			min_y = i.y;
+		
+		if (i.x > max_x)
+			max_x = i.x;
+		
+		if (i.y > max_y)
+			max_y = i.y;
+
+		std::cout << "X= " << min_x << ", y= " << min_y << " width= " << max_x-min_x << " length= " << max_y-min_y << "\n";
+	}
+	
+	cv::Mat cropped = src(cv::Rect(min_x, min_y, max_x-min_x, max_y-min_y));
+	cv::imshow("Cropped image", cropped);
+
 	cv::waitKey(0);
 	return 0;
 }
