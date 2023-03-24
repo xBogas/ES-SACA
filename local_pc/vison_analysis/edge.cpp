@@ -4,41 +4,70 @@
 
 const int RANGE = 50;
 
-void filterPoints(std::vector<std::pair<cv::Point,cv::Point>>& lines, const cv::Point& p1, const cv::Point& p2)
+void getIntersections(std::vector<std::pair<cv::Point,cv::Point>>& lines)
 {
-	if (lines.size() == 0)
+	for (auto&& [first, second] : lines)
 	{
-		lines.push_back(std::make_pair(p1,p2));
-		return;
+		std::cout << "For line: " << first << " - " << second << "\n";
+
+		if ((first.x - second.x) < (first.y - second.y))
+		{
+			std::cout << "This line is Horizontal\n";
+		}
+		else
+			std::cout << "This line is Vertical\n";
 	}
 	
-	for (auto &&[first, second] : lines)
-	{
-		std::cout << "P1.x = " << p1.x << " \tfirst.x = " << first.x 
-				<< "\tP1.y = " << p1.y << " \tfirst.y = " << first.y << "\n";
-		if (first.x - RANGE < p1.x && p1.x < first.x + RANGE)
-		{
-			if (first.y - RANGE < p1.y && p1.y < first.y + RANGE)
-			{
-				std::cout << "Inside\n";
-				return;
-			}
-		}
-	}
-	lines.push_back(std::make_pair(p1,p2));
 }
 
-void filterPoints_v2(std::vector<std::pair<cv::Point,cv::Point>>& lines, const cv::Point& p1, const cv::Point& p2)
+void filterLines(std::vector<cv::Vec2f>& input, std::vector<cv::Vec2f>& output)
 {
 	/**
 	 * ? Search for transition areas to better select the correct line
 	*/
-}
 
+	if (output.size() == 0)
+		output.push_back(input[0]);
+
+	int pos = 0;
+	bool inside = false;
+	for (auto &&i : input)
+	{
+		float i_rho = i[0];
+		float i_theta = i[1];
+		
+		std::cout << "In pos: " << pos << "\n" 
+				<< "rho is " << i_rho << " and theta is " << i_theta << "\n";
+		pos++;
+		for (auto &&j : output)
+		{
+			float o_rho = j[0];
+			float o_theta = j[0];
+
+			if (std::abs(o_rho - i_rho) < RANGE)
+			{
+				inside = true;
+				continue;
+			}				
+		}
+		if (!inside)
+			output.push_back(i);
+
+		inside = false;
+	}
+	std::cout << "Output\n";
+	pos = 0;
+	for (auto &&j : output)
+	{
+		std::cout << "In pos: " << pos << "\n" 
+			<< "rho is " << j[0] << " and theta is " << j[1] << "\n";
+		pos++;
+	}	
+}
 
 int main(int argc, char const *argv[])
 {
-	const std::string IMAGPATH = "../images/img.jpg";
+	const std::string IMAGPATH = "images/img.jpg";
 	cv::Mat src = cv::imread(IMAGPATH, cv::IMREAD_COLOR);
 	cv::Mat src_gray = cv::imread(IMAGPATH, cv::IMREAD_GRAYSCALE);
 	cv::Mat t_bin, t_mean, t_gauss;
@@ -54,40 +83,32 @@ int main(int argc, char const *argv[])
 	cv::adaptiveThreshold(src_gray, t_gauss, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY_INV, 11, 4);
 	imshow("Gauss thresholding", t_gauss);
 
-	std::vector<cv::Vec2f> lines;
+	std::vector<cv::Vec2f> lines, filtered;
     HoughLines(t_gauss, lines, 1, CV_PI/180, 400, 0, 0 );
 	std::cout << "Found " << lines.size() << "\n";
 
+	for (auto &&i : lines)
+		std::cout << "Line: " << i << "\n";
 
-	std::vector<std::pair<cv::Point,cv::Point>> rec;
-	rec.reserve(lines.size()*sizeof(std::pair<cv::Point,cv::Point>));
 
-    for( size_t i = 0; i < lines.size(); i++ )
-    {
-        float rho = lines[i][0], theta = lines[i][1];
-        cv::Point pt1, pt2;
-        double a = cos(theta), b = sin(theta);
-        double x0 = a*rho, y0 = b*rho;
-        pt1.x = cvRound(x0 + 1000*(-b));
+	filterLines(lines, filtered);
+	for (size_t i = 0; i < filtered.size(); i++)
+	{
+		float rho = filtered[i][0], theta = filtered[i][1];
+		cv::Point pt1, pt2;
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*rho, y0 = b*rho;
+		pt1.x = cvRound(x0 + 1000*(-b));
         pt1.y = cvRound(y0 + 1000*(a));
         pt2.x = cvRound(x0 - 1000*(-b));
         pt2.y = cvRound(y0 - 1000*(a));
-		filterPoints(rec, pt1, pt2);	// select better method to filer
-        cv::line(src, pt1, pt2, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-    }
-	cv::imshow("Detected Lines (in red) - Standard Hough Line Transform", src);
-	
-	cv::Mat src2 = cv::imread(IMAGPATH);
-	std::cout << "Inside rec:\n";
-	for (auto &&i : rec)
-	{
-		std::cout << "Pt1: " << i.first << " Pt2: " << i.second << "\n";
-		cv::line(src2, i.first, i.second, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-	}
-	cv::imshow("NAMES", src2);
-	
-	// TODO: Select intersections
 
+		cv::line(src, pt1, pt2, cv::Scalar(255,0,0), 1, cv::LINE_AA);
+	}
+	cv::imshow("Filtered rho and theta", src);
+	//exit(0);
+
+	// TODO: Select intersections
 	cv::waitKey(0);
 	return 0;
 }
