@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(local_pc VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_PREFIX_PATH "/home/joao/Qt/6.4.3/gcc_64") #modify this path to yours
+set(CMAKE_PREFIX_PATH "/opt/Qt/6.4.3/gcc_64") #modify this path to yours
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -21,9 +21,11 @@ add_executable(local_pc
     src/mainwindow.cpp
     src/mainwindow.h
     src/mainwindow.ui
+    resource/OwlResources.qrc
 )
 
 target_link_libraries(local_pc
     PRIVATE Qt6::Widgets
     ${OpenCV_LIBS}
+    ${QT_LIBRARIES}
     )
