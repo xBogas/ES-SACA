@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDir>
+#include <QCoreApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -7,11 +9,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QPixmap owl("local_pc/resource/img/744px-Muskets.svg.png");
+    // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
+    QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);
-    QPixmap impist("/home/cassienc/ES-S/ES-SACA/local_pc/resource/img/crossed-pistols-on-the-black-background.gif");
+
+    QPixmap impist(":/resources/img/crossed-pistols-on-the-black-background.gif");
     ui->label_2->setPixmap(impist);
-    QPixmap imrif("/home/cassienc/ES-S/ES-SACA/local_pc/resource/img/744px-Muskets.svg.png");
+
+    QPixmap imrif(":/resources/img/744px-Muskets.svg.png");
     ui->label_3->setPixmap(imrif);
 }
 

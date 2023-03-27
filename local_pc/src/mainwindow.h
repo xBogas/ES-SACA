@@ -3,6 +3,8 @@
 
 #include <QtWidgets/QMainWindow>
 #include <ui_mainwindow.h>
+#include <QDir>
+#include <QCoreApplication>
 
 class MainWindow : public QMainWindow
 {

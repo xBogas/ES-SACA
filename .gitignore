@@ -4,6 +4,9 @@ CMakeFiles
 Makefile
 CMakeCache.txt
 build
+local_pc/local_pc
+local_pc_autogen
+.qt
 
 # Prerequisites
 *.d
