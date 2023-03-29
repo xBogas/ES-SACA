@@ -21,8 +21,8 @@ add_executable(local_pc
     src/mainwindow.cpp
     src/mainwindow.h
     src/mainwindow.ui
-    src/resource/OwlResources.qrc
     src/pistolwindow.cpp
+    src/resource/OwlResources.qrc
     src/pistolwindow.h
     src/pistolwindow.ui
 )
