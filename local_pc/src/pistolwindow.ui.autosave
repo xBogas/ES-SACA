@@ -383,7 +383,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="JournalButton">
     <property name="geometry">
      <rect>
       <x>1000</x>

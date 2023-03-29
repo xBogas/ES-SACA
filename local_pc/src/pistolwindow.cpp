@@ -11,6 +11,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     segundos=0;
     minutos=0;
     horas=0;
+    procss=0;
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
 }
 
@@ -22,41 +23,48 @@ PistolWindow::~PistolWindow()
 void PistolWindow::on_StartButton_clicked()
 {  
     reloj.start(1000);
+    procss=1;
 }
 
 void PistolWindow::on_PracticeButton_clicked()
 {  
-    segundos=0;
-    minutos=15;
-    horas=0;
-    ui->seconds->display(segundos);
-    ui->minutes->display(minutos);
-    ui->hours->display(horas);
+    if(procss==0){
+        segundos=0;
+        minutos=15;
+        horas=0;
+        ui->seconds->display(segundos);
+        ui->minutes->display(minutos);
+        ui->hours->display(horas);
+    }
 }
 
 void PistolWindow::on_MatchButton_clicked()
 {  
-    segundos=0;
-    minutos=15;
-    horas=1;
-    ui->seconds->display(segundos);
-    ui->minutes->display(minutos);
-    ui->hours->display(horas);
+    if(procss==0){
+        segundos=0;
+        minutos=15;
+        horas=1;
+        ui->seconds->display(segundos);
+        ui->minutes->display(minutos);
+        ui->hours->display(horas);
+    }
 }
 
 void PistolWindow::on_FinalButton_clicked()
 { 
-    segundos=0;
-    minutos=15;
-    horas=1;
-    ui->seconds->display(segundos);
-    ui->minutes->display(minutos);
-    ui->hours->display(horas);
+    if(procss==0){
+        segundos=0;
+        minutos=15;
+        horas=1;
+        ui->seconds->display(segundos);
+        ui->minutes->display(minutos);
+        ui->hours->display(horas);
+    }
 }
 
 void PistolWindow::processar()
 {
-    if(minutos==0) {
+    if(minutos==0 && segundos==0) {
         minutos=60;
         horas=horas-1;
     }
@@ -68,7 +76,11 @@ void PistolWindow::processar()
     ui->seconds->display(segundos);
     ui->minutes->display(minutos);
     ui->hours->display(horas);
-    if(minutos==0) {
+    if(segundos==0 && minutos==0 && horas==0){
+        reloj.stop();
+        procss=0;
+    }
+    if(minutos==0 && segundos==0) {
         minutos=60;
         horas=horas-1;
     }
@@ -76,4 +88,5 @@ void PistolWindow::processar()
         segundos=60;
         minutos=minutos-1;
     }
+
 }

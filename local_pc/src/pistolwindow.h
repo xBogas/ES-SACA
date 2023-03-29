@@ -32,6 +32,7 @@ private:
     short int horas;
     short int minutos;
     short int segundos;
+    short int procss;
     QTimer reloj;
 };
 
