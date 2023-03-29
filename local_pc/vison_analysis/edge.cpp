@@ -174,7 +174,9 @@ int main(int argc, char const *argv[])
 	
 	cv::Mat cropped = src(cv::Rect(min_x, min_y, max_x-min_x, max_y-min_y));
 	cv::imshow("Cropped image", cropped);
-
+	cv::imwrite("../images/cropped_image.jpg", cropped);
+	
+	
 	cv::waitKey(0);
 	return 0;
 }

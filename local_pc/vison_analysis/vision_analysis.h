@@ -1,28 +1,31 @@
 #ifndef VISION_ANALYSIS_H
 #define VISION_ANALYSIS_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
+#include <thread>
+#include <condition_variable>
 
 class Detector : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit Detector(QObject *parent = nullptr);
-    void loadModel(const QString &modelFile);
-    void setTargetSize(int width, int height);
-    bool detect(cv::Mat &frame, int &score);
 
-private:    
-    cv::dnn::Net m_net;
-    cv::Size m_targetSize;
-    float m_threshold;
-    cv::Scalar m_mean;
-    bool m_isModelLoaded;
+	explicit Detector(QObject *parent = nullptr);
+	
+	~Detector();
 
-    cv::Mat preprocessImage(cv::Mat &image);
-    int getScoreFromOutput(const cv::Mat &output);
+private:
+
+	void getImage();
+
+	bool correctPerspective();
+
+	bool detect();
+	
+	cv::VideoCapture m_camara;
+	cv::Mat m_image;
 };
 
 #endif // DETECTOR_H

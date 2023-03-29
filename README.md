@@ -10,4 +10,12 @@
 
 ### Installing QT
 - See https://web.stanford.edu/dept/cs_edu/resources/qt/install-linux to install is just follow this steps;
-- When QT is installed, just change the path of QT in local_pc/src/CMakeLists.txt -> set(CMAKE_PREFIX_PATH "/YOUR_PATH/Qt/6.4.3/gcc_64")"  
+- When QT is installed, just change the path of QT in local_pc/src/CMakeLists.txt -> set(CMAKE_PREFIX_PATH "/YOUR_PATH/Qt/6.4.3/gcc_64")
+
+# Compile and Run the code
+- Go to the repository where CMakeLists.txt is located
+- Type the command: "cmake -Bbuild -H."
+- This will generate a build folder with the makefile inside
+- Go to build folder: "cd build"
+- Insert the command "make" to create the executable
+- Finally run the executable: "./NAME_OF_EXECUTABLE"
