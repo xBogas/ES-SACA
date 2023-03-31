@@ -6,7 +6,7 @@ using namespace std;
 using namespace cv;
 using namespace cv::xfeatures2d;
  
-const int MAX_FEATURES = 500;
+const int MAX_FEATURES = 1000;
 const float GOOD_MATCH_PERCENT = 0.15f;
  
 void alignImages(Mat &im1, Mat &im2, Mat &im1Reg, Mat &h)
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
   Mat imReference = imread(refFilename);
  
   // Read image to be aligned
-  string imFilename("../images/test-alligment.jpg");
+  string imFilename("../images/pistol-test3.jpg");
   cout << "Reading image to align : " << imFilename << endl; 
   Mat im = imread(imFilename);
  
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
   alignImages(im, imReference, imReg, h);
  
   // Write aligned image to disk. 
-  string outFilename("../images/aligned.jpg");
+  string outFilename("../images/pistol-align3.jpg");
   cout << "Saving aligned image : " << outFilename << endl; 
   imwrite(outFilename, imReg);
  
