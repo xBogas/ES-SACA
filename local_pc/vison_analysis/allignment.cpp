@@ -61,12 +61,12 @@ void alignImages(Mat &im1, Mat &im2, Mat &im1Reg, Mat &h)
 int main(int argc, char **argv)
 {
   // Read reference image
-  string refFilename("images/pistol-reference.jpg"); 
+  string refFilename("../images/pistol-reference.jpg"); 
   cout << "Reading reference image : " << refFilename << endl; 
   Mat imReference = imread(refFilename);
  
   // Read image to be aligned
-  string imFilename("images/test-alligment.jpg");
+  string imFilename("../images/test-alligment.jpg");
   cout << "Reading image to align : " << imFilename << endl; 
   Mat im = imread(imFilename);
  
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
   alignImages(im, imReference, imReg, h);
  
   // Write aligned image to disk. 
-  string outFilename("images/aligned.jpg");
+  string outFilename("../images/aligned.jpg");
   cout << "Saving aligned image : " << outFilename << endl; 
   imwrite(outFilename, imReg);
  
