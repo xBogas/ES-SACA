@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1271</width>
-    <height>666</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,7 +102,7 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 170, 0);</string>
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
     </property>
     <property name="text">
      <string>Start</string>
@@ -331,6 +331,12 @@
     <property name="text">
      <string/>
     </property>
+    <property name="pixmap">
+     <pixmap>resource/img/PistolTarget.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QSlider" name="horizontalSlider">
     <property name="geometry">
@@ -383,7 +389,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="JournalButton">
     <property name="geometry">
      <rect>
       <x>1000</x>
@@ -422,7 +428,8 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset theme="x-office-address-book"/>
+     <iconset>
+      <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
     </property>
    </widget>
   </widget>
