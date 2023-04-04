@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp>
-#include "vision_analysis.h"
+#include "src/Detector.hpp"
 
 int main(int argc, char const *argv[])
 {
