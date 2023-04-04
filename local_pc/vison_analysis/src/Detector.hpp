@@ -15,6 +15,9 @@ public:
 	~Detector(){};
 
 private:
+
+	void
+	getCenter();
 	
 	cv::VideoCapture m_camara;
 	cv::Mat m_image;
