@@ -17,14 +17,17 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
 add_executable(local_pc
+    gui/resource/OwlResources.qrc
     src/local_pc.cpp
-    src/mainwindow.cpp
-    src/mainwindow.h
-    src/mainwindow.ui
-    src/pistolwindow.cpp
-    src/resource/OwlResources.qrc
-    src/pistolwindow.h
-    src/pistolwindow.ui
+    gui/mainwindow.cpp
+    gui/mainwindow.h
+    gui/mainwindow.ui
+    gui/pistolwindow.cpp
+    gui/pistolwindow.h
+    gui/pistolwindow.ui
+    gui/loginwindow.cpp
+    gui/loginwindow.h
+    gui/loginwindow.ui
 )
 
 target_link_libraries(local_pc
