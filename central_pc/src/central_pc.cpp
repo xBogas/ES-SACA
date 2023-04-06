@@ -17,10 +17,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
+    a.exec();
 
     server.join();
 
-    return a.exec();
+    return 0;
 }
 
 void server_thread(){
