@@ -7,7 +7,7 @@
 #include <QCoreApplication>
 #include <QTableWidget>
 #include <QWidget>
-#include "pistolwindow.h"
+#include "mainwindow2.h"
 
 class MainWindow : public QMainWindow
 {
@@ -21,12 +21,13 @@ public slots:
     void updateClientList(std::vector<std::string> clients);
 
 private slots:
-    void on_pushButton_clicked();
+    void on_exitButton_clicked();
+    void on_continueButton_clicked();
     void onPlayerIdChanged(int row, int column);
 
 private:
     Ui::MainWindow *ui;
-    PistolWindow *pistolwindow;
+    MainWindow2 *mainwindow2;
     QTableWidget *IP_ID_Table;
     std::map<std::string, int> clientPlayerIds;
 };

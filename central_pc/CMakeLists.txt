@@ -22,12 +22,9 @@ add_executable(central_pc
     gui/mainwindow.cpp
     gui/mainwindow.h
     gui/mainwindow.ui
-    gui/pistolwindow.cpp
-    gui/pistolwindow.h
-    gui/pistolwindow.ui
-    gui/loginwindow.cpp
-    gui/loginwindow.h
-    gui/loginwindow.ui
+    gui/mainwindow2.cpp
+    gui/mainwindow2.h
+    gui/mainwindow2.ui
 )
 
 target_link_libraries(central_pc

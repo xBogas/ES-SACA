@@ -20,16 +20,27 @@ MainWindow::MainWindow(QWidget *parent)
     IP_ID_Table->setHorizontalHeaderLabels({"IP Address", "Player ID"});
     IP_ID_Table->setColumnWidth(0, 245);
     IP_ID_Table->setColumnWidth(1, 135);
+
+    // Conectando o botão Exit
+    connect(ui->exitButton, &QPushButton::clicked, this, &MainWindow::on_exitButton_clicked);
+
+    // Conectando o botão Continue
+    connect(ui->continueButton, &QPushButton::clicked, this, &MainWindow::on_continueButton_clicked);
+
 }
 
 MainWindow::~MainWindow(){
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked(){
+void MainWindow::on_exitButton_clicked(){
+    this->close();
+}
+
+void MainWindow::on_continueButton_clicked(){
     this->hide();
-    pistolwindow = new PistolWindow();
-    pistolwindow->show();
+    mainwindow2 = new MainWindow2();
+    mainwindow2->show();
 }
 
 void MainWindow::updateClientList(std::vector<std::string> clients)
