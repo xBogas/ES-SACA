@@ -30,7 +30,7 @@ void client_thread(){
         boost::asio::io_context io_context;
 
         tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints = resolver.resolve("192.168.0.1", "8080");
+        tcp::resolver::results_type endpoints = resolver.resolve("10.0.2.15", "8080");
 
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);

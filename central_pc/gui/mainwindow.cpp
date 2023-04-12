@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QTableWidget>
 #include <QWidget>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow(){
     delete ui;
+    delete mainwindow2;
+
+    ui = nullptr;
+    mainwindow2 = nullptr;
 }
 
 void MainWindow::on_exitButton_clicked(){
@@ -39,7 +44,9 @@ void MainWindow::on_exitButton_clicked(){
 
 void MainWindow::on_continueButton_clicked(){
     this->hide();
-    mainwindow2 = new MainWindow2();
+    if (!mainwindow2){
+        mainwindow2 = new MainWindow2();
+    }
     mainwindow2->show();
 }
 
