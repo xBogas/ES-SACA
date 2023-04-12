@@ -37,18 +37,31 @@ void client_thread(){
 
         std::cout << "Connected to server." << std::endl;
 
-        std::string message;
-        std::cout << "Enter message: ";
-        std::getline(std::cin, message);
+        while (true) {
+            // Read input from user
+            std::string message;
+            std::cout << "Enter message: ";
+            std::getline(std::cin, message);
 
-        boost::asio::write(socket, boost::asio::buffer(message));
+            // Exit loop if something happens
+            if (message == "quit") {
+                break;
+            }
 
-        char reply[1024];
-        size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+            // Send message to server
+            boost::asio::write(socket, boost::asio::buffer(message));
 
-        std::cout << "Server replied: ";
-        std::cout.write(reply, reply_length);
-        std::cout << std::endl;
+            // Receive reply from server
+            char reply[1024];
+            size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+
+            std::cout << "Server replied: ";
+            std::cout.write(reply, reply_length);
+            std::cout << std::endl;
+        }
+
+        // Close socket
+        socket.close();
     }
     catch (std::exception& e)
     {
