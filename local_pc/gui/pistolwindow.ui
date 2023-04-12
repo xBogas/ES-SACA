@@ -23,7 +23,7 @@
    <widget class="QPushButton" name="PracticeButton">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>460</y>
       <width>231</width>
       <height>31</height>
@@ -45,7 +45,7 @@
    <widget class="QPushButton" name="MatchButton">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>510</y>
       <width>231</width>
       <height>31</height>
@@ -67,7 +67,7 @@
    <widget class="QPushButton" name="FinalButton">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>560</y>
       <width>231</width>
       <height>31</height>
@@ -89,7 +89,7 @@
    <widget class="QPushButton" name="StartButton">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>510</x>
       <y>600</y>
       <width>261</width>
       <height>41</height>
@@ -102,7 +102,7 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 170, 0);</string>
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
     </property>
     <property name="text">
      <string>Start</string>
@@ -111,7 +111,7 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>60</y>
       <width>241</width>
       <height>91</height>
@@ -123,6 +123,9 @@
      </property>
      <item>
       <widget class="QLCDNumber" name="hours">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="smallDecimalPoint">
         <bool>false</bool>
        </property>
@@ -159,7 +162,7 @@
    <widget class="QTableView" name="tableView">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>60</y>
       <width>281</width>
       <height>441</height>
@@ -169,11 +172,14 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>40</x>
       <y>530</y>
       <width>57</width>
       <height>14</height>
      </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
      <string>Lat Shot:</string>
@@ -182,7 +188,7 @@
    <widget class="QLabel" name="lastshot">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>100</x>
       <y>520</y>
       <width>57</width>
       <height>31</height>
@@ -190,6 +196,12 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
     </property>
     <property name="text">
      <string/>
@@ -201,7 +213,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>40</x>
       <y>600</y>
       <width>57</width>
       <height>14</height>
@@ -217,7 +229,7 @@
    <widget class="QLabel" name="total_int">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>100</x>
       <y>590</y>
       <width>57</width>
       <height>31</height>
@@ -225,6 +237,9 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
     <property name="text">
      <string/>
@@ -236,7 +251,7 @@
    <widget class="QLabel" name="total_dec">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>170</x>
       <y>590</y>
       <width>57</width>
       <height>31</height>
@@ -244,6 +259,9 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
     <property name="text">
      <string/>
@@ -255,7 +273,7 @@
    <widget class="QLabel" name="total_dec_2">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>240</x>
       <y>590</y>
       <width>57</width>
       <height>31</height>
@@ -263,6 +281,9 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
     <property name="text">
      <string/>
@@ -274,7 +295,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>100</x>
       <y>570</y>
       <width>57</width>
       <height>14</height>
@@ -290,7 +311,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>170</x>
       <y>570</y>
       <width>57</width>
       <height>14</height>
@@ -306,7 +327,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>240</x>
       <y>570</y>
       <width>57</width>
       <height>14</height>
@@ -319,30 +340,32 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="Target">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>60</y>
-      <width>581</width>
-      <height>511</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QSlider" name="horizontalSlider">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>30</y>
+      <x>340</x>
+      <y>40</y>
       <width>160</width>
       <height>16</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>100</number>
+    </property>
+    <property name="maximum">
+     <number>400</number>
+    </property>
+    <property name="singleStep">
+     <number>100</number>
+    </property>
+    <property name="pageStep">
+     <number>100</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TicksBothSides</enum>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -370,25 +393,28 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>70</x>
       <y>20</y>
-      <width>261</width>
+      <width>231</width>
       <height>21</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
     <property name="text">
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="JournalButton">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>20</y>
-      <width>80</width>
+      <width>81</width>
       <height>22</height>
      </rect>
     </property>
@@ -399,7 +425,7 @@
    <widget class="QPushButton" name="MainButton">
     <property name="geometry">
      <rect>
-      <x>1110</x>
+      <x>1120</x>
       <y>20</y>
       <width>80</width>
       <height>22</height>
@@ -412,7 +438,7 @@
    <widget class="QPushButton" name="ExitButton">
     <property name="geometry">
      <rect>
-      <x>1220</x>
+      <x>1230</x>
       <y>20</y>
       <width>21</width>
       <height>22</height>
@@ -422,9 +448,86 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset theme="x-office-address-book"/>
+     <iconset>
+      <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
     </property>
    </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>26</x>
+      <y>20</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>User:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="Target">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>60</y>
+      <width>581</width>
+      <height>511</height>
+     </rect>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustIgnored</enum>
+    </property>
+    <property name="backgroundBrush">
+     <brush brushstyle="NoBrush">
+      <color alpha="255">
+       <red>0</red>
+       <green>0</green>
+       <blue>0</blue>
+      </color>
+     </brush>
+    </property>
+    <property name="foregroundBrush">
+     <brush brushstyle="NoBrush">
+      <color alpha="255">
+       <red>255</red>
+       <green>0</green>
+       <blue>0</blue>
+      </color>
+     </brush>
+    </property>
+    <property name="dragMode">
+     <enum>QGraphicsView::NoDrag</enum>
+    </property>
+   </widget>
+   <zorder>PracticeButton</zorder>
+   <zorder>MatchButton</zorder>
+   <zorder>FinalButton</zorder>
+   <zorder>StartButton</zorder>
+   <zorder>horizontalLayoutWidget</zorder>
+   <zorder>tableView</zorder>
+   <zorder>label</zorder>
+   <zorder>lastshot</zorder>
+   <zorder>label_2</zorder>
+   <zorder>total_int</zorder>
+   <zorder>total_dec</zorder>
+   <zorder>total_dec_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>label_5</zorder>
+   <zorder>horizontalSlider</zorder>
+   <zorder>label_6</zorder>
+   <zorder>JournalButton</zorder>
+   <zorder>MainButton</zorder>
+   <zorder>ExitButton</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_7</zorder>
+   <zorder>Target</zorder>
   </widget>
  </widget>
  <resources/>

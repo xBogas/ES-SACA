@@ -28,6 +28,9 @@ add_executable(local_pc
     gui/pistolwindow.cpp
     gui/pistolwindow.h
     gui/pistolwindow.ui
+    gui/riflewindow.cpp
+    gui/riflewindow.h
+    gui/riflewindow.ui
     gui/loginwindow.cpp
     gui/loginwindow.h
     gui/loginwindow.ui

@@ -1,33 +1,16 @@
-#include "pistolwindow.h"
-#include "ui_pistolwindow.h"
-#include <QGraphicsPixmapItem>
+#include "riflewindow.h"
+#include "ui_riflewindow.h"
 
-PistolWindow::PistolWindow(QWidget *parent) :
+RifleWindow::RifleWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PistolWindow)
+    ui(new Ui::RifleWindow)
 {
     ui->setupUi(this);
 
-    int w = ui->Target->width();
-    int h = ui->Target->height();
-    QPixmap PistolTarget(":/resources/img/PistolTarget.png");
-    QGraphicsScene *scene = new QGraphicsScene(this);
-    scene->addPixmap(PistolTarget.scaled(w-2,h-2));
-    ui->Target->setScene(scene);
-
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item->setScale(0.01);
-    item->setPos(283.5,249);
-    scene->addItem(item);
-    
-    QGraphicsPixmapItem* item2 = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item2->setScale(0.01);
-    item2->setPos(300,240);
-    scene->addItem(item2);
-    
-
+    QPixmap RifleTarget(":/resources/img/RifleTarget.png");
+    ui->Target->setPixmap(RifleTarget);
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
-    
+
 
     segundos=0;
     minutos=0;
@@ -38,23 +21,23 @@ PistolWindow::PistolWindow(QWidget *parent) :
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
 }
 
-PistolWindow::~PistolWindow()
+RifleWindow::~RifleWindow()
 {
     delete ui;
 }
 
-void PistolWindow::on_StartButton_clicked()
+void RifleWindow::on_StartButton_clicked()
 {  
     reloj.start(1000);
     alert.start(250);
     procss=1;
 }
 
-void PistolWindow::on_PracticeButton_clicked()
+void RifleWindow::on_PracticeButton_clicked()
 {  
     if(procss==0){
-        segundos=2;
-        minutos=1;
+        segundos=0;
+        minutos=15;
         horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
@@ -66,7 +49,7 @@ void PistolWindow::on_PracticeButton_clicked()
     }
 }
 
-void PistolWindow::on_MatchButton_clicked()
+void RifleWindow::on_MatchButton_clicked()
 {  
     if(procss==0){
         segundos=0;
@@ -82,7 +65,7 @@ void PistolWindow::on_MatchButton_clicked()
     }
 }
 
-void PistolWindow::on_FinalButton_clicked()
+void RifleWindow::on_FinalButton_clicked()
 { 
     if(procss==0){
         segundos=0;
@@ -98,23 +81,32 @@ void PistolWindow::on_FinalButton_clicked()
     }
 }
 
-void PistolWindow::on_MainButton_clicked(){
+void RifleWindow::on_MainButton_clicked(){
     this->hide();
     this->parentWidget()->show();
 }
 
-void PistolWindow::on_ExitButton_clicked()
+void RifleWindow::on_ExitButton_clicked()
 {
     qApp->quit();
 }
 
-void PistolWindow::on_horizontalSlider_valueChanged(int value){
+void RifleWindow::on_horizontalSlider_valueChanged(int value){
+    QPixmap RifleTarget(":/resources/img/RifleTarget.png");
     int w = ui->Target->width();
     int h = ui->Target->height();
-    ui->Target->setTransform(QTransform::fromScale(value/100,value/100));
+    if(value==0){
+        ui->Target->setScaledContents(true);
+        ui->Target->setPixmap(RifleTarget);
+    }
+    else{
+        ui->Target->setScaledContents(false);
+        ui->Target->setAlignment(Qt::AlignCenter);
+        ui->Target->setPixmap(RifleTarget.scaled(w+value,h+value));
+    }
 }
 
-void PistolWindow::processar()
+void RifleWindow::processar()
 {
     if(minutos==0 && segundos==0) {
         minutos=60;
@@ -154,7 +146,7 @@ void PistolWindow::processar()
     }
 }
 
-void PistolWindow::alerta()
+void RifleWindow::alerta()
 {
     if(al==0){
         // Aviso de tempo a acabar
@@ -181,3 +173,4 @@ void PistolWindow::alerta()
         ui->hours->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
     }
 }
+

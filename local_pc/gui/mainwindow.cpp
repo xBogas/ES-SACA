@@ -3,9 +3,9 @@
 #include <QDir>
 #include <QCoreApplication>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -28,6 +28,18 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     this->hide();
-    pistolwindow = new PistolWindow ();
+    pistolwindow = new PistolWindow (this);
     pistolwindow->show();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+   this->hide();
+    riflewindow = new RifleWindow (this);
+    riflewindow->show();
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    qApp->quit();
 }
