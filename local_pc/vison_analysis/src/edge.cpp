@@ -1,3 +1,4 @@
+//! Depreacted methods
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
@@ -101,7 +102,7 @@ void filterLines(std::vector<cv::Vec2f>& input, std::vector<cv::Vec2f>& output)
 	}	
 }
 
-int main(int argc, char const *argv[])
+/* int main(int argc, char const *argv[])
 {
 	const std::string IMAGPATH = "../images/img.jpg";
 	cv::Mat src = cv::imread(IMAGPATH, cv::IMREAD_COLOR);
@@ -180,3 +181,4 @@ int main(int argc, char const *argv[])
 	cv::waitKey(0);
 	return 0;
 }
+ */

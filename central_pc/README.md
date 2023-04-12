@@ -1,0 +1,3 @@
+-para ligar pcs por ethernet é necessário aceder à NETWORK ethernet em cada pc e definir o IPv4 e subnet que se quer usar, tanto para o server como para cada client.
+-no caso de testar código na vmbox é também necessário fazer um forwarding NAT na parte da NETWORK em SETINGS.
+-desativar firewall no server e cliente, potencialmente.
