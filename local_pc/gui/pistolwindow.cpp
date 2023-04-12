@@ -1,5 +1,6 @@
 #include "pistolwindow.h"
 #include "ui_pistolwindow.h"
+#include <QGraphicsPixmapItem>
 
 PistolWindow::PistolWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -7,16 +8,34 @@ PistolWindow::PistolWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    int w = ui->Target->width();
+    int h = ui->Target->height();
     QPixmap PistolTarget(":/resources/img/PistolTarget.png");
-    ui->Target->setPixmap(PistolTarget);
-    ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    scene->addPixmap(PistolTarget.scaled(w-2,h-2));
+    ui->Target->setScene(scene);
 
+    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
+    item->setScale(0.01);
+    item->setPos(283.5,249);
+    scene->addItem(item);
+    
+    QGraphicsPixmapItem* item2 = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
+    item2->setScale(0.01);
+    item2->setPos(300,240);
+    scene->addItem(item2);
+    
+
+    ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
+    
 
     segundos=0;
     minutos=0;
     horas=0;
     procss=0;
+    al=0;
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
+    connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
 }
 
 PistolWindow::~PistolWindow()
@@ -27,14 +46,15 @@ PistolWindow::~PistolWindow()
 void PistolWindow::on_StartButton_clicked()
 {  
     reloj.start(1000);
+    alert.start(250);
     procss=1;
 }
 
 void PistolWindow::on_PracticeButton_clicked()
 {  
     if(procss==0){
-        segundos=0;
-        minutos=15;
+        segundos=2;
+        minutos=1;
         horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
@@ -78,6 +98,22 @@ void PistolWindow::on_FinalButton_clicked()
     }
 }
 
+void PistolWindow::on_MainButton_clicked(){
+    this->hide();
+    this->parentWidget()->show();
+}
+
+void PistolWindow::on_ExitButton_clicked()
+{
+    qApp->quit();
+}
+
+void PistolWindow::on_horizontalSlider_valueChanged(int value){
+    int w = ui->Target->width();
+    int h = ui->Target->height();
+    ui->Target->setTransform(QTransform::fromScale(value/100,value/100));
+}
+
 void PistolWindow::processar()
 {
     if(minutos==0 && segundos==0) {
@@ -115,5 +151,33 @@ void PistolWindow::processar()
     }
     if(procss==1 && segundos%2==1){
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
+    }
+}
+
+void PistolWindow::alerta()
+{
+    if(al==0){
+        // Aviso de tempo a acabar
+        if(procss==1 && (horas==0 && minutos==1 && segundos==0 || horas==0 && minutos==0 && segundos>>0)){
+            ui->seconds->setStyleSheet("QLCDNumber{color: rgb(250, 0, 0)}");
+            ui->minutes->setStyleSheet("QLCDNumber{color: rgb(250, 0, 0)}");
+            ui->hours->setStyleSheet("QLCDNumber{color: rgb(250, 0, 0)}");
+        }
+        al=1;
+    }
+    else{
+        // Aviso de tempo a acabar
+        if(procss==1 && (horas==0 && minutos==1 && segundos==0 || horas==0 && minutos==0 && segundos>>0)){
+            ui->seconds->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
+            ui->minutes->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
+            ui->hours->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
+        }
+        al=0;
+    }
+    if(procss==0){
+        alert.stop();
+        ui->seconds->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
+        ui->minutes->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
+        ui->hours->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
     }
 }

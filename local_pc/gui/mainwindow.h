@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include "pistolwindow.h"
+#include "riflewindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,9 +18,12 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_pushButton_2_clicked();
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
     PistolWindow *pistolwindow;
+    RifleWindow *riflewindow;
 };
 #endif // MAINWINDOW_H
