@@ -415,7 +415,7 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 85, 255);</string>
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>
@@ -446,7 +446,7 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 0);</string>
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>
@@ -477,7 +477,7 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 0, 0);</string>
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>

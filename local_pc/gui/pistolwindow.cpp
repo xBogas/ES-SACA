@@ -133,9 +133,9 @@ void PistolWindow::processar()
         reloj.stop();
         procss=0;
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
-        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
-        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
+        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
     }
     if(minutos==0 && segundos==0) {
         minutos=60;
