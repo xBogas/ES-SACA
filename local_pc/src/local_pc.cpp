@@ -6,7 +6,8 @@
 
 using boost::asio::ip::tcp;
 
-bool decideType = true;
+bool initial = true;
+bool decideType = false;
 bool decideMode = false;
 
 void client_thread();
@@ -18,7 +19,7 @@ int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
     MainWindow w;
-    w.show();
+    //w.show();
     a.exec();
 
     client.join();
@@ -39,31 +40,42 @@ void client_thread(){
         std::cout << "Connected to server." << std::endl;
 
         for(;;){
-            if(decideType || decideMode){
-                if(decideType){
-                    // Receive reply from server
-                    char type[1024];
-                    size_t type_length = socket.read_some(boost::asio::buffer(type));
+            if(initial){
+                // Receive reply from server
+                char type[1024];
+                size_t type_length = socket.read_some(boost::asio::buffer(type));
 
-                    std::cout << "Server replied: ";
-                    std::cout.write(type, type_length);
-                    std::cout << std::endl;
-                    
-                    decideMode = true;
-                    decideType = false;     
+                std::cout << "Server replied: ";
+                std::cout.write(type, type_length);
+                std::cout << std::endl;
+
+                if(type == "continue"){
+                    decideType = true;
+                    initial = false;
                 }
-                else if(decideMode){
-                    // Receive reply from server
-                    char mode[1024];
-                    size_t mode_length = socket.read_some(boost::asio::buffer(mode));
+            }
+            else if(decideType){
+                // Receive reply from server
+                char type[1024];
+                size_t type_length = socket.read_some(boost::asio::buffer(type));
 
-                    std::cout << "Server replied: ";
-                    std::cout.write(mode, mode_length);
-                    std::cout << std::endl;
-
-                    decideMode = false;   
-                }
+                std::cout << "Server replied: ";
+                std::cout.write(type, type_length);
+                std::cout << std::endl;
                 
+                decideMode = true;
+                decideType = false;     
+            }
+            else if(decideMode){
+                // Receive reply from server
+                char mode[1024];
+                size_t mode_length = socket.read_some(boost::asio::buffer(mode));
+
+                std::cout << "Server replied: ";
+                std::cout.write(mode, mode_length);
+                std::cout << std::endl;
+
+                decideMode = false;   
             }
             else{
                 // Read input from user

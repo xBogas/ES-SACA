@@ -9,15 +9,20 @@
 #include <vector>
 #include <mutex>
 
+int aux = 0;
+
 using boost::asio::ip::tcp;
+boost::asio::io_context io_context;
 
 std::vector<std::string> connected_clients;
 std::mutex connected_clients_mutex;
+std::string type;
 
 void handle_client(tcp::socket&& socket, MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 
-bool decideType = true;
+bool initial = true;
+bool decideType = false;
 bool decideMode = false;
 
 int main(int argc, char *argv[]){
@@ -37,7 +42,6 @@ int main(int argc, char *argv[]){
 
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
-        boost::asio::io_context io_context;
         tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
 
         std::cout << "Server started. Listening on port 8080..." << std::endl;
@@ -47,6 +51,17 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
             acceptor.accept(socket);
 
             std::string client_ip = socket.remote_endpoint().address().to_string();
+
+            /*****************************************/
+            aux++;
+            boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
+            uint32_t ip_num = ip.to_ulong();
+            ip_num += aux;
+            boost::asio::ip::address_v4 new_ip(ip_num);
+            client_ip = new_ip.to_string();
+            /*****************************************/
+
+
             std::cout << "Client connected: " << client_ip << std::endl;
 
             {
@@ -75,42 +90,71 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
 void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
         boost::system::error_code error;
+        std::string client_ip = socket.remote_endpoint().address().to_string();
+        int old_clientID = 0;
+
+        
+        /*****************************************/
+        boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
+        uint32_t ip_num = ip.to_ulong();
+        ip_num += aux;
+        boost::asio::ip::address_v4 new_ip(ip_num);
+        client_ip = new_ip.to_string();
+        /*****************************************/
+
+        
+
         for (;;){
-            if(decideType || decideMode){
-                if(decideType){
-                    if(window2->pistol){
-                        boost::asio::write(socket, boost::asio::buffer("pistol"));
-                        window2->pistol = false;
+            if(initial){
+                if(window->isMainWindow){
+                    if(window->cellWasChanged){
+                        int new_clientID = window->clientPlayerIds[client_ip];
 
-                        decideMode = true;
-                        decideType = false;
-                    } 
-                    else if(window2->rifle){
-                        boost::asio::write(socket, boost::asio::buffer("rifle"));
-                        window2->rifle = false;
-                        
-                        decideMode = true;
-                        decideType = false;
-                    }     
-                }
-                else if(decideMode){
-                    if(ptlwindow->practice){
-                        boost::asio::write(socket, boost::asio::buffer("practice"));
-                        ptlwindow->practice = false;
-                        
-                        decideMode = false;
+                        if(new_clientID != old_clientID){
+                            std::string clientID = "clientID: " + std::to_string(new_clientID);
+                            boost::asio::write(socket, boost::asio::buffer(clientID));
+
+                            old_clientID = new_clientID;
+                        }
+
+                        window->cellWasChanged = false;
                     }
-
-                    
                 }
+                else{
+                    boost::asio::write(socket, boost::asio::buffer("continue"));
+
+                    decideType = true;
+                    initial = false;
+                }
+                
+            }
+            else if(decideType){
+                std::cout << "Aqui no decideType" << std::endl;
+                if(window2->pistol){
+                    boost::asio::write(socket, boost::asio::buffer("pistol"));
+
+                    decideMode = true;
+                    decideType = false;
+                } 
+                else if(window2->rifle){
+                    boost::asio::write(socket, boost::asio::buffer("rifle"));
                     
+                    decideMode = true;
+                    decideType = false;
+                } 
+            }
+            else if(decideMode){
+                if(ptlwindow->practice){
+                    boost::asio::write(socket, boost::asio::buffer("practice"));
+                    
+                    decideMode = false;
+                }
             }
             else{
                 char data[1024];
                 size_t length = socket.read_some(boost::asio::buffer(data), error);
 
                 if (error == boost::asio::error::eof){
-                    std::string client_ip = socket.remote_endpoint().address().to_string();
                     std::cout << "Client disconnected: " << client_ip << std::endl;
 
                     {

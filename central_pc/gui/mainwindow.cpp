@@ -40,8 +40,20 @@ void MainWindow::on_exitButton_clicked(){
 }
 
 void MainWindow::on_continueButton_clicked(){
-    this->hide();
-    mainwindow2->show();
+    bool allNumbersGreaterThanZero = true;
+    for(int row = 0; row < IP_ID_Table->rowCount(); row++) {
+        QTableWidgetItem *item = IP_ID_Table->item(row, 1);
+        int value = item->text().toInt();
+        if(value <= 0) {
+            allNumbersGreaterThanZero = false;
+            break;
+        }
+    }
+    if(allNumbersGreaterThanZero) {
+        isMainWindow = false;
+        this->hide();
+        mainwindow2->show();
+    }
 }
 
 void MainWindow::updateClientList(std::vector<std::string> clients){
@@ -58,15 +70,14 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
 
         row++;
     }
-
-    // Connect signal to handle player ID changes
-    connect(IP_ID_Table, &QTableWidget::cellChanged, this, &MainWindow::onPlayerIdChanged);
 }
 
-void MainWindow::onPlayerIdChanged(int row, int column){
+void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
         std::string clientIp = IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = IP_ID_Table->item(row, 1)->text().toInt();
         clientPlayerIds[clientIp] = playerId;
+
+        cellWasChanged = true;
     }
 }
