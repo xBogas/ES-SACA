@@ -7,7 +7,8 @@
 #include <QCoreApplication>
 #include <QTableWidget>
 #include <QWidget>
-//#include "mainwindow3.h"
+#include "pistolwindow.h"
+#include "riflewindow.h"
 
 class MainWindow2 : public QMainWindow
 {
@@ -16,13 +17,20 @@ class MainWindow2 : public QMainWindow
 public:
     MainWindow2(QWidget *parent = 0);
     ~MainWindow2();
+    bool rifle = false;
+    bool pistol = false;  
 
 public slots:
+    PistolWindow *getPistolWindow();
+    RifleWindow *getRifleWindow();
 
 private slots:
+    void on_rifleButton_clicked();
+    void on_pistolButton_clicked();
 
 private:
     Ui::MainWindow2 *ui;
-    //MainWindow3 *mainwindow3;
+    PistolWindow *pistolwindow = new PistolWindow();
+    RifleWindow *riflewindow = new RifleWindow();
 };
 #endif // MAINWINDOW2_H

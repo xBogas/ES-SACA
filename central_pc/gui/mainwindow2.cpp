@@ -20,5 +20,28 @@ MainWindow2::~MainWindow2(){
     delete ui;
 }
 
+PistolWindow* MainWindow2::getPistolWindow(){
+    return pistolwindow;
+}
+
+RifleWindow* MainWindow2::getRifleWindow(){
+    return riflewindow;
+}
+
+void MainWindow2::on_rifleButton_clicked(){
+    this->hide();
+    riflewindow->show();
+
+    pistol = false;
+    rifle = true;
+}
+
+void MainWindow2::on_pistolButton_clicked(){
+    this->hide();
+    pistolwindow->show();
+
+    rifle = false;
+    pistol = true;
+}
 
 

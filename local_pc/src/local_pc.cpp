@@ -6,10 +6,12 @@
 
 using boost::asio::ip::tcp;
 
+bool decideType = true;
+bool decideMode = false;
+
 void client_thread();
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     //start client thread
     std::thread client(client_thread);
 
@@ -25,8 +27,7 @@ int main(int argc, char *argv[])
 }
 
 void client_thread(){
-    try
-    {
+    try{
         boost::asio::io_context io_context;
 
         tcp::resolver resolver(io_context);
@@ -37,27 +38,55 @@ void client_thread(){
 
         std::cout << "Connected to server." << std::endl;
 
-        while (true) {
-            // Read input from user
-            std::string message;
-            std::cout << "Enter message: ";
-            std::getline(std::cin, message);
+        for(;;){
+            if(decideType || decideMode){
+                if(decideType){
+                    // Receive reply from server
+                    char type[1024];
+                    size_t type_length = socket.read_some(boost::asio::buffer(type));
 
-            // Exit loop if something happens
-            if (message == "quit") {
-                break;
+                    std::cout << "Server replied: ";
+                    std::cout.write(type, type_length);
+                    std::cout << std::endl;
+                    
+                    decideMode = true;
+                    decideType = false;     
+                }
+                else if(decideMode){
+                    // Receive reply from server
+                    char mode[1024];
+                    size_t mode_length = socket.read_some(boost::asio::buffer(mode));
+
+                    std::cout << "Server replied: ";
+                    std::cout.write(mode, mode_length);
+                    std::cout << std::endl;
+
+                    decideMode = false;   
+                }
+                
             }
+            else{
+                // Read input from user
+                std::string message;
+                std::cout << "Enter message: ";
+                std::getline(std::cin, message);
 
-            // Send message to server
-            boost::asio::write(socket, boost::asio::buffer(message));
+                // Exit loop if something happens
+                if (message == "quit") {
+                    break;
+                }
 
-            // Receive reply from server
-            char reply[1024];
-            size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+                // Send message to server
+                boost::asio::write(socket, boost::asio::buffer(message));
 
-            std::cout << "Server replied: ";
-            std::cout.write(reply, reply_length);
-            std::cout << std::endl;
+                // Receive reply from server
+                char reply[1024];
+                size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+
+                std::cout << "Server replied: ";
+                std::cout.write(reply, reply_length);
+                std::cout << std::endl;
+            }
         }
 
         // Close socket

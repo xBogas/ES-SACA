@@ -133,7 +133,7 @@
      <string>PISTOL</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="riffleButton">
+   <widget class="QPushButton" name="rifleButton">
     <property name="geometry">
      <rect>
       <x>840</x>

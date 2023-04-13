@@ -19,6 +19,7 @@ public:
 
 public slots:
     void updateClientList(std::vector<std::string> clients);
+    MainWindow2* getMainWindow2();
 
 private slots:
     void on_exitButton_clicked();
@@ -27,7 +28,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    MainWindow2 *mainwindow2;
+    MainWindow2 *mainwindow2 = new MainWindow2();
     QTableWidget *IP_ID_Table;
     std::map<std::string, int> clientPlayerIds;
 };
