@@ -50,53 +50,54 @@ void PistolWindow::on_StartButton_clicked()
     procss=1;
 }
 
-void PistolWindow::on_PracticeButton_clicked()
-{  
-    if(procss==0){
-        segundos=2;
-        minutos=1;
-        horas=0;
-        ui->seconds->display(segundos);
-        ui->minutes->display(minutos);
-        ui->hours->display(horas);
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-    }
-}
+//Alterar os botões pelos que vão ser usados no pc _central, adicionar um include ao .h do ui onde os botões se encontram.
+//void PistolWindow::on_PracticeButton_clicked()
+//{  
+//    if(procss==0){
+//        segundos=2;
+//        minutos=1;
+//        horas=0;
+//        ui->seconds->display(segundos);
+//        ui->minutes->display(minutos);
+//        ui->hours->display(horas);
+//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
+//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//    }
+//}
 
-void PistolWindow::on_MatchButton_clicked()
-{  
-    if(procss==0){
-        segundos=0;
-        minutos=15;
-        horas=1;
-        ui->seconds->display(segundos);
-        ui->minutes->display(minutos);
-        ui->hours->display(horas);
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-    }
-}
+//void PistolWindow::on_MatchButton_clicked()
+//{  
+//    if(procss==0){
+//        segundos=0;
+//        minutos=15;
+//        horas=1;
+//        ui->seconds->display(segundos);
+//        ui->minutes->display(minutos);
+//        ui->hours->display(horas);
+//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
+//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//    }
+//}
 
-void PistolWindow::on_FinalButton_clicked()
-{ 
-    if(procss==0){
-        segundos=0;
-        minutos=15;
-        horas=1;
-        ui->seconds->display(segundos);
-        ui->minutes->display(minutos);
-        ui->hours->display(horas);
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
-    }
-}
+//void PistolWindow::on_FinalButton_clicked()
+//{ 
+//    if(procss==0){
+//        segundos=0;
+//        minutos=15;
+//        horas=1;
+//        ui->seconds->display(segundos);
+//        ui->minutes->display(minutos);
+//        ui->hours->display(horas);
+//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+//        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
+//    }
+//}
 
 void PistolWindow::on_MainButton_clicked(){
     this->hide();
@@ -132,9 +133,9 @@ void PistolWindow::processar()
         reloj.stop();
         procss=0;
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
+        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
+        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
     }
     if(minutos==0 && segundos==0) {
         minutos=60;

@@ -20,72 +20,6 @@
    <string notr="true">background-color: rgb(230, 230, 230);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="PracticeButton">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>460</y>
-      <width>231</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>25</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 0);</string>
-    </property>
-    <property name="text">
-     <string>Practice</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="MatchButton">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>510</y>
-      <width>231</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>26</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(170, 0, 0);</string>
-    </property>
-    <property name="text">
-     <string>Match</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="FinalButton">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>560</y>
-      <width>231</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>26</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 85, 255);</string>
-    </property>
-    <property name="text">
-     <string>Final</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="StartButton">
     <property name="geometry">
      <rect>
@@ -505,9 +439,99 @@
      <enum>QGraphicsView::NoDrag</enum>
     </property>
    </widget>
-   <zorder>PracticeButton</zorder>
-   <zorder>MatchButton</zorder>
-   <zorder>FinalButton</zorder>
+   <widget class="QLabel" name="Practice">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>460</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>25</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 0);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="text">
+     <string>Practice</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Match">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>510</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>25</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 0, 0);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="text">
+     <string>Match</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Final">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>560</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>25</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(85, 85, 255);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="text">
+     <string>Final</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>StartButton</zorder>
    <zorder>horizontalLayoutWidget</zorder>
    <zorder>tableView</zorder>
@@ -528,6 +552,9 @@
    <zorder>label_8</zorder>
    <zorder>label_7</zorder>
    <zorder>Target</zorder>
+   <zorder>Practice</zorder>
+   <zorder>Match</zorder>
+   <zorder>Final</zorder>
   </widget>
  </widget>
  <resources/>

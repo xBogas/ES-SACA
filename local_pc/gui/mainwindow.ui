@@ -20,54 +20,12 @@
    <string notr="true">background-color: rgb(255, 255, 255);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>260</y>
-      <width>341</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>32</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 0);</string>
-    </property>
-    <property name="text">
-     <string>PISTOL</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>390</y>
-      <width>341</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>32</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 85, 255);</string>
-    </property>
-    <property name="text">
-     <string>RIFLE</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>520</y>
-      <width>341</width>
+      <x>1140</x>
+      <y>10</y>
+      <width>101</width>
       <height>71</height>
      </rect>
     </property>
@@ -86,65 +44,35 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>110</y>
+      <x>340</x>
+      <y>80</y>
       <width>551</width>
       <height>441</height>
      </rect>
     </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap>../resource/img/Target owl.png</pixmap>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>1090</x>
-      <y>260</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
+    <property name="font">
+     <font>
+      <pointsize>5</pointsize>
+     </font>
     </property>
     <property name="text">
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>../resource/img/crossed-pistols-on-the-black-background.gif</pixmap>
+     <pixmap>resource/img/Target owl.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>1090</x>
-      <y>390</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap>../resource/img/744px-Muskets.svg.png</pixmap>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>20</y>
+      <x>380</x>
+      <y>10</y>
       <width>461</width>
       <height>61</height>
      </rect>
@@ -157,6 +85,32 @@
     </property>
     <property name="text">
      <string>OwlTarget</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>560</y>
+      <width>1191</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+color: rgb(0, 170, 0);</string>
+    </property>
+    <property name="text">
+     <string>Awaiting connection....</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
