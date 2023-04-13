@@ -20,7 +20,6 @@ public:
     ~PistolWindow();
 
 private slots:
-    void on_StartButton_clicked();
     void on_ExitButton_clicked();
     void on_MainButton_clicked();
     void on_horizontalSlider_valueChanged(int value);

@@ -43,12 +43,12 @@ PistolWindow::~PistolWindow()
     delete ui;
 }
 
-void PistolWindow::on_StartButton_clicked()
-{  
-    reloj.start(1000);
-    alert.start(250);
-    procss=1;
-}
+//void PistolWindow::on_StartButton_clicked()
+//{  
+//    reloj.start(1000);
+//    alert.start(250);
+//    procss=1;
+//}
 
 //Alterar os botões pelos que vão ser usados no pc _central, adicionar um include ao .h do ui onde os botões se encontram.
 //void PistolWindow::on_PracticeButton_clicked()
@@ -60,7 +60,7 @@ void PistolWindow::on_StartButton_clicked()
 //        ui->seconds->display(segundos);
 //        ui->minutes->display(minutos);
 //        ui->hours->display(horas);
-//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
 //        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
 //        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
 //        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
@@ -76,7 +76,7 @@ void PistolWindow::on_StartButton_clicked()
 //        ui->seconds->display(segundos);
 //        ui->minutes->display(minutos);
 //        ui->hours->display(horas);
-//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
 //        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
 //        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
 //        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
@@ -92,7 +92,7 @@ void PistolWindow::on_StartButton_clicked()
 //        ui->seconds->display(segundos);
 //        ui->minutes->display(minutos);
 //        ui->hours->display(horas);
-//        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
 //        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
 //        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
 //        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
@@ -132,7 +132,7 @@ void PistolWindow::processar()
     if(segundos==0 && minutos==0 && horas==0){
         reloj.stop();
         procss=0;
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+        ui->Start->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
         ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
         ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
         ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
@@ -148,10 +148,10 @@ void PistolWindow::processar()
 
     // Butão Start intermitente
     if(procss==1 && segundos%2==0){
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 170, 0)}");
+        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
     }
     if(procss==1 && segundos%2==1){
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
+        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 255, 0)}");
     }
 }
 

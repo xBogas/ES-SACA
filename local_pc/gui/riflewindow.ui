@@ -377,28 +377,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="StartButton">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>600</y>
-      <width>261</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>26</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(100, 100, 100);</string>
-    </property>
-    <property name="text">
-     <string>Start</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="Final">
     <property name="geometry">
      <rect>
@@ -527,6 +505,37 @@
     </property>
     <property name="dragMode">
      <enum>QGraphicsView::NoDrag</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Start">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>600</y>
+      <width>261</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>25</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="text">
+     <string>Start</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
