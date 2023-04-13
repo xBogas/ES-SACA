@@ -18,6 +18,7 @@ int db_INSERT_Series(string seriesid, int participantrow, string category, float
 int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, string seriesid);
 int db_INSERT_Rank(int rank, int licenseid, string competitionid);
 int db_INSERT_Remark(string remark, string seriesid);
+int db_SELECT();
 
 int main()
 {   
@@ -32,6 +33,8 @@ int main()
     //db_INSERT_Coordinates(1.5, 1.2, 9.3, "255POR0804");
     //db_INSERT_Rank(3, 255, "POR0804");
     //db_INSERT_Remark("Q", "255POR0804");
+
+    db_SELECT();
 }
 
 connection& db_connection() {
@@ -234,6 +237,44 @@ int db_INSERT_Remark(string remark, string seriesid){
     return 0;
 }
 
+
+int db_SELECT(){
+
+    std::__cxx11::basic_string<char> sql;
+
+    std::vector<std::vector<std::string>> matrix;
+
+    try{
+        connection& conn = db_connection();
+
+        work W(conn);
+
+        sql = "SELECT * FROM \"Athlete\"";
+
+    
+        pqxx::result r = W.exec(sql.c_str());
+        W.commit();
+
+        for (const auto& row : r) {
+            std::vector<std::string> values;
+            for (const auto& field : row) {
+                values.push_back(field.c_str());
+
+            }
+            matrix.push_back(values);
+        }
+    
+        cout << matrix[1][2] << endl;
+ 
+        conn.disconnect();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return 1;
+    }
+
+    return 0;
+}
 
 
 

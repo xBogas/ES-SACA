@@ -21,13 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
     IP_ID_Table->setHorizontalHeaderLabels({"IP Address", "Player ID"});
     IP_ID_Table->setColumnWidth(0, 245);
     IP_ID_Table->setColumnWidth(1, 135);
-
-    // Conectando o botão Exit
-    connect(ui->exitButton, &QPushButton::clicked, this, &MainWindow::on_exitButton_clicked);
-
-    // Conectando o botão Continue
-    connect(ui->continueButton, &QPushButton::clicked, this, &MainWindow::on_continueButton_clicked);
-
 }
 
 MainWindow::~MainWindow(){
@@ -38,20 +31,32 @@ MainWindow::~MainWindow(){
     mainwindow2 = nullptr;
 }
 
+MainWindow2* MainWindow::getMainWindow2(){
+    return mainwindow2;
+}
+
 void MainWindow::on_exitButton_clicked(){
     this->close();
 }
 
 void MainWindow::on_continueButton_clicked(){
-    this->hide();
-    if (!mainwindow2){
-        mainwindow2 = new MainWindow2();
+    bool allNumbersGreaterThanZero = true;
+    for(int row = 0; row < IP_ID_Table->rowCount(); row++) {
+        QTableWidgetItem *item = IP_ID_Table->item(row, 1);
+        int value = item->text().toInt();
+        if(value <= 0) {
+            allNumbersGreaterThanZero = false;
+            break;
+        }
     }
-    mainwindow2->show();
+    if(allNumbersGreaterThanZero) {
+        isMainWindow = false;
+        this->hide();
+        mainwindow2->show();
+    }
 }
 
-void MainWindow::updateClientList(std::vector<std::string> clients)
-{
+void MainWindow::updateClientList(std::vector<std::string> clients){
     IP_ID_Table->setRowCount(clients.size());
     int row = 0;
     
@@ -65,16 +70,14 @@ void MainWindow::updateClientList(std::vector<std::string> clients)
 
         row++;
     }
-
-    // Connect signal to handle player ID changes
-    connect(IP_ID_Table, &QTableWidget::cellChanged, this, &MainWindow::onPlayerIdChanged);
 }
 
-void MainWindow::onPlayerIdChanged(int row, int column)
-{
+void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
         std::string clientIp = IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = IP_ID_Table->item(row, 1)->text().toInt();
         clientPlayerIds[clientIp] = playerId;
+
+        cellWasChanged = true;
     }
 }
