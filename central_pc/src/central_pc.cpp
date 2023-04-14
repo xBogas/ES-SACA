@@ -129,7 +129,6 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                 
             }
             else if(decideType){
-                std::cout << "Aqui no decideType" << std::endl;
                 if(window2->pistol){
                     boost::asio::write(socket, boost::asio::buffer("pistol"));
 

@@ -1,4 +1,6 @@
 #include "../gui/mainwindow.h"
+#include "../gui/pistolwindow.h"
+#include "../gui/riflewindow.h"
 #include <QtWidgets/QApplication>
 #include <thread>
 #include <iostream>
@@ -10,24 +12,23 @@ bool initial = true;
 bool decideType = false;
 bool decideMode = false;
 
-void client_thread();
+void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 
 int main(int argc, char *argv[]){
-    //start client thread
-    std::thread client(client_thread);
-
     //gui code
     QApplication a(argc, argv);
     MainWindow w;
-    //w.show();
-    a.exec();
+    w.show();
+    PistolWindow *ptl = w.getPistolWindow();
+    RifleWindow *rfl = w.getRifleWindow();
+    
+    //start client thread
+    std::thread client(client_thread, &w, ptl, rfl);
 
-    client.join();
-
-    return 0;
+    return a.exec();;
 }
 
-void client_thread(){
+void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
         boost::asio::io_context io_context;
 
@@ -40,40 +41,65 @@ void client_thread(){
         std::cout << "Connected to server." << std::endl;
 
         for(;;){
+            char init[1024];
+            char type[1024];
+            char mode[1024];
+
             if(initial){
                 // Receive reply from server
-                char type[1024];
-                size_t type_length = socket.read_some(boost::asio::buffer(type));
-
+                size_t init_length = socket.read_some(boost::asio::buffer(init));
                 std::cout << "Server replied: ";
-                std::cout.write(type, type_length);
+                std::cout.write(init, init_length);
                 std::cout << std::endl;
 
-                if(type == "continue"){
+                if (std::strncmp(init, "continue", std::strlen("continue")) == 0){
                     decideType = true;
                     initial = false;
                 }
             }
             else if(decideType){
                 // Receive reply from server
-                char type[1024];
                 size_t type_length = socket.read_some(boost::asio::buffer(type));
-
                 std::cout << "Server replied: ";
                 std::cout.write(type, type_length);
                 std::cout << std::endl;
-                
-                decideMode = true;
-                decideType = false;     
+
+                if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                    emit window->openPistolWindowSignal();
+
+                    decideMode = true;
+                    decideType = false; 
+                }
+                else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
+                    emit window->openRifleWindowSignal();
+
+                    decideMode = true;
+                    decideType = false; 
+                }    
             }
             else if(decideMode){
                 // Receive reply from server
-                char mode[1024];
                 size_t mode_length = socket.read_some(boost::asio::buffer(mode));
-
                 std::cout << "Server replied: ";
                 std::cout.write(mode, mode_length);
                 std::cout << std::endl;
+
+                if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                    if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
+                    
+                    }
+                    else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
+                    
+                    }
+                }
+                else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
+                    if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
+                    
+                    }
+                    else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
+                    
+                    }
+                }
 
                 decideMode = false;   
             }

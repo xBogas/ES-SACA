@@ -5,6 +5,7 @@
 #include <ui_mainwindow.h>
 #include <QDir>
 #include <QCoreApplication>
+#include <iostream>
 #include "pistolwindow.h"
 #include "riflewindow.h"
 
@@ -16,12 +17,22 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void openPistolWindowSignal();
+    void openRifleWindowSignal();
+
+public slots:
+    PistolWindow *getPistolWindow();
+    RifleWindow *getRifleWindow();
+
 private slots:
-    void on_pushButton_3_clicked();
+    void on_exitButton_clicked();
+    void openRifleWindow();
+    void openPistolWindow();
 
 private:
     Ui::MainWindow *ui;
-    PistolWindow *pistolwindow;
-    RifleWindow *riflewindow;
+    PistolWindow *pistolwindow = new PistolWindow();
+    RifleWindow *riflewindow = new RifleWindow();
 };
 #endif // MAINWINDOW_H
