@@ -11,6 +11,7 @@ using boost::asio::ip::tcp;
 bool initial = true;
 bool decideType = false;
 bool decideMode = false;
+bool canStart = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 
@@ -86,22 +87,51 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                 if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
-                    
+                        emit ptlwindow->practiceButtonClickedSignal();
+
+                        canStart = true;
                     }
                     else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
-                    
+                        emit ptlwindow->matchButtonClickedSignal();
+
+                        canStart = true;
+                    }
+                    else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
+                        emit ptlwindow->finalButtonClickedSignal();
+
+                        canStart = true;
                     }
                 }
                 else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
-                    
+                        emit rflwindow->practiceButtonClickedSignal();
+
+                        canStart = true;
                     }
                     else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
-                    
+                        emit rflwindow->matchButtonClickedSignal();
+
+                        canStart = true;
+                    }
+                    else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
+                        emit rflwindow->finalButtonClickedSignal();
+                        
+                        canStart = true;
                     }
                 }
 
-                decideMode = false;   
+                if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
+                    if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                        emit ptlwindow->startButtonClickedSignal();
+
+                        decideMode = false;
+                    }
+                    else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
+                        emit rflwindow->startButtonClickedSignal();
+
+                        decideMode = false;
+                    }
+                }
             }
             else{
                 // Read input from user

@@ -15,15 +15,15 @@ RifleWindow::RifleWindow(QWidget *parent) :
     scene->addPixmap(PistolTarget.scaled(w-2,h-2));
     ui->Target->setScene(scene);
 
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item->setScale(0.01);
-    item->setPos(283.5,249);
-    scene->addItem(item);
+    // QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
+    // item->setScale(0.01);
+    // item->setPos(283.5,249);
+    // scene->addItem(item);
     
-    QGraphicsPixmapItem* item2 = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item2->setScale(0.01);
-    item2->setPos(300,240);
-    scene->addItem(item2);
+    // QGraphicsPixmapItem* item2 = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
+    // item2->setScale(0.01);
+    // item2->setPos(300,240);
+    // scene->addItem(item2);
 
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
@@ -34,8 +34,14 @@ RifleWindow::RifleWindow(QWidget *parent) :
     horas=0;
     procss=0;
     al=0;
+
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
+
+    QObject::connect(this, &RifleWindow::finalButtonClickedSignal, this, &RifleWindow::finalButtonClicked);
+    QObject::connect(this, &RifleWindow::practiceButtonClickedSignal, this, &RifleWindow::practiceButtonClicked);
+    QObject::connect(this, &RifleWindow::matchButtonClickedSignal, this, &RifleWindow::matchButtonClicked);
+    QObject::connect(this, &RifleWindow::startButtonClickedSignal, this, &RifleWindow::startButtonClicked);
 }
 
 RifleWindow::~RifleWindow()
@@ -43,63 +49,61 @@ RifleWindow::~RifleWindow()
     delete ui;
 }
 
-//void RifleWindow::on_StartButton_clicked()
-//{  
-//    reloj.start(1000);
-//    alert.start(250);
-//    procss=1;
-//}
+void RifleWindow::startButtonClicked()
+{  
+   reloj.start(1000);
+   alert.start(250);
+   procss=1;
+}
 
+//Alterar os botões pelos que vão ser usados no pc _central, adicionar um include ao .h do ui onde os botões se encontram.
+void RifleWindow::practiceButtonClicked()
+{  
+   if(procss==0){
+       segundos=2;
+       minutos=1;
+       horas=0;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+   }
+}
 
+void RifleWindow::matchButtonClicked()
+{  
+   if(procss==0){
+       segundos=0;
+       minutos=15;
+       horas=1;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+   }
+}
 
-//Alterar os botões pelos que vão ser usados no pc _central, adicionar um include ao .h do ui onde estes botões se encontram.
-//void RifleWindow::on_PracticeButton_clicked()
-//{  
-//    if(procss==0){
-//        segundos=0;
-//        minutos=15;
-//        horas=0;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//    }
-//}
-
-//void RifleWindow::on_MatchButton_clicked()
-//{  
-//    if(procss==0){
-//        segundos=0;
-//        minutos=15;
-//        horas=1;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//    }
-//}
-
-//void RifleWindow::on_FinalButton_clicked()
-//{ 
-//    if(procss==0){
-//        segundos=0;
-//        minutos=15;
-//        horas=1;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
-//    }
-//}
+void RifleWindow::finalButtonClicked()
+{ 
+   if(procss==0){
+       segundos=0;
+       minutos=15;
+       horas=1;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
+   }
+}
 
 void RifleWindow::on_MainButton_clicked(){
     this->hide();

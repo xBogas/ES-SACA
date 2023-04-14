@@ -34,13 +34,13 @@ RifleWindow* MainWindow::getRifleWindow(){
 void MainWindow::openRifleWindow()
 {
     this->hide();
-    pistolwindow->show();
+    riflewindow->show();
 }
 
 void MainWindow::openPistolWindow()
 {
     this->hide();
-    riflewindow->show();
+    pistolwindow->show();
 }
 
 void MainWindow::on_exitButton_clicked()
