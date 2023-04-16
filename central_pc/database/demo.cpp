@@ -19,12 +19,15 @@ int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, str
 int db_INSERT_Rank(int rank, int licenseid, string competitionid);
 int db_INSERT_Remark(string remark, string seriesid);
 int db_SELECT();
+bool verify_ID();
+std::string get_name_from_id();
 
 int main()
 {   
     /************************/
     /*Para correr usar comando "g++ demo.cpp -L/usr/lib/x86_64-linux-gnu/ -lpqxx -lpq -o demo.o" no terminal*/
     /*Necesário instalar libpqxx e postgresql no pc*/
+    /*Pensar se é melhor adicionar um paramentro com a conexão a cada função em vez de fazer essa conexão cada vez que se pretenda usar*/
     /************************/
 
     //db_INSERT_Athlete(374, "Filipa Mendes", "F", "Portuguesa", 32, "GDE");
@@ -278,6 +281,7 @@ int db_SELECT(){
 
 
 //talvez repensar maneira de criar seriesid
+//dar update ao nome da função 
 //pode haver conflito se atleta fizer duas competicoes num dia
 string nnnn_licenseid(int licenseid, string competitionid){
     return to_string(licenseid) + competitionid;
@@ -293,8 +297,52 @@ bool update_score(int licenseid, string competitionid, float score){
 
 //tirar disconnect no final de cada funcao db
 
+bool verify_ID(int ID){
 
+    std::__cxx11::basic_string<char> sql;
 
+    try{
+        connection& conn = db_connection();
+
+        work W(conn);
+
+        sql = "SELECT * FROM \"Athlete\" WHERE ID=" + to_string(ID) + "";
+
+        pqxx::result r = W.exec(sql.c_str());  
+        bool exists=!r.empty();
+        W.commit();
+        conn.disconnect();
+        return exists;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return 1;
+    }
+
+}
+
+std::string get_name_from_id(int ID){
+     std::__cxx11::basic_string<char> sql;
+
+    try{
+        connection& conn = db_connection();
+
+        work W(conn);
+
+        sql = "SELECT name FROM \"Athlete\" WHERE ID=" + to_string(ID) + "";
+
+      pqxx::result r = W.exec(sql.c_str());  
+      std::string name= r[0]["Name"].as<std::string>();
+      W.commit();
+        conn.disconnect();
+    return name;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return NULL;
+    }
+
+}
 
 
 //codigo para criar competition id tendo em conta localizaçao e data + seriesid também
