@@ -19,3 +19,8 @@
 - Go to build folder: "cd build"
 - Insert the command "make" to create the executable
 - Finally run the executable: "./NAME_OF_EXECUTABLE"
+
+# Installing postgresql and libpqxx
+- In the lubuntu terminal run the following commands: 
+- "sudo apt-get install postgresql" to install postgresql;
+- "sudo apt-get install libpqxx-dev" to install libpqxx, the c++ library for postgresql database connection.
