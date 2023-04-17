@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QTimer>
+#include <iostream>
 
 namespace Ui {
 class PistolWindow;
@@ -18,9 +19,10 @@ class PistolWindow : public QMainWindow
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
     ~PistolWindow();
-    bool practice = false;
-    bool match = false;
-    bool start = false;
+    bool practiceSignal;
+    bool matchSignal;
+    bool finalSignal;
+    bool startSignal;
 
 private slots:
     void on_StartButton_clicked();

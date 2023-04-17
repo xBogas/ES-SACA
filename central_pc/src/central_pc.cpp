@@ -24,6 +24,8 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
 bool initial = true;
 bool decideType = false;
 bool decideMode = false;
+bool canStart = false;
+bool wasClicked = false;
 
 int main(int argc, char *argv[]){
     //gui code
@@ -103,7 +105,6 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
         /*****************************************/
 
         
-
         for (;;){
             if(initial){
                 if(window->isMainWindow){
@@ -129,7 +130,6 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                 
             }
             else if(decideType){
-                std::cout << "Aqui no decideType" << std::endl;
                 if(window2->pistol){
                     boost::asio::write(socket, boost::asio::buffer("pistol"));
 
@@ -144,10 +144,58 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                 } 
             }
             else if(decideMode){
-                if(ptlwindow->practice){
-                    boost::asio::write(socket, boost::asio::buffer("practice"));
-                    
-                    decideMode = false;
+                if(window2->pistol){
+                    if(ptlwindow->practiceSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("practice"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                    else if(ptlwindow->matchSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("match"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                    else if(ptlwindow->finalSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("final"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                }
+                else if(window2->rifle){
+                    if(rflwindow->practiceSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("practice"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                    else if(rflwindow->matchSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("match"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                    else if(rflwindow->finalSignal && !wasClicked){
+                        boost::asio::write(socket, boost::asio::buffer("final"));
+                        
+                        wasClicked = true;
+                        canStart = true;
+                    }
+                }
+
+                if(canStart){
+                    if(ptlwindow->startSignal){
+                        boost::asio::write(socket, boost::asio::buffer("start"));
+
+                        decideMode = false;
+                    }
+                    else if(rflwindow->startSignal){
+                        boost::asio::write(socket, boost::asio::buffer("start"));
+
+                        decideMode = false;
+                    }
                 }
             }
             else{

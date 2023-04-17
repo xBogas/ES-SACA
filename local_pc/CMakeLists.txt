@@ -31,9 +31,6 @@ add_executable(local_pc
     gui/riflewindow.cpp
     gui/riflewindow.h
     gui/riflewindow.ui
-    gui/loginwindow.cpp
-    gui/loginwindow.h
-    gui/loginwindow.ui
 )
 
 target_link_libraries(local_pc

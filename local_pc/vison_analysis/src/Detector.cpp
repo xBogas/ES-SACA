@@ -30,14 +30,13 @@ void Detector::getCenter()
 {
 	cv::Mat gray;
 	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
-
+    cv::imwrite("ref.jpg", m_image);
 	cv::GaussianBlur(gray, gray, cv::Size(5,5), 0);
 
 	std::vector<cv::Vec3f> circles;
     HoughCircles(gray, circles, cv::HOUGH_GRADIENT_ALT, 1.5,
                  gray.rows/16,  // change this value to detect circles with different distances to each other
-                 300, 0.98, 20, 500 // change the last two parameters
-            // (min_radius & max_radius) to detect larger circles
+                 300, 0.98, 20, 500 // change the last two parameters (min_radius & max_radius) to detect larger circles
     );
 
     auto [x, y] = rejectOutliers(circles, 1);
@@ -53,6 +52,8 @@ void Detector::getCenter()
     }
     cv::imshow("detected circles", m_image);
     cv::waitKey();
+
+    cv::imwrite("detected_circles.jpg", m_image);
 
 }
 

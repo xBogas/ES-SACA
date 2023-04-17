@@ -36,6 +36,11 @@ PistolWindow::PistolWindow(QWidget *parent) :
     totaldecshot=0;
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
+
+    QObject::connect(this, &PistolWindow::finalButtonClickedSignal, this, &PistolWindow::finalButtonClicked);
+    QObject::connect(this, &PistolWindow::practiceButtonClickedSignal, this, &PistolWindow::practiceButtonClicked);
+    QObject::connect(this, &PistolWindow::matchButtonClickedSignal, this, &PistolWindow::matchButtonClicked);
+    QObject::connect(this, &PistolWindow::startButtonClickedSignal, this, &PistolWindow::startButtonClicked);
 }
 
 PistolWindow::~PistolWindow()
@@ -43,61 +48,61 @@ PistolWindow::~PistolWindow()
     delete ui;
 }
 
-//void PistolWindow::on_StartButton_clicked()
-//{  
-//    reloj.start(1000);
-//    alert.start(250);
-//    procss=1;
-//}
+void PistolWindow::startButtonClicked()
+{  
+   reloj.start(1000);
+   alert.start(250);
+   procss=1;
+}
 
 //Alterar os botões pelos que vão ser usados no pc _central, adicionar um include ao .h do ui onde os botões se encontram.
-//void PistolWindow::on_PracticeButton_clicked()
-//{  
-//    if(procss==0){
-//        segundos=2;
-//        minutos=1;
-//        horas=0;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//    }
-//}
+void PistolWindow::practiceButtonClicked()
+{  
+   if(procss==0){
+       segundos=2;
+       minutos=1;
+       horas=0;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(255, 255, 0)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+   }
+}
 
-//void PistolWindow::on_MatchButton_clicked()
-//{  
-//    if(procss==0){
-//        segundos=0;
-//        minutos=15;
-//        horas=1;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//    }
-//}
+void PistolWindow::matchButtonClicked()
+{  
+   if(procss==0){
+       segundos=0;
+       minutos=15;
+       horas=1;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(170, 0, 0)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+   }
+}
 
-//void PistolWindow::on_FinalButton_clicked()
-//{ 
-//    if(procss==0){
-//        segundos=0;
-//        minutos=15;
-//        horas=1;
-//        ui->seconds->display(segundos);
-//        ui->minutes->display(minutos);
-//        ui->hours->display(horas);
-//        ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
-//        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-//        ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
-//    }
-//}
+void PistolWindow::finalButtonClicked()
+{ 
+   if(procss==0){
+       segundos=0;
+       minutos=15;
+       horas=1;
+       ui->seconds->display(segundos);
+       ui->minutes->display(minutos);
+       ui->hours->display(horas);
+       ui->Start->setStyleSheet("QLabel{background-color: rgb(85, 170, 0)}");
+       ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+       ui->Final->setStyleSheet("QLabel{background-color: rgb(85, 85, 255)}");
+   }
+}
 
 void PistolWindow::on_MainButton_clicked(){
     this->hide();

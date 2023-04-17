@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QTimer>
+#include <iostream>
 
 namespace Ui {
 class RifleWindow;
@@ -18,6 +19,10 @@ class RifleWindow : public QMainWindow
 public:
     explicit RifleWindow(QWidget *parent = nullptr);
     ~RifleWindow();
+    bool practiceSignal;
+    bool matchSignal;
+    bool finalSignal;
+    bool startSignal;
 
 private slots:
     void on_StartButton_clicked();

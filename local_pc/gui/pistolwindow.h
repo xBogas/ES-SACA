@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QTimer>
+#include <iostream>
 
 namespace Ui {
 class PistolWindow;
@@ -19,6 +20,12 @@ public:
     explicit PistolWindow(QWidget *parent = nullptr);
     ~PistolWindow();
 
+signals:    
+    void finalButtonClickedSignal();
+    void matchButtonClickedSignal();
+    void practiceButtonClickedSignal();
+    void startButtonClickedSignal();
+
 private slots:
     void on_ExitButton_clicked();
     void on_MainButton_clicked();
@@ -26,6 +33,10 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
+    void finalButtonClicked();
+    void matchButtonClicked();
+    void practiceButtonClicked();
+    void startButtonClicked();
 
 protected:
     void showEvent(QShowEvent *revent);

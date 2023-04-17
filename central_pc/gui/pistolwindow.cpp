@@ -28,12 +28,17 @@ PistolWindow::PistolWindow(QWidget *parent) :
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
     
+    practiceSignal = false;
+    matchSignal = false;
+    finalSignal = false;
+    startSignal = false;
 
     segundos=0;
     minutos=0;
     horas=0;
     procss=0;
     al=0;
+
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
 }
@@ -45,16 +50,18 @@ PistolWindow::~PistolWindow()
 
 void PistolWindow::on_StartButton_clicked()
 {  
+    startSignal = true;
+
     reloj.start(1000);
     alert.start(250);
     procss=1;
 }
 
 void PistolWindow::on_PracticeButton_clicked()
-{   
-    practice = true;
-
+{ 
     if(procss==0){
+        practiceSignal = true;
+
         segundos=2;
         minutos=1;
         horas=0;
@@ -71,6 +78,8 @@ void PistolWindow::on_PracticeButton_clicked()
 void PistolWindow::on_MatchButton_clicked()
 {  
     if(procss==0){
+        matchSignal = true;
+
         segundos=0;
         minutos=15;
         horas=1;
@@ -87,6 +96,8 @@ void PistolWindow::on_MatchButton_clicked()
 void PistolWindow::on_FinalButton_clicked()
 { 
     if(procss==0){
+        finalSignal = true;
+
         segundos=0;
         minutos=15;
         horas=1;

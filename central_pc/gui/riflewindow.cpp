@@ -11,12 +11,17 @@ RifleWindow::RifleWindow(QWidget *parent) :
     ui->Target->setPixmap(RifleTarget);
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
+    practiceSignal = false;
+    matchSignal = false;
+    finalSignal = false;
+    startSignal = false;
 
     segundos=0;
     minutos=0;
     horas=0;
     procss=0;
     al=0;
+
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
 }
@@ -28,6 +33,8 @@ RifleWindow::~RifleWindow()
 
 void RifleWindow::on_StartButton_clicked()
 {  
+    startSignal = true;
+
     reloj.start(1000);
     alert.start(250);
     procss=1;
@@ -36,6 +43,8 @@ void RifleWindow::on_StartButton_clicked()
 void RifleWindow::on_PracticeButton_clicked()
 {  
     if(procss==0){
+        practiceSignal = true;
+
         segundos=0;
         minutos=15;
         horas=0;
@@ -52,6 +61,8 @@ void RifleWindow::on_PracticeButton_clicked()
 void RifleWindow::on_MatchButton_clicked()
 {  
     if(procss==0){
+        matchSignal = true;
+
         segundos=0;
         minutos=15;
         horas=1;
@@ -68,6 +79,8 @@ void RifleWindow::on_MatchButton_clicked()
 void RifleWindow::on_FinalButton_clicked()
 { 
     if(procss==0){
+        finalSignal = true;
+
         segundos=0;
         minutos=15;
         horas=1;
