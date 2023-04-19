@@ -29,6 +29,7 @@ signals:
 private slots:
     void on_ExitButton_clicked();
     void on_MainButton_clicked();
+    void on_ShootButton_clicked();
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
@@ -37,6 +38,9 @@ private slots:
     void practiceButtonClicked();
     void startButtonClicked();
 
+protected:
+    void showEvent(QShowEvent *revent);
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::PistolWindow *ui;
@@ -45,8 +49,21 @@ private:
     short int segundos;
     short int procss;
     short int al;
+    short int nim;
+    short int zoom;
+    short int intshot;
+    short int totalintshot;
+    float decshot;
+    float totaldecshot;
+    float x;
+    float y;
     QTimer reloj;
     QTimer alert;
+    QGraphicsScene *scene;
+    enum Columna
+    {
+        Int, Dec
+    };
 };
 
 #endif // PISTOLWINDOW_H

@@ -45,11 +45,11 @@ public:
 	Approx()
 		: m_iter(m_points)
 	{
-		u << 5.3794, 7.2532;//starting point
+		u << 5.3794, 7.2532; //starting point
 	}
 
-	Approx(Type x_init, Type y_init)
-		: m_iter(m_points)
+	Approx(Type x_init, Type y_init, Type radius)
+		: m_iter(m_points), m_radius(radius)
 	{
 		u << x_init, y_init;
 	}
@@ -112,14 +112,14 @@ public:
 			Type x1 = m_points.coeff(i,0);
 			Type x2 = m_points.coeff(i,1);
 			
-			f.coeffRef(i) = -1 *(norm(u1, u2, x1, x2) - RADIUS);
+			f.coeffRef(i) = -1 *(norm(u1, u2, x1, x2) - m_radius);
 		}
 	}
 
 	void
 	print()
 	{
-		std::cout << "Printing points:\n" << points << std::endl;
+		std::cout << "Printing points:\n" << m_points << std::endl;
 		std::cout << "Print jac:\n" << jac << std::endl;
 		std::cout << "Print f:\n" << f << std::endl;
 		std::cout << "Print u:\n" << u << std::endl;
@@ -145,6 +145,7 @@ private:
 	Eigen::Matrix<Type,__M_size,1> f;
 	Eigen::Matrix<Type,2,1> u; 
 	Eigen::Matrix<Type,2,1> h;
+	Type m_radius;
 };
 
 
