@@ -44,6 +44,8 @@ void RifleWindow::on_PracticeButton_clicked()
 {  
     if(procss==0){
         practiceSignal = true;
+        matchSignal = false;
+        finalSignal = false;
 
         segundos=0;
         minutos=15;
@@ -62,6 +64,8 @@ void RifleWindow::on_MatchButton_clicked()
 {  
     if(procss==0){
         matchSignal = true;
+        practiceSignal = false;
+        finalSignal = false;
 
         segundos=0;
         minutos=15;
@@ -80,6 +84,8 @@ void RifleWindow::on_FinalButton_clicked()
 { 
     if(procss==0){
         finalSignal = true;
+        practiceSignal = false;
+        matchSignal = false;
 
         segundos=0;
         minutos=15;

@@ -61,6 +61,8 @@ void PistolWindow::on_PracticeButton_clicked()
 { 
     if(procss==0){
         practiceSignal = true;
+        matchSignal = false;
+        finalSignal = false;
 
         segundos=2;
         minutos=1;
@@ -79,6 +81,8 @@ void PistolWindow::on_MatchButton_clicked()
 {  
     if(procss==0){
         matchSignal = true;
+        practiceSignal = false;
+        finalSignal = false;
 
         segundos=0;
         minutos=15;
@@ -97,6 +101,8 @@ void PistolWindow::on_FinalButton_clicked()
 { 
     if(procss==0){
         finalSignal = true;
+        practiceSignal = false;
+        matchSignal = false;
 
         segundos=0;
         minutos=15;
