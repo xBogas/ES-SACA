@@ -148,19 +148,19 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                     if(ptlwindow->practiceSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                     else if(ptlwindow->matchSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                     else if(ptlwindow->finalSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                 }
@@ -168,19 +168,19 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                     if(rflwindow->practiceSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                     else if(rflwindow->matchSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                     else if(rflwindow->finalSignal && !wasClicked){
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
-                        wasClicked = true;
+                        //wasClicked = true;
                         canStart = true;
                     }
                 }
