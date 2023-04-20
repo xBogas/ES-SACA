@@ -148,7 +148,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Rifle</string>
+     <string>CARABINA</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -388,7 +388,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>25</pointsize>
+      <pointsize>20</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -419,7 +419,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>25</pointsize>
+      <pointsize>20</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -433,7 +433,7 @@
      <enum>QFrame::Raised</enum>
     </property>
     <property name="text">
-     <string>Practice</string>
+     <string>TREINO</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -450,7 +450,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>25</pointsize>
+      <pointsize>20</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -464,7 +464,7 @@
      <enum>QFrame::Raised</enum>
     </property>
     <property name="text">
-     <string>Match</string>
+     <string>QUALIFICAÇÃO</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -532,7 +532,7 @@
      <enum>QFrame::Raised</enum>
     </property>
     <property name="text">
-     <string>Start</string>
+     <string>INICIAR</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

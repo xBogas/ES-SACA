@@ -8,10 +8,8 @@
 
 using boost::asio::ip::tcp;
 
-bool initial = true;
-bool decideType = false;
-bool decideMode = false;
-bool canStart = false;
+bool initial = true, decideType = false, decideMode = false, canStart = false;
+bool matchORfinal = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 
@@ -89,49 +87,75 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit ptlwindow->practiceButtonClickedSignal();
 
+                        matchORfinal = false;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
                         emit ptlwindow->matchButtonClickedSignal();
-
+                        
+                        matchORfinal = true;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
                         emit ptlwindow->finalButtonClickedSignal();
 
+                        matchORfinal = true;
                         canStart = true;
+                    }
+
+                    if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
+                        emit ptlwindow->startButtonClickedSignal();
+                        
+                        canStart = false;
+
+                        if(matchORfinal)
+                            decideMode = false;
                     }
                 }
                 else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit rflwindow->practiceButtonClickedSignal();
-
+                        
+                        matchORfinal = false;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "match", std::strlen("match")) == 0){
                         emit rflwindow->matchButtonClickedSignal();
 
+                        matchORfinal = true;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
                         emit rflwindow->finalButtonClickedSignal();
                         
+                        matchORfinal = true;
                         canStart = true;
                     }
-                }
 
-                if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
-                    if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                    if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
                         emit ptlwindow->startButtonClickedSignal();
+                        
+                        canStart = false;
 
-                        decideMode = false;
-                    }
-                    else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
-                        emit rflwindow->startButtonClickedSignal();
-
-                        decideMode = false;
+                        if(matchORfinal)
+                            decideMode = false;
                     }
                 }
+
+                // if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
+                //     if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                //         emit ptlwindow->startButtonClickedSignal();
+                        
+                //         if(std::strncmp(mode, "match", std::strlen("match")) == 0)
+                //             decideMode = false;
+                //     }
+                //     else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
+                //         emit rflwindow->startButtonClickedSignal();
+
+                //         if(std::strncmp(mode, "match", std::strlen("match")) == 0)
+                //             decideMode = false;
+                //     }
+                // }
             }
             else{
                 // Read input from user

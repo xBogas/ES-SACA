@@ -17,10 +17,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label->setPixmap(owl);
 
     //tablewidget
-    IP_ID_Table = findChild<QTableWidget*>("IP_ID_Table");
-    IP_ID_Table->setHorizontalHeaderLabels({"IP Address", "Player ID"});
-    IP_ID_Table->setColumnWidth(0, 245);
-    IP_ID_Table->setColumnWidth(1, 135);
+    //IP_ID_Table = findChild<QTableWidget*>("IP_ID_Table");
+    ui->IP_ID_Table->setHorizontalHeaderLabels({"Endereço IP", "ID do Atleta"});
+    ui->IP_ID_Table->setColumnWidth(0, 245);
+    ui->IP_ID_Table->setColumnWidth(1, 135);
 }
 
 MainWindow::~MainWindow(){
@@ -41,8 +41,8 @@ void MainWindow::on_exitButton_clicked(){
 
 void MainWindow::on_continueButton_clicked(){
     bool allNumbersGreaterThanZero = true;
-    for(int row = 0; row < IP_ID_Table->rowCount(); row++) {
-        QTableWidgetItem *item = IP_ID_Table->item(row, 1);
+    for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++) {
+        QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
         int value = item->text().toInt();
         if(value <= 0) {
             allNumbersGreaterThanZero = false;
@@ -57,16 +57,16 @@ void MainWindow::on_continueButton_clicked(){
 }
 
 void MainWindow::updateClientList(std::vector<std::string> clients){
-    IP_ID_Table->setRowCount(clients.size());
+    ui->IP_ID_Table->setRowCount(clients.size());
     int row = 0;
     
     for (const auto& client : clients){
         QTableWidgetItem *ipItem = new QTableWidgetItem(QString::fromStdString(client));
         ipItem->setFlags(ipItem->flags() ^ Qt::ItemIsEditable);
-        IP_ID_Table->setItem(row, 0, ipItem);
+        ui->IP_ID_Table->setItem(row, 0, ipItem);
 
         QTableWidgetItem *playerIdItem = new QTableWidgetItem(QString::number(clientPlayerIds[client]));
-        IP_ID_Table->setItem(row, 1, playerIdItem);
+        ui->IP_ID_Table->setItem(row, 1, playerIdItem);
 
         row++;
     }
@@ -74,8 +74,8 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
 
 void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
-        std::string clientIp = IP_ID_Table->item(row, 0)->text().toStdString();
-        int playerId = IP_ID_Table->item(row, 1)->text().toInt();
+        std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
+        int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
         clientPlayerIds[clientIp] = playerId;
 
         cellWasChanged = true;

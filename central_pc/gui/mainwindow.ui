@@ -38,7 +38,7 @@
      <string notr="true">background-color: rgb(170, 0, 0);</string>
     </property>
     <property name="text">
-     <string>EXIT</string>
+     <string>SAIR</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -276,7 +276,7 @@
      <enum>QFrame::Panel</enum>
     </property>
     <property name="text">
-     <string>Assign Athletes To PC</string>
+     <string>Atribuição de Atletas</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -300,7 +300,7 @@
      <string notr="true">background-color: rgb(0, 255, 0);</string>
     </property>
     <property name="text">
-     <string>CONTINUE</string>
+     <string>CONTINUAR</string>
     </property>
    </widget>
   </widget>

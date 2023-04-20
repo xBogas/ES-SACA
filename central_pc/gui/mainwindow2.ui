@@ -38,7 +38,7 @@
      <string notr="true">background-color: rgb(170, 0, 0);</string>
     </property>
     <property name="text">
-     <string>EXIT</string>
+     <string>SAIR</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -109,7 +109,7 @@
      <string notr="true">background-color: rgb(0, 170, 0);</string>
     </property>
     <property name="text">
-     <string>PISTOL</string>
+     <string>PISTOLA</string>
     </property>
    </widget>
    <widget class="QPushButton" name="rifleButton">
@@ -130,7 +130,7 @@
      <string notr="true">background-color:rgb(0, 170, 255);</string>
     </property>
     <property name="text">
-     <string>RIFLE</string>
+     <string>CARABINA</string>
     </property>
    </widget>
    <widget class="QPushButton" name="backButton">
@@ -151,7 +151,7 @@
      <string notr="true">background-color: rgb(255, 170, 127);</string>
     </property>
     <property name="text">
-     <string>BACK</string>
+     <string>VOLTAR</string>
     </property>
    </widget>
   </widget>
