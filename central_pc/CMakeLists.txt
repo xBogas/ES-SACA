@@ -53,5 +53,5 @@ target_link_libraries(central_pc
     ${Boost_LIBRARIES}
     ${PostgreSQL_LIBRARIES}
     ${libpqxx_LIBRARY}
-    ${Vulkan_LIBRARIES}
+    # ${Vulkan_LIBRARIES}
 )

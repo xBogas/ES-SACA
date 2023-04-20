@@ -67,7 +67,9 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
     // std::vector<boost::asio::ip::tcp::socket*> open_sockets; // vetor para armazenar os sockets abertos
 
     try{
-        tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
+        tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("127.0.0.1"), 8080));
+        //tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("192.168.0.1"), 8080));
+
         std::cout << "Server started. Listening on port 8080..." << std::endl;
 
         for(;;){

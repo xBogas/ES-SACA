@@ -2,9 +2,9 @@
 
 Database::Database(){
     const string DbHostIP="127.0.0.1";
-    const string DbName="es_saca";
+    const string DbName="saca";
     const string DbUser="postgres";
-    const string DbPassword="equipaE_saca";
+    const string DbPassword="saca";
     const string DbPort="5432";
 
     conn = std::make_unique<pqxx::connection>("host="+DbHostIP+" dbname="+DbName+" user="+DbUser+" password="+DbPassword+" port="+DbPort);

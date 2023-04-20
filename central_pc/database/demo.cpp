@@ -73,7 +73,7 @@ int main()
 
 connection& db_connection() {
     const string DbHostIP="127.0.0.1";
-    const string DbName="es_saca";
+    const string DbName="saca";
     const string DbUser="postgres";
     const string DbPassword="saca";
     const string DbPort="5432";
