@@ -11,17 +11,22 @@
 ### Installing QT
 - See https://web.stanford.edu/dept/cs_edu/resources/qt/install-linux to install is just follow this steps;
 - When this error shows: "Could not load the Qt platform plugin "xcb" in "" even though it was found.", run this code 
-"sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev"
+```sh
+sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+```
 
 # Compile and Run the code
 - Go to the repository where CMakeLists.txt is located
-- Type the command: "cmake -Bbuild -H."
+- Type the command: ```sh cmake -Bbuild -H. ```
 - This will generate a build folder with the makefile inside
-- Go to build folder: "cd build"
-- Insert the command "make" to create the executable
-- Finally run the executable: "./NAME_OF_EXECUTABLE"
+- Go to build folder: ```cd build```
+- Insert the command ```make -j2``` to create the executable
+- Finally run the executable: ```./NAME_OF_EXECUTABLE```
 
 # Installing postgresql and libpqxx
 - In the lubuntu terminal run the following commands: 
-- "sudo apt-get install postgresql" to install postgresql;
-- "sudo apt-get install libpqxx-dev" to install libpqxx, the c++ library for postgresql database connection.
+- ```sh 
+  sudo apt-get install postgresql" to install postgresql
+  sudo apt-get install libpqxx-dev
+  ```
+- To install libpqxx, the c++ library for postgresql database connection.
