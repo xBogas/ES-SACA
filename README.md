@@ -10,7 +10,8 @@
 
 ### Installing QT
 - See https://web.stanford.edu/dept/cs_edu/resources/qt/install-linux to install is just follow this steps;
-- When QT is installed, just change the path of QT in local_pc/src/CMakeLists.txt -> set(CMAKE_PREFIX_PATH "/YOUR_PATH/Qt/6.4.3/gcc_64")
+- When this error shows: "Could not load the Qt platform plugin "xcb" in "" even though it was found.", run this code 
+"sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev"
 
 # Compile and Run the code
 - Go to the repository where CMakeLists.txt is located

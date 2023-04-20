@@ -12,15 +12,18 @@ using namespace pqxx;
 using namespace std;
 
 connection& db_connection();
-int db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club);
-int db_INSERT_Competition(string competitionid, string name, string location, string date);
-int db_INSERT_Series(string seriesid, int participantrow, string category, float finalscore, int licenseid, string competitionid, bool ispractice);
-int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, string seriesid);
-int db_INSERT_Rank(int rank, int licenseid, string competitionid);
-int db_INSERT_Remark(string remark, string seriesid);
+int db_INSERT_Athlete(connection& conn, int licenseid, string name, string gender, string nationality, int age, string club);
+int db_INSERT_Competition(connection& conn, string competitionid, string name, string location, string date);
+int db_INSERT_Series(connection& conn, string seriesid, int participantrow, string category, float finalscore, int licenseid, string competitionid, bool ispractice);
+int db_INSERT_Coordinates(connection& conn, float coordinatex, float coordinatey, float score, string seriesid);
+int db_INSERT_Rank(connection& conn, int rank, int licenseid, string competitionid);
+
 int db_SELECT();
-bool verify_ID();
-std::string get_name_from_id();
+bool verify_ID(int ID);
+string get_name_from_id(int ID);
+string create_seriesid(int licenseid, string competitionid);
+bool update_score(int licenseid, string competitionid, float score);
+
 
 int main()
 {   
@@ -30,14 +33,24 @@ int main()
     /*Pensar se é melhor adicionar um paramentro com a conexão a cada função em vez de fazer essa conexão cada vez que se pretenda usar*/
     /************************/
 
-    //db_INSERT_Athlete(374, "Filipa Mendes", "F", "Portuguesa", 32, "GDE");
+    
     //db_INSERT_Competition("POR0804", "Torneio Natal", "Porto", "8/4/2023");
     //db_INSERT_Series("255POR0804", 4, "P", 602.1, 255, "POR0804", false);
     //db_INSERT_Coordinates(1.5, 1.2, 9.3, "255POR0804");
     //db_INSERT_Rank(3, 255, "POR0804");
     //db_INSERT_Remark("Q", "255POR0804");
 
-    db_SELECT();
+    //db_SELECT();
+
+    /*connection& conn = db_connection();
+
+    db_INSERT_Competition(conn, "BRG1904", "Torneio Páscoa", "Braga", "19/4/2023");
+    db_INSERT_Series(conn, "115BRG1904", 3, "P", 632.1, 115, "BRG1904", false);
+    db_INSERT_Coordinates(conn, 3.2, 3.4, 10, "115BRG1904");
+    db_INSERT_Rank(conn, 1, 115, "BRG1904");
+
+    conn.disconnect();*/
+
 }
 
 connection& db_connection() {
@@ -62,12 +75,12 @@ connection& db_connection() {
 
 //enviar os parametros assim não é seguro, diz para parameterizar?
 
-int db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
+int db_INSERT_Athlete(connection& conn, int licenseid, string name, string gender, string nationality, int age, string club){
 
     std::__cxx11::basic_string<char> sql;
 
     try{
-        connection& conn = db_connection();
+        
 
         work W(conn);
 
@@ -76,8 +89,7 @@ int db_INSERT_Athlete(int licenseid, string name, string gender, string national
         W.exec(sql.c_str());
         W.commit();
         cout << "Updated successfully" << endl;
- 
-        conn.disconnect();
+
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -88,14 +100,14 @@ int db_INSERT_Athlete(int licenseid, string name, string gender, string national
 }
 
 
-int db_INSERT_Competition(string competitionid, string name, string location, string date){
+int db_INSERT_Competition(connection& conn, string competitionid, string name, string location, string date){
 
     std::__cxx11::basic_string<char> sql;
 
     //string competitionid = location.substr(0, 3) + 
 
     try{
-        connection& conn = db_connection();
+        
 
         work W(conn);
 
@@ -124,7 +136,6 @@ int db_INSERT_Competition(string competitionid, string name, string location, st
         W.commit();
         cout << "Updated successfully" << endl;
         
-        conn.disconnect();
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -135,12 +146,11 @@ int db_INSERT_Competition(string competitionid, string name, string location, st
 }
 
 
-int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, string seriesid){
+int db_INSERT_Coordinates(connection& conn, float coordinatex, float coordinatey, float score, string seriesid){
 
     std::__cxx11::basic_string<char> sql;
 
     try{
-        connection& conn = db_connection();
 
         work W(conn);
 
@@ -150,7 +160,6 @@ int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, str
         W.commit();
         cout << "Updated successfully" << endl;
  
-        conn.disconnect();
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -161,12 +170,11 @@ int db_INSERT_Coordinates(float coordinatex, float coordinatey, float score, str
 }
 
 
-int db_INSERT_Series(string seriesid, int participantrow, string category, float finalscore, int licenseid, string competitionid, bool ispractice){
+int db_INSERT_Series(connection& conn, string seriesid, int participantrow, string category, float finalscore, int licenseid, string competitionid, bool ispractice){
 
     std::__cxx11::basic_string<char> sql;
 
     try{
-        connection& conn = db_connection();
 
         work W(conn);
 
@@ -178,7 +186,6 @@ int db_INSERT_Series(string seriesid, int participantrow, string category, float
         W.commit();
         cout << "Updated successfully" << endl;
  
-        conn.disconnect();
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -189,12 +196,12 @@ int db_INSERT_Series(string seriesid, int participantrow, string category, float
 }
 
 
-int db_INSERT_Rank(int place, int licenseid, string competitionid){
+int db_INSERT_Rank(connection& conn, int place, int licenseid, string competitionid){
 
     std::__cxx11::basic_string<char> sql;
 
     try{
-        connection& conn = db_connection();
+    
 
         work W(conn);
 
@@ -204,7 +211,7 @@ int db_INSERT_Rank(int place, int licenseid, string competitionid){
         W.commit();
         cout << "Updated successfully" << endl;
  
-        conn.disconnect();
+
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -215,40 +222,15 @@ int db_INSERT_Rank(int place, int licenseid, string competitionid){
 }
 
 
-int db_INSERT_Remark(string remark, string seriesid){
-
-    std::__cxx11::basic_string<char> sql;
-
-    try{
-        connection& conn = db_connection();
-
-        work W(conn);
-
-        sql = "INSERT INTO \"Remark\" (remark, seriesid) VALUES ('" + remark + "', '" + seriesid + "')";
-
-        W.exec(sql.c_str());
-        W.commit();
-        cout << "Updated successfully" << endl;
- 
-        conn.disconnect();
-
-    }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return 1;
-    }
-
-    return 0;
-}
 
 
-int db_SELECT(){
+int db_SELECT(connection conn){
 
     std::__cxx11::basic_string<char> sql;
 
     std::vector<std::vector<std::string>> matrix;
 
     try{
-        connection& conn = db_connection();
 
         work W(conn);
 
@@ -269,7 +251,6 @@ int db_SELECT(){
     
         cout << matrix[1][2] << endl;
  
-        conn.disconnect();
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -283,14 +264,14 @@ int db_SELECT(){
 //talvez repensar maneira de criar seriesid
 //dar update ao nome da função 
 //pode haver conflito se atleta fizer duas competicoes num dia
-string nnnn_licenseid(int licenseid, string competitionid){
+string create_seriesid(int licenseid, string competitionid){
     return to_string(licenseid) + competitionid;
 }
 
 
 bool update_score(int licenseid, string competitionid, float score){
-    string seriesid = nnnn_licenseid(licenseid, competitionid);
-    int flag = db_INSERT_Coordinates(NULL, NULL, score, seriesid);
+    string seriesid = create_seriesid(licenseid, competitionid);
+    int flag ;//= db_INSERT_Coordinates(NULL, NULL, score, seriesid);
 
     return !flag;
 }
@@ -306,10 +287,11 @@ bool verify_ID(int ID){
 
         work W(conn);
 
-        sql = "SELECT * FROM \"Athlete\" WHERE ID=" + to_string(ID) + "";
+        sql = "SELECT * FROM \"Athlete\" WHERE licenseid =" + to_string(ID) + ";";
 
         pqxx::result r = W.exec(sql.c_str());  
         bool exists=!r.empty();
+        //cout << exists << endl;
         W.commit();
         conn.disconnect();
         return exists;
@@ -321,7 +303,7 @@ bool verify_ID(int ID){
 
 }
 
-std::string get_name_from_id(int ID){
+string get_name_from_id(int ID){
      std::__cxx11::basic_string<char> sql;
 
     try{
@@ -329,7 +311,7 @@ std::string get_name_from_id(int ID){
 
         work W(conn);
 
-        sql = "SELECT name FROM \"Athlete\" WHERE ID=" + to_string(ID) + "";
+        sql = "SELECT name FROM \"Athlete\" WHERE licenseid=" + to_string(ID) + ";";
 
       pqxx::result r = W.exec(sql.c_str());  
       std::string name= r[0]["Name"].as<std::string>();

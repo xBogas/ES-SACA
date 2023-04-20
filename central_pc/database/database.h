@@ -1,11 +1,20 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <QObject>
-#include <QStringList>
-#include <QSqlDatabase>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stdlib.h>
+#include <limits>
+#include <stdio.h>
+#include <string>
+#include <pqxx/pqxx>
+#include <ctime>
 
-class Database : public QObject
+using namespace pqxx;
+using namespace std;
+
+/*class Database : public QObject
 {
     Q_OBJECT
 public:
@@ -16,6 +25,20 @@ public:
 
 private:
     QSqlDatabase m_db;
+};*/
+
+class Database {
+private:
+    connection* conn;
+public:
+    Database();
+    ~Database();
+    void execute(const std::string& query);
+    int db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club);
 };
+
+
+
+
 
 #endif // DATABASE_H
