@@ -42,6 +42,13 @@ int main(int argc, char *argv[]){
     return a.exec();
 }
 
+bool funcFROMdatabase(int new_clientID){
+    if(new_clientID == 2300 || new_clientID == 10 || new_clientID == 100 || new_clientID == 1000)
+        return true;
+    else    
+        return false;
+}
+
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
         tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
@@ -104,30 +111,39 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
         client_ip = new_ip.to_string();
         /*****************************************/
 
-        
         for (;;){
             if(initial){
                 if(window->isMainWindow){
-                    if(window->cellWasChanged){
+                    if(window->cellWasChanged[client_ip]){
                         int new_clientID = window->clientPlayerIds[client_ip];
 
-                        if(new_clientID != old_clientID){
+                        if(funcFROMdatabase(new_clientID) && !window->sameID){
                             std::string clientID = "clientID: " + std::to_string(new_clientID);
                             boost::asio::write(socket, boost::asio::buffer(clientID));
 
                             old_clientID = new_clientID;
+                            window->nonPlayerIds[client_ip] = false;
                         }
+                        else if(!funcFROMdatabase(new_clientID) && !window->sameID){
+                            emit window->showErrorMessageSignal("nonID");
+                            
+                            window->nonPlayerIds[client_ip] = true;
+                        } 
+                        else if(window->sameID){
+                            emit window->showErrorMessageSignal("sameID");
 
-                        window->cellWasChanged = false;
+                            window->nonPlayerIds[client_ip] = false;
+                        }
+                            
+                        window->cellWasChanged[client_ip] = false;
                     }
-                }
+                }                                                    
                 else{
                     boost::asio::write(socket, boost::asio::buffer("continue"));
 
                     decideType = true;
                     initial = false;
                 }
-                
             }
             else if(decideType){
                 if(window2->pistol){
@@ -272,4 +288,3 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
-

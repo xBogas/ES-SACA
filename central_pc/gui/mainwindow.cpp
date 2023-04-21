@@ -1,10 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QDir>
-#include <QCoreApplication>
-#include <QTableWidget>
-#include <QWidget>
-#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->IP_ID_Table->setHorizontalHeaderLabels({"Endereço IP", "ID do Atleta"});
     ui->IP_ID_Table->setColumnWidth(0, 245);
     ui->IP_ID_Table->setColumnWidth(1, 135);
+
+    //conect signals
+    QObject::connect(this, &MainWindow::showErrorMessageSignal, this, &MainWindow::showErrorMessage);
 }
 
 MainWindow::~MainWindow(){
@@ -40,33 +37,55 @@ void MainWindow::on_exitButton_clicked(){
 }
 
 void MainWindow::on_continueButton_clicked(){
-    bool allNumbersGreaterThanZero = true;
-    for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++) {
-        QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
-        int value = item->text().toInt();
-        if(value <= 0) {
-            allNumbersGreaterThanZero = false;
-            break;
-        }
-    }
-    if(allNumbersGreaterThanZero) {
+    if(rightIDs()){
         isMainWindow = false;
         this->hide();
         mainwindow2->show();
     }
 }
 
+bool MainWindow::rightIDs(){
+    for (const auto& client : connected_clients){
+        if(nonPlayerIds[client])
+            return false;
+    }
+    
+    for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++){
+        QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
+        if(item != nullptr){
+            int value = item->text().toInt();
+
+            for(int rowAux = 0; rowAux < ui->IP_ID_Table->rowCount(); rowAux++){
+                if(row != rowAux){
+                    QTableWidgetItem *itemAux = ui->IP_ID_Table->item(rowAux, 1);
+                    if(itemAux != nullptr){
+                        int valueAux = itemAux->text().toInt();
+
+                        if(value == valueAux)
+                            return false;
+                    }
+                }
+            }
+        }
+        
+    }
+
+    return true;
+}
+
 void MainWindow::updateClientList(std::vector<std::string> clients){
     ui->IP_ID_Table->setRowCount(clients.size());
     int row = 0;
+
+    connected_clients = clients;
     
     for (const auto& client : clients){
         QTableWidgetItem *ipItem = new QTableWidgetItem(QString::fromStdString(client));
         ipItem->setFlags(ipItem->flags() ^ Qt::ItemIsEditable);
         ui->IP_ID_Table->setItem(row, 0, ipItem);
 
-        QTableWidgetItem *playerIdItem = new QTableWidgetItem(QString::number(clientPlayerIds[client]));
-        ui->IP_ID_Table->setItem(row, 1, playerIdItem);
+        // QTableWidgetItem *playerIdItem = new QTableWidgetItem(QString::number(clientPlayerIds[client]));
+        // ui->IP_ID_Table->setItem(row, 1, playerIdItem);
 
         row++;
     }
@@ -76,8 +95,52 @@ void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
         std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
-        clientPlayerIds[clientIp] = playerId;
 
-        cellWasChanged = true;
+        if(differentID(playerId, row)){
+            clientPlayerIds[clientIp] = playerId;
+            sameID = false;
+        }
+        else    
+            sameID = true;
+
+        updateCellWasChanged(clientIp);
     }
 }
+
+bool MainWindow::differentID(int ID, int row){
+    for(int rowNumber = 0; rowNumber < ui->IP_ID_Table->rowCount(); rowNumber++) {
+        if(rowNumber != row){
+            QTableWidgetItem *item = ui->IP_ID_Table->item(rowNumber, 1);
+            if(item != nullptr){
+                int value = item->text().toInt();
+
+                if(ID == value){
+                    std::cout << "ID igual" << std::endl;
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void MainWindow::updateCellWasChanged(std::string clientIp){
+    for (const auto& client : connected_clients){
+        if(client == clientIp)
+            cellWasChanged[clientIp] = true;
+        else    
+            cellWasChanged[clientIp] = false;
+    }
+}
+
+
+void MainWindow::showErrorMessage(std::string errorType){
+    if(errorType == "nonID")
+        QMessageBox::critical(this, "Erro", "ID inexistente");
+    else if(errorType == "sameID")
+        QMessageBox::critical(this, "Erro", "ID já atribuído");
+}
+
+
+
