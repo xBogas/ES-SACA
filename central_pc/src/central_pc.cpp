@@ -117,19 +117,19 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                     if(window->cellWasChanged[client_ip]){
                         int new_clientID = window->clientPlayerIds[client_ip];
 
-                        if(funcFROMdatabase(new_clientID) && !window->sameID){
+                        if(funcFROMdatabase(new_clientID) && !window->samePlayerIds[client_ip]){
                             std::string clientID = "clientID: " + std::to_string(new_clientID);
                             boost::asio::write(socket, boost::asio::buffer(clientID));
 
                             old_clientID = new_clientID;
                             window->nonPlayerIds[client_ip] = false;
                         }
-                        else if(!funcFROMdatabase(new_clientID) && !window->sameID){
+                        else if(!funcFROMdatabase(new_clientID) && !window->samePlayerIds[client_ip]){
                             emit window->showErrorMessageSignal("nonID");
                             
                             window->nonPlayerIds[client_ip] = true;
                         } 
-                        else if(window->sameID){
+                        else if(window->samePlayerIds[client_ip]){
                             emit window->showErrorMessageSignal("sameID");
 
                             window->nonPlayerIds[client_ip] = false;

@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);
 
-    //tablewidget
+    //tablewidgetconnect 94.130.134.104:27023
     //IP_ID_Table = findChild<QTableWidget*>("IP_ID_Table");
     ui->IP_ID_Table->setHorizontalHeaderLabels({"Endereço IP", "ID do Atleta"});
     ui->IP_ID_Table->setColumnWidth(0, 245);
@@ -46,29 +46,29 @@ void MainWindow::on_continueButton_clicked(){
 
 bool MainWindow::rightIDs(){
     for (const auto& client : connected_clients){
-        if(nonPlayerIds[client])
+        if(nonPlayerIds[client] || samePlayerIds[client])
             return false;
     }
     
-    for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++){
-        QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
-        if(item != nullptr){
-            int value = item->text().toInt();
+    // for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++){
+    //     QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
+    //     if(item != nullptr){
+    //         int value = item->text().toInt();
 
-            for(int rowAux = 0; rowAux < ui->IP_ID_Table->rowCount(); rowAux++){
-                if(row != rowAux){
-                    QTableWidgetItem *itemAux = ui->IP_ID_Table->item(rowAux, 1);
-                    if(itemAux != nullptr){
-                        int valueAux = itemAux->text().toInt();
+    //         for(int rowAux = 0; rowAux < ui->IP_ID_Table->rowCount(); rowAux++){
+    //             if(row != rowAux){
+    //                 QTableWidgetItem *itemAux = ui->IP_ID_Table->item(rowAux, 1);
+    //                 if(itemAux != nullptr){
+    //                     int valueAux = itemAux->text().toInt();
 
-                        if(value == valueAux)
-                            return false;
-                    }
-                }
-            }
-        }
+    //                     if(value == valueAux)
+    //                         return false;
+    //                 }
+    //             }
+    //         }
+    //     }
         
-    }
+    // }
 
     return true;
 }
@@ -98,10 +98,10 @@ void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
 
         if(differentID(playerId, row)){
             clientPlayerIds[clientIp] = playerId;
-            sameID = false;
+            samePlayerIds[clientIp] = false;
         }
         else    
-            sameID = true;
+            samePlayerIds[clientIp] = true;
 
         updateCellWasChanged(clientIp);
     }
@@ -115,7 +115,6 @@ bool MainWindow::differentID(int ID, int row){
                 int value = item->text().toInt();
 
                 if(ID == value){
-                    std::cout << "ID igual" << std::endl;
                     return false;
                 }
             }
@@ -133,7 +132,6 @@ void MainWindow::updateCellWasChanged(std::string clientIp){
             cellWasChanged[clientIp] = false;
     }
 }
-
 
 void MainWindow::showErrorMessage(std::string errorType){
     if(errorType == "nonID")

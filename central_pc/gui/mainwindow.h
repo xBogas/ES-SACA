@@ -18,10 +18,9 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     bool isMainWindow = true;
-    //bool cellWasChanged = false;
-    bool nonID = false, sameID = false; 
     std::map<std::string, int> clientPlayerIds;
     std::map<std::string, bool> nonPlayerIds;
+    std::map<std::string, bool> samePlayerIds;
     std::map<std::string, bool> cellWasChanged;
 
 private:
