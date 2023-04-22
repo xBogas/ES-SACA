@@ -8,7 +8,7 @@ int main(int argc, char const *argv[])
 
 	Detector det;
 
-
+	return 0;
 	//load data points
 	std::ifstream file;
 	file.open("../Data.txt");
