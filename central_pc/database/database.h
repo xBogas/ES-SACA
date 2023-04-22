@@ -7,9 +7,12 @@
 #include <stdlib.h>
 #include <limits>
 #include <stdio.h>
-#include <string>
+
 #include <pqxx/pqxx>
 #include <ctime>
+#include <cctype>
+
+#include <algorithm>
 
 using namespace pqxx;
 using namespace std;
@@ -29,12 +32,16 @@ private:
 
 class Database {
 private:
-    connection* conn;
+    std::unique_ptr<pqxx::connection> conn;
+    string create_competitionid(string location, string date, string category);
 public:
     Database();
     ~Database();
-    void execute(const std::string& query);
-    int db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club);
+    void execute(const string& query);
+    void db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club);
+    void db_INSERT_Competition(string name, string location, string date, string category);
+
+    
 };
 
 

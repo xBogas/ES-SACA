@@ -8,6 +8,9 @@
 #include <pqxx/pqxx>
 #include <ctime>
 
+#include "database.h"
+
+
 using namespace pqxx;
 using namespace std;
 
@@ -27,6 +30,7 @@ bool update_score(int licenseid, string competitionid, float score);
 
 int main()
 {   
+    //putenv("PQXX_DEBUG=1");
     /************************/
     /*Para correr usar comando "g++ demo.cpp -L/usr/lib/x86_64-linux-gnu/ -lpqxx -lpq -o demo.o" no terminal*/
     /*Necesário instalar libpqxx e postgresql no pc*/
@@ -51,6 +55,11 @@ int main()
 
     conn.disconnect();*/
 
+    //Database my_db;
+    
+    //my_db.db_INSERT_Athlete(9274, "Beatriz Coutinho", "F", "Portuguesa", 22, "SCP");
+    //my_db.db_INSERT_Competition("Torneio Carnaval", "Braga", "22/4/2023", "P");
+    //my_db.~Database();
 }
 
 connection& db_connection() {
