@@ -21,12 +21,26 @@ Database::~Database() {
     conn->disconnect();
 }
 
-void Database::execute(const string& query) {
+vector<vector<string>> Database::execute(const string& query, bool is_select) {
 
     try {
-        work txn(*conn);
-        txn.exec(query);
-        txn.commit();
+        work W(*conn);
+        result r = W.exec(query);
+        W.commit();
+        vector<vector<string>> rows;
+        if(is_select){
+            
+            for (const auto& row : r) {
+                vector<std::string> values;
+                for (const auto& field : row) {
+                    values.push_back(field.c_str());
+
+                }
+                rows.push_back(values);
+            }
+        }
+        return rows;
+
     } catch (const std::exception& e) {
         std::cerr << "Error executing query: " << e.what() << std::endl;
         throw;
@@ -34,15 +48,58 @@ void Database::execute(const string& query) {
 
 }
 
+void Database::update_score(int licenseid, string competitionid, int coordinatesid, float coordinatex, float coordinatey, float score){
+    string seriesid = create_seriesid(licenseid, competitionid);
+
+    db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid);
+}
+
+bool Database::verify_id(int ID){
+
+    try{
+        string sql = "SELECT * FROM \"Athlete\" WHERE licenseid = " + to_string(ID) + ";";
+        vector<vector<string>> rows = execute(sql, true);
+
+        cout << !rows.empty() << endl;
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+    }
+
+    return false;
+}
+
+string Database::get_name_from_id(int ID){
+    try{
+        string sql = "SELECT name FROM \"Athlete\" WHERE licenseid = " + to_string(ID) + ";";
+
+        vector<vector<string>> rows = execute(sql, true);
+
+        if (rows.empty()) return NULL;
+        else {
+            cout << rows[0][0] << endl;
+            return rows[0][0];
+        }
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return NULL;
+    }
+    return NULL;
+
+}
+
+
 void Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
 
     try{
-        string sql = "INSERT INTO \"Athlete\" (licenseid, name, gender, nationality, age, club) VALUES (" + to_string(licenseid) + ", '" + name + "', '" + gender + "', '" + nationality + "', " + to_string(age) +", '" + club + "');";
-        cout << "query done" << endl;
+        string sql = "INSERT INTO \"Athlete\" (licenseid, name, gender, nationality, age, club) VALUES (" 
+                        + to_string(licenseid) + ", '" + name + "', '" + gender + "', '" + nationality + "', " + to_string(age) +", '" + club + "');";
 
-        execute(sql);
+        execute(sql, false);
 
-        cout << "Updated successfully" << endl;
+        cout << "Updated Athlete successfully" << endl;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
@@ -54,17 +111,76 @@ void Database::db_INSERT_Competition(string name, string location, string date, 
     string competitionid = create_competitionid(location, date, category);
 
     try{
-        string sql = "INSERT INTO \"Competition\" (competitionid, name, location, date, category) VALUES ('" + competitionid + "', '" + name + "', '" + location + "', '" + date + "', '" + category +"');";
+        string sql = "INSERT INTO \"Competition\" (competitionid, name, location, date, category) VALUES ('" 
+                        + competitionid + "', '" + name + "', '" + location + "', '" + date + "', '" + category +"');";
        
-        execute(sql);
+        execute(sql, false);
 
-        cout << "Updated successfully" << endl;
+        cout << "Updated Competition successfully" << endl;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
     }
 
 }
+
+void Database::db_INSERT_Series(int participantrow, float finalscore, int licenseid, string competitionid){
+
+    string seriesid = create_seriesid(licenseid, competitionid);
+
+    try{
+        string sql = "INSERT INTO \"Series\" (seriesid, participantrow, finalscore, licenseid, competitionid) VALUES ('"
+             + seriesid + "', " + to_string(participantrow) + ", " + to_string(finalscore) + ", " + to_string(licenseid) + ", '" + competitionid + "');";
+
+        execute(sql, false);
+
+        cout << "Updated Series successfully" << endl;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+    }
+}
+
+//ver problemas em ter que mandar seriesid, que melhor forma é para otimizar isto
+//ver problemas com coordinatesid
+void Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid){
+    
+    try{
+        string sql = "INSERT INTO \"Coordinates\" (coordinatesid, coordinatex, coordinatey, score, seriesid) VALUES (" 
+                    + to_string(coordinatesid) + ", " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + to_string(finalscore)  + ", '" + seriesid + "');";
+
+        execute(sql, false);
+
+        cout << "Updated Coordinates successfully" << endl;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+    }
+}
+
+void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
+    string seriesid = create_seriesid(licenseid, competitionid);
+
+    try{
+        string sql = "INSERT INTO \"Rank\" (rankid, place, licenseid, competitionid) VALUES ('" + seriesid + "', " + to_string(place) + ", " + to_string(licenseid) + ", '" + competitionid + "')";
+
+        execute(sql, false);
+
+        cout << "Updated Rank successfully" << endl;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+    }
+}
+
+string Database::create_seriesid(int licenseid, string competitionid){
+    string id = to_string(licenseid) + "_" + competitionid;
+
+    cout << "series id: " << id << endl;
+    
+    return id;
+}
+
 
 string Database::create_competitionid(string location, string date, string category){
     string id;
@@ -73,75 +189,10 @@ string Database::create_competitionid(string location, string date, string categ
 
     size_t slash1 = date.find('/');
     size_t slash2 = date.find('/', slash1+1);
+    size_t slash3 = date.find('/', slash2+1);
 
-    id += location + date.substr(0, slash1) + date.substr(slash1+1, slash2-slash1-1) + category;
-    cout << "id: " << id<< endl;
+    id += location + "_" + date.substr(0, slash1) + "/" + date.substr(slash1+1, slash2-slash1-1) + "/" + date.substr(slash2+3, 2) + "_" + category;
+    cout << "competition id: " << id << endl;
     
     return id;
 }
-
-
-
-
-
-
-
-
-
-
-/*bool Database::login(const QString &username, const QString &password)
-{
-    if (!m_db.open()) {
-        qDebug() << "Failed to open database";
-        return false;
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT COUNT(*) FROM athletes WHERE username=:username AND password=:password");
-    query.bindValue(":username", username);
-    query.bindValue(":password", password);
-    query.exec();
-
-    if (query.next()) {
-        int count = query.value(0).toInt();
-        if (count == 1) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-QStringList Database::getAthletes()
-{
-    QStringList athletes;
-
-    if (!m_db.open()) {
-        qDebug() << "Failed to open database";
-        return athletes;
-    }
-
-    QSqlQuery query;
-    query.exec("SELECT name FROM athletes");
-
-    while (query.next()) {
-        athletes.append(query.value(0).toString());
-    }
-
-    return athletes;
-}
-
-bool Database::insertScore(const QString &athlete, const QString &competition, int score)
-{
-    if (!m_db.open()) {
-        qDebug() << "Failed to open database";
-        return false;
-    }
-
-    QSqlQuery query;
-    query.prepare("INSERT INTO scores (athlete, competition, score) VALUES (:athlete, :competition, :score)");
-    query.bindValue(":athlete", athlete);
-    query.bindValue(":competition", competition);
-    query.bindValue(":score", score);
-    return query.exec();
-}*/

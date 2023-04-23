@@ -37,6 +37,7 @@ int main()
     /*Pensar se é melhor adicionar um paramentro com a conexão a cada função em vez de fazer essa conexão cada vez que se pretenda usar*/
     /************************/
 
+    /*Para correr usar comando "g++ demo.cpp database.cpp -L/usr/lib/x86_64-linux-gnu/ -lpqxx -lpq -o demo.o" no terminal*/
     
     //db_INSERT_Competition("POR0804", "Torneio Natal", "Porto", "8/4/2023");
     //db_INSERT_Series("255POR0804", 4, "P", 602.1, 255, "POR0804", false);
@@ -55,10 +56,18 @@ int main()
 
     conn.disconnect();*/
 
-    //Database my_db;
+    Database my_db;
     
-    //my_db.db_INSERT_Athlete(9274, "Beatriz Coutinho", "F", "Portuguesa", 22, "SCP");
-    //my_db.db_INSERT_Competition("Torneio Carnaval", "Braga", "22/4/2023", "P");
+    //my_db.db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
+    /*my_db.db_INSERT_Competition("Torneio Páscoa", "Braga", "22/4/2022", "P");
+    my_db.db_INSERT_Competition("Torneio Mensal", "Coimbra", "1/2/2023", "P");
+    my_db.db_INSERT_Series(4, 602.1, 2647, "BRAGA_22/4/22_P");
+    my_db.update_score(2647, "BRAGA_22/4/22_P", 1, 1.4, 1.3, 9.3);
+    my_db.db_INSERT_Rank(3, 2647, "BRAGA_22/4/22_P");
+    my_db.get_name_from_id(2647);
+    
+    my_db.verify_id(9364);
+    my_db.verify_id(2299);*/
     //my_db.~Database();
 }
 

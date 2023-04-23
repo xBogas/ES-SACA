@@ -36,9 +36,11 @@ CREATE TABLE "Coordinates"(
 );
 
 CREATE TABLE "Rank"(
+	rankid VARCHAR NOT NULL,
 	place INT NOT NULL,
 	licenseid INT NOT NULL,
-	competitionid VARCHAR NOT NULL
+	competitionid VARCHAR NOT NULL,
+	CONSTRAINT PK_Rank PRIMARY KEY (rankid)
 );
 
 ALTER TABLE "Series"
