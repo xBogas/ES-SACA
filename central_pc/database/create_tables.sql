@@ -1,17 +1,17 @@
 CREATE TABLE "Athlete"(
-	licenseid INT NOT NULL,
-	name VARCHAR NOT NULL,
-	gender VARCHAR,
-	nationality VARCHAR,
-	age INT,
-	club VARCHAR,
-	CONSTRAINT PK_Athlete PRIMARY KEY (licenseid)
+	"Licença" INT NOT NULL,
+	"Nome" VARCHAR NOT NULL,
+	"Género" VARCHAR,
+	"Nacionalidade" VARCHAR,
+	"Idade" INT,
+	"Clube" VARCHAR,
+	CONSTRAINT PK_Athlete PRIMARY KEY ("Licença")
 );
 
 CREATE TABLE "Series"(
 	seriesid VARCHAR NOT NULL,
 	participantrow INT NOT NULL,
-	finalscore REAL,
+	finalscore REAL NOT NULL,
 	licenseid INT NOT NULL,
 	competitionid VARCHAR NOT NULL,
 	CONSTRAINT PK_Series PRIMARY KEY (seriesid)
@@ -19,10 +19,10 @@ CREATE TABLE "Series"(
 
 CREATE TABLE "Competition"(
 	competitionid VARCHAR NOT NULL,
-	name VARCHAR,
-	location VARCHAR NOT NULL,
-	date DATE NOT NULL,
-	category VARCHAR NOT NULL,
+	"Nome" VARCHAR,
+	"Cidade" VARCHAR NOT NULL,
+	"Data" DATE NOT NULL,
+	"Categoria" VARCHAR NOT NULL,
 	CONSTRAINT PK_Competition PRIMARY KEY (competitionid)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE "Rank"(
 );
 
 ALTER TABLE "Series"
-ADD CONSTRAINT FK_SeriesAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" (licenseid) ON DELETE NO ACTION ON UPDATE NO ACTION;			
+ADD CONSTRAINT FK_SeriesAthleteID FOREIGN KEY ("Licença") REFERENCES "Athlete" ("Licença") ON DELETE NO ACTION ON UPDATE NO ACTION;			
 ALTER TABLE "Series"
 ADD CONSTRAINT FK_SeriesCompetitionID FOREIGN KEY (competitionid) REFERENCES "Competition" (competitionid) ON DELETE NO ACTION ON UPDATE NO ACTION;			
 
@@ -52,6 +52,6 @@ ALTER TABLE "Coordinates"
 ADD CONSTRAINT FK_CoordinatesSeriesID FOREIGN KEY (seriesid) REFERENCES "Series" (seriesid) ON DELETE NO ACTION ON UPDATE NO ACTION;	
 
 ALTER TABLE "Rank"
-ADD CONSTRAINT FK_RankAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" (licenseid) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ADD CONSTRAINT FK_RankAthleteID FOREIGN KEY ("Licença") REFERENCES "Athlete" ("Licença") ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE "Rank"
 ADD CONSTRAINT FK_RankCompetitionID FOREIGN KEY (competitionid) REFERENCES "Competition" (competitionid) ON DELETE NO ACTION ON UPDATE NO ACTION;
