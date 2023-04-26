@@ -181,7 +181,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>INICIAR</string>
+         <string>EXECUTANDO</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -226,7 +226,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Shots</string>
+         <string>Tiros</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignBottom|Qt::AlignHCenter</set>
@@ -330,7 +330,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>Final</string>
+         <string>FINAL</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -372,7 +372,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>User:</string>
+         <string>Utilizador:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -404,7 +404,7 @@
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="text">
-         <string>Last Shot:</string>
+         <string>Último Tiro:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

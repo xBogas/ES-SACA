@@ -1,7 +1,6 @@
 #include "pistolwindow.h"
 #include "ui_pistolwindow.h"
 #include <QGraphicsPixmapItem>
-#include <QResizeEvent>
 
 PistolWindow::PistolWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,15 +12,17 @@ PistolWindow::PistolWindow(QWidget *parent) :
     int h = ui->Target->height();
     QPixmap PistolTarget(":/resources/img/PistolTarget.png");
     scene = new QGraphicsScene(this);
-    scene->addPixmap(PistolTarget.scaled(w-2,h-2));
+    scene->addPixmap(PistolTarget.scaled(w,h));
     ui->Target->setScene(scene);
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
     QStringList titulos; 
-    ui->tableWidget->setColumnCount(2);
-    titulos << "Int" << "Dec";
+    ui->tableWidget->setColumnCount(3);
+    titulos << "Tiro" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
+    ui->tableWidget->verticalHeader()->setVisible(0);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     segundos=0;
     minutos=0;
@@ -34,6 +35,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     totalintshot=0;
     decshot=0;
     totaldecshot=0;
+
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
 
@@ -208,7 +210,7 @@ void PistolWindow::on_horizontalSlider_valueChanged(int value){
 }   
 
 
-//Botão temorário para simular disparo, ainda não tem pontuações.
+//Botão temorário para simular disparo.
 void PistolWindow::on_ShootButton_clicked(){
     x=ui->doubleSpinBox->value();
     y=ui->doubleSpinBox_2->value();
@@ -930,6 +932,7 @@ void PistolWindow::on_ShootButton_clicked(){
     ui->total_dec->setText(QString::number(totalintshot));
     ui->total_dec_2->setText(QString::number(totaldecshot));
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Tiro,new QTableWidgetItem(QString::number(nim)));
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Int,new QTableWidgetItem(QString::number(intshot)));
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Dec,new QTableWidgetItem(QString::number(decshot)));
 

@@ -62,7 +62,7 @@ private:
     QGraphicsScene *scene;
     enum Columna
     {
-        Int, Dec
+        Tiro,Int, Dec
     };
 };
 
