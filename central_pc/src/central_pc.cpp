@@ -3,6 +3,7 @@
 #include "../gui/mainwindow2.h"
 #include "../gui/pistolwindow.h"
 #include "../gui/riflewindow.h"
+#include "../database/database.h"
 #include <QtWidgets/QApplication>
 #include <thread>
 #include <iostream>
@@ -31,6 +32,8 @@ bool oldStart = false;
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
+
+
     
     InitWindow i;
     i.show();

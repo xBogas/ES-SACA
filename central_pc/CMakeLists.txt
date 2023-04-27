@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(central_pc VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_PREFIX_PATH "~/Qt/6.5.0/gcc_64") #modify this path to yours
+set(CMAKE_PREFIX_PATH "~/Qt/6.5.0/gcc_64; /usr/include/pqxx") # modify this path to yours
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -16,9 +16,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
+find_package(PostgreSQL REQUIRED)
+include_directories(${PostgreSQL_INCLUDE_DIRS})
+
+find_library(libpqxx_LIBRARY NAMES pqxx PATHS /usr/local/lib /usr/lib)
+
 add_executable(central_pc
-    gui/resource/OwlResources.qrc
     src/central_pc.cpp
+    database/database.cpp
+    database/database.h
+    gui/resource/OwlResources.qrc
     gui/mainwindow.cpp
     gui/mainwindow.h
     gui/mainwindow.ui
@@ -44,4 +51,7 @@ target_link_libraries(central_pc
     ${OpenCV_LIBS}
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${PostgreSQL_LIBRARIES}
+    ${libpqxx_LIBRARY}
+    ${Vulkan_LIBRARIES}
 )
