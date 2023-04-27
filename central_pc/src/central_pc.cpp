@@ -33,7 +33,8 @@ int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
 
-
+    //create database
+    Database* database = new Database();
     
     InitWindow i;
     i.show();
