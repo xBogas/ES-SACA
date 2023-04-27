@@ -142,7 +142,7 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(170, 255, 127);</string>
+      <string notr="true">background-color: rgb(214, 214, 214);</string>
      </property>
      <property name="text">
       <string>IMPORTAR</string>
@@ -163,7 +163,7 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(170, 255, 127);</string>
+      <string notr="true">background-color: rgb(214, 214, 214);</string>
      </property>
      <property name="text">
       <string>EXPORTAR</string>
@@ -184,7 +184,7 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(170, 255, 127);</string>
+      <string notr="true">background-color: rgb(214, 214, 214);</string>
      </property>
      <property name="text">
       <string>ADICIONAR ATLETA</string>

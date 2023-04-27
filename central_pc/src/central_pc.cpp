@@ -31,13 +31,14 @@ bool oldStart = false;
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
+    
     InitWindow i;
     i.show();
     MainWindow* w = i.getMainWindow();
     MainWindow2* w2 = w->getMainWindow2();
     RifleWindow* rfl = w2->getRifleWindow();
     PistolWindow* ptl = w2->getPistolWindow();
-    
+
     //start server thread
     std::thread server(server_thread, w, w2, ptl, rfl);
 

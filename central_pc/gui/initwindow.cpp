@@ -18,9 +18,11 @@ InitWindow::InitWindow(QWidget *parent)
 InitWindow::~InitWindow(){
     delete ui;
     delete mainwindow;
+    delete addplayerwindow;
 
     ui = nullptr;
     mainwindow = nullptr;
+    addplayerwindow = nullptr;
 }
 
 MainWindow* InitWindow::getMainWindow(){

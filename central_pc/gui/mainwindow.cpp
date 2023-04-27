@@ -85,6 +85,7 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
     for (const auto& client : clients){
         QTableWidgetItem *ipItem = new QTableWidgetItem(QString::fromStdString(client));
         ipItem->setFlags(ipItem->flags() ^ Qt::ItemIsEditable);
+        ipItem->setTextAlignment(Qt::AlignCenter);
         ui->IP_ID_Table->setItem(row, 0, ipItem);
 
         // QTableWidgetItem *playerIdItem = new QTableWidgetItem(QString::number(clientPlayerIds[client]));
