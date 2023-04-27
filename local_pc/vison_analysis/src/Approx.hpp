@@ -8,19 +8,19 @@
 #include <eigen3/Eigen/Dense>
 
 // TODO: check for div error if Type = int
-template<int __M_size, typename Type = double>
+template<typename Type = double>
 class Approx
 {
 private:
-	typedef Eigen::Matrix<Type,__M_size,2> __M_Iter_t;
 	
+	template<typename T>
 	struct InsertIter
 	{
-		__M_Iter_t& m_ref;
+		T& m_ref;
 		int i_rows;
 		int i_col;
 
-		InsertIter(__M_Iter_t& ref)
+		InsertIter(T& ref)
 			: m_ref(ref), i_rows(0), i_col(0)
 		{}
 
@@ -131,7 +131,7 @@ public:
 
 	int
 	size()
-	{ return __M_size; }
+	{ return m_points.rows(); }
 
 private:
 
@@ -139,10 +139,11 @@ private:
 	norm(Type u1, Type u2, Type x1, Type x2)
 	{ return sqrt(pow(u1-x1,2)+pow(u2-x2,2)); }
 
-	InsertIter m_iter;
-	Eigen::Matrix<Type,__M_size,2> m_points;
-	Eigen::Matrix<Type,__M_size,2> jac;
-	Eigen::Matrix<Type,__M_size,1> f;
+	typedef Eigen::Matrix<Type,Eigen::Dynamic,2> matrixD_t;
+	InsertIter<matrixD_t> m_iter;
+	Eigen::Matrix<Type,Eigen::Dynamic,2> m_points;
+	Eigen::Matrix<Type,Eigen::Dynamic,2> jac;
+	Eigen::Matrix<Type,Eigen::Dynamic,1> f;
 	Eigen::Matrix<Type,2,1> u; 
 	Eigen::Matrix<Type,2,1> h;
 	Type m_radius;

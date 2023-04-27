@@ -3,6 +3,7 @@
 
 #include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
+#include "Approx.hpp"
 
 class Detector : public QObject
 {
@@ -82,6 +83,7 @@ private:
 	cv::Mat m_image;
 	//std::vector<cv::Point2f> m_points;
 	cv::Mat m_points;
+	Approx<double>* m_approx;
 };
 
 #endif
