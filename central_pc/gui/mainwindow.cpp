@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //create mainwindow2
+    mainwindow2 = new MainWindow2();
+
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
     QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);

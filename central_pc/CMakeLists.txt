@@ -31,6 +31,12 @@ add_executable(central_pc
     gui/riflewindow.cpp
     gui/riflewindow.h
     gui/riflewindow.ui
+    gui/addplayerwindow.cpp
+    gui/addplayerwindow.h
+    gui/addplayerwindow.ui
+    gui/initwindow.cpp
+    gui/initwindow.h
+    gui/initwindow.ui
 )
 
 target_link_libraries(central_pc

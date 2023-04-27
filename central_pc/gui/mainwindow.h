@@ -44,7 +44,7 @@ private slots:
     
 private:
     Ui::MainWindow *ui;
-    MainWindow2 *mainwindow2 = new MainWindow2();
+    MainWindow2 *mainwindow2;
     QTableWidget *IP_ID_Table;
 };
 #endif // MAINWINDOW_H

@@ -1,3 +1,4 @@
+#include "../gui/initwindow.h"
 #include "../gui/mainwindow.h"
 #include "../gui/mainwindow2.h"
 #include "../gui/pistolwindow.h"
@@ -30,14 +31,15 @@ bool oldStart = false;
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    MainWindow2* w2 = w.getMainWindow2();
+    InitWindow i;
+    i.show();
+    MainWindow* w = i.getMainWindow();
+    MainWindow2* w2 = w->getMainWindow2();
     RifleWindow* rfl = w2->getRifleWindow();
     PistolWindow* ptl = w2->getPistolWindow();
     
     //start server thread
-    std::thread server(server_thread, &w, w2, ptl, rfl);
+    std::thread server(server_thread, w, w2, ptl, rfl);
 
     return a.exec();
 }
