@@ -94,7 +94,7 @@ string Database::get_name_from_id(int ID){
 void Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
 
     try{
-        string sql = "INSERT INTO \"Athlete\" (licenseid, name, gender, nationality, age, club) VALUES (" 
+        string sql = "INSERT INTO \"Athlete\" VALUES (" 
                         + to_string(licenseid) + ", '" + name + "', '" + gender + "', '" + nationality + "', " + to_string(age) +", '" + club + "');";
 
         execute(sql, false);
@@ -111,7 +111,7 @@ void Database::db_INSERT_Competition(string name, string location, string date, 
     string competitionid = create_competitionid(location, date, category);
 
     try{
-        string sql = "INSERT INTO \"Competition\" (competitionid, name, location, date, category) VALUES ('" 
+        string sql = "INSERT INTO \"Competition\" VALUES ('" 
                         + competitionid + "', '" + name + "', '" + location + "', '" + date + "', '" + category +"');";
        
         execute(sql, false);
@@ -129,7 +129,7 @@ void Database::db_INSERT_Series(int participantrow, float finalscore, int licens
     string seriesid = create_seriesid(licenseid, competitionid);
 
     try{
-        string sql = "INSERT INTO \"Series\" (seriesid, participantrow, finalscore, licenseid, competitionid) VALUES ('"
+        string sql = "INSERT INTO \"Series\" VALUES ('"
              + seriesid + "', " + to_string(participantrow) + ", " + to_string(finalscore) + ", " + to_string(licenseid) + ", '" + competitionid + "');";
 
         execute(sql, false);
@@ -146,7 +146,7 @@ void Database::db_INSERT_Series(int participantrow, float finalscore, int licens
 void Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid){
     
     try{
-        string sql = "INSERT INTO \"Coordinates\" (coordinatesid, coordinatex, coordinatey, score, seriesid) VALUES (" 
+        string sql = "INSERT INTO \"Coordinates\" VALUES (" 
                     + to_string(coordinatesid) + ", " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + to_string(finalscore)  + ", '" + seriesid + "');";
 
         execute(sql, false);
@@ -162,7 +162,7 @@ void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
     string seriesid = create_seriesid(licenseid, competitionid);
 
     try{
-        string sql = "INSERT INTO \"Rank\" (rankid, place, licenseid, competitionid) VALUES ('" + seriesid + "', " + to_string(place) + ", " + to_string(licenseid) + ", '" + competitionid + "')";
+        string sql = "INSERT INTO \"Rank\" VALUES ('" + seriesid + "', " + to_string(place) + ", " + to_string(licenseid) + ", '" + competitionid + "')";
 
         execute(sql, false);
 
@@ -173,6 +173,7 @@ void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
     }
 }
 
+//1234_PORTO_12/02/22_P
 string Database::create_seriesid(int licenseid, string competitionid){
     string id = to_string(licenseid) + "_" + competitionid;
 
@@ -181,7 +182,7 @@ string Database::create_seriesid(int licenseid, string competitionid){
     return id;
 }
 
-
+//PORTO_12/02/22_P
 string Database::create_competitionid(string location, string date, string category){
     string id;
 
