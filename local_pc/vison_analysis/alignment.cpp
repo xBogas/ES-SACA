@@ -1,7 +1,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/features2d.hpp>
- 
+
+#include <unistd.h>
+
 using namespace std;
 using namespace cv;
 using namespace cv::xfeatures2d;
@@ -57,32 +59,64 @@ void alignImages(Mat &im1, Mat &im2, Mat &im1Reg, Mat &h)
   // Use homography to warp image
   warpPerspective(im1, im1Reg, h, im2.size());
 }
- 
+
+
+
+bool check_format(std::string path, std::string format)
+{
+  FILE* file = fopen((path+format).c_str(), "r");
+  if (file == nullptr)
+    return false;
+  else
+  {
+    fclose(file);
+    return true;
+  }
+}
+
+
+
 int main(int argc, char **argv)
 {
-  // Read reference image
-  string refFilename("../images/pistol-reference.jpg"); 
-  cout << "Reading reference image : " << refFilename << endl; 
+  if (argc < 2)
+  {
+    std::cout << "input image name only\n";
+    return 1;
+  }
+  // Read reference
+  string refFilename("../images/ref_normalized.jpg"); 
+  cout << "Reading reference image : " << refFilename << "\n\n"; 
   Mat imReference = imread(refFilename);
- 
-  // Read image to be aligned
-  string imFilename("../images/pistol-test3.jpg");
-  cout << "Reading image to align : " << imFilename << endl; 
-  Mat im = imread(imFilename);
- 
   // Registered image will be resotred in imReg. 
   // The estimated homography will be stored in h. 
   Mat imReg, h;
  
-  // Align images
-  cout << "Aligning images ..." << endl; 
-  alignImages(im, imReference, imReg, h);
- 
-  // Write aligned image to disk. 
-  string outFilename("../images/pistol-align3.jpg");
-  cout << "Saving aligned image : " << outFilename << endl; 
-  imwrite(outFilename, imReg);
- 
-  // Print estimated homography
-  cout << "Estimated homography : \n" << h << endl; 
+
+  
+  for (size_t i = 1; i < argc; i++)
+  {
+    std::string file = "../images/";
+    file.append(argv[i]);
+
+    Mat im;
+    if(check_format(file, ".jpg"))
+      im = imread(file+ ".jpg");
+    else if(check_format(file, ".png"))
+      im = imread(file+ ".png");
+    else
+    {
+      std::cout << "Invalid format file " << file << std::endl;
+      return 1;
+    }
+
+    // Align images
+    cout << "Aligning images " << file << "-align.jpg\n"; 
+    alignImages(im, imReference, imReg, h);
+  
+  
+    imwrite(file+"-align.jpg", imReg);
+
+    // Print estimated homography
+    cout << "Estimated homography : \n" << h << "\n\n"; 
+  }
 }
