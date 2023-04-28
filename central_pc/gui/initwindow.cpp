@@ -8,7 +8,7 @@ InitWindow::InitWindow(QWidget *parent)
 
     //create window
     mainwindow = new MainWindow();
-    addplayerwindow = new AddPlayerWindow();
+    addplayerwindow = new AddPlayerWindow(nullptr, database);
 
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
     QPixmap owl(":/resources/img/Target owl.png");
@@ -40,6 +40,11 @@ void InitWindow::on_continueButton_clicked(){
 
 void InitWindow::on_addButton_clicked(){
     addplayerwindow->show();
+    addplayerwindow->move(100,100);
+}
+
+void InitWindow::setDatabase(Database *db){
+    database = db;
 }
 
 

@@ -207,57 +207,82 @@
      <string>Observações:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="nameText">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>80</y>
       <width>461</width>
-      <height>22</height>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="IDText">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>130</y>
       <width>461</width>
-      <height>22</height>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_3">
+   <widget class="QLineEdit" name="clubeText">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>180</y>
       <width>461</width>
-      <height>22</height>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_4">
+   <widget class="QLineEdit" name="disciplinaText">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>230</y>
       <width>461</width>
-      <height>22</height>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_5">
+   <widget class="QLineEdit" name="escalaoText">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>280</y>
       <width>461</width>
-      <height>22</height>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="obserText">
     <property name="geometry">
      <rect>
       <x>200</x>
@@ -265,6 +290,11 @@
       <width>461</width>
       <height>70</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
    </widget>
   </widget>

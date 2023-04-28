@@ -35,9 +35,12 @@ int main(int argc, char *argv[]){
 
     //create database
     Database* database = new Database();
+    database->db_INSERT_Rank(3, 255, "POR0804");
     
-    InitWindow i;
+    InitWindow i;  
     i.show();
+    i.setDatabase(database);
+
     MainWindow* w = i.getMainWindow();
     MainWindow2* w2 = w->getMainWindow2();
     RifleWindow* rfl = w2->getRifleWindow();

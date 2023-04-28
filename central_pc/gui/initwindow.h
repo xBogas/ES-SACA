@@ -7,9 +7,10 @@
 #include <QCoreApplication>
 #include <QTableWidget>
 #include <QWidget>
+#include <QMessageBox>
 #include "mainwindow.h"
 #include "addplayerwindow.h"
-#include <QMessageBox>
+#include "../database/database.h"
 
 class InitWindow : public QMainWindow
 {
@@ -18,14 +19,12 @@ class InitWindow : public QMainWindow
 public:
     InitWindow(QWidget *parent = 0);
     ~InitWindow();
-
-private:
     
-
 signals:
 
 public slots:
     MainWindow* getMainWindow();
+    void setDatabase(Database *db);
 
 private slots:
     void on_exitButton_clicked();
@@ -36,5 +35,6 @@ private:
     Ui::InitWindow *ui;
     MainWindow *mainwindow;
     AddPlayerWindow *addplayerwindow;
+    Database *database;
 };
 #endif // INITWINDOW_H

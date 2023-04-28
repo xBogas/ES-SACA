@@ -8,18 +8,20 @@
 #include <QTableWidget>
 #include <QWidget>
 #include <QMessageBox>
+#include <iostream>
+#include "../database/database.h"
 
 class AddPlayerWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    AddPlayerWindow(QWidget *parent = 0);
+    AddPlayerWindow(QWidget *parent = 0, Database *db = nullptr);
     ~AddPlayerWindow();
 
 private:
+    Database* database;
     
-
 signals:
 
 public slots:
