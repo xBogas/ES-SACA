@@ -14,10 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label->setPixmap(owl);
 
     //tablewidgetconnect 94.130.134.104:27023
-    //IP_ID_Table = findChild<QTableWidget*>("IP_ID_Table");
     ui->IP_ID_Table->setHorizontalHeaderLabels({"Endereço IP", "ID do Atleta"});
     ui->IP_ID_Table->setColumnWidth(0, 245);
     ui->IP_ID_Table->setColumnWidth(1, 135);
+    ui->IP_ID_Table->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter);
 
     //conect signals
     QObject::connect(this, &MainWindow::showErrorMessageSignal, this, &MainWindow::showErrorMessage);

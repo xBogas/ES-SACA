@@ -33,12 +33,14 @@ bool oldStart = false;
 
 std::atomic<bool> finish(false);
 
+Database* database;
+
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
 
     //create database
-    Database* database = new Database();
+    database = new Database();
     
     //create windows
     InitWindow i = InitWindow(nullptr, database);  
@@ -70,13 +72,6 @@ int main(int argc, char *argv[]){
     return a.exec();
 }
 
-bool funcFROMdatabase(int new_clientID){
-    if(new_clientID == 2300 || new_clientID == 10 || new_clientID == 100 || new_clientID == 1000)
-        return true;
-    else    
-        return false;
-}
-
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     // std::vector<boost::asio::ip::tcp::socket*> open_sockets; // vetor para armazenar os sockets abertos
 
@@ -90,27 +85,22 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
                 break;
             }
 
-            tcp::socket *socket = new tcp::socket(io_context);
+            tcp::socket socket(io_context);
 
             boost::system::error_code ec;
-            acceptor.accept(*socket, ec);
+            acceptor.accept(socket, ec);
 
             // verificar se houve erro ou se a condição de término foi atingida
             if (ec == boost::asio::error::operation_aborted || finish) {
-                delete socket; // liberar o socket
                 break; // sair do loop
             }
             else if (ec) {
                 // tratar o erro, caso ocorra
                 std::cerr << "Erro ao aceitar conexão: " << ec.message() << std::endl;
-                delete socket; // liberar o socket
                 continue;
             }
 
-            // adicionar o socket ao vetor de sockets abertos
-            open_sockets.push_back(socket);
-
-            std::string client_ip = socket->remote_endpoint().address().to_string();
+            std::string client_ip = socket.remote_endpoint().address().to_string();
 
             /*****************************************/
             aux++;
@@ -138,21 +128,13 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
             window->updateClientList(clients);
 
             // handle the client in a separate thread
-            std::thread client_thread(handle_client, std::move(*socket), window, window2, ptlwindow, rflwindow);
+            std::thread client_thread(handle_client, std::move(socket), window, window2, ptlwindow, rflwindow);
             client_thread.detach();
         }
     }
     catch (std::exception& e){
         std::cerr << "Error: " << e.what() << std::endl;
     }
-
-    // // fechar todos os sockets abertos antes de sair da função
-    // for (auto socket : open_sockets) {
-    //     boost::system::error_code ec;
-    //     socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    //     socket->close(ec);
-    //     delete socket;
-    // }
 }
 
 void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
@@ -176,14 +158,14 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                     if(window->cellWasChanged[client_ip]){
                         int new_clientID = window->clientPlayerIds[client_ip];
 
-                        if(funcFROMdatabase(new_clientID) && !window->samePlayerIds[client_ip]){
-                            std::string clientID = "clientID: " + std::to_string(new_clientID);
-                            boost::asio::write(socket, boost::asio::buffer(clientID));
+                        if(database->verify_id(new_clientID) && !window->samePlayerIds[client_ip]){
+                            std::string athlete = "athlete: " + (database->get_name_from_id(new_clientID));
+                            boost::asio::write(socket, boost::asio::buffer(athlete));
 
                             old_clientID = new_clientID;
                             window->nonPlayerIds[client_ip] = false;
                         }
-                        else if(!funcFROMdatabase(new_clientID) && !window->samePlayerIds[client_ip]){
+                        else if(!database->verify_id(new_clientID) && !window->samePlayerIds[client_ip]){
                             emit window->showErrorMessageSignal("nonID");
                             
                             window->nonPlayerIds[client_ip] = true;
