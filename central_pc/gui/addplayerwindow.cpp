@@ -5,7 +5,7 @@ AddPlayerWindow::AddPlayerWindow(QWidget *parent, Database *db)
     , ui(new Ui::AddPlayerWindow)
     , database(db)
 {
-    ui->setupUi(this);
+    ui->setupUi(this); 
 }
 
 AddPlayerWindow::~AddPlayerWindow(){
@@ -19,6 +19,7 @@ void AddPlayerWindow::on_cancelButton_clicked(){
 }
 
 void AddPlayerWindow::on_saveButton_clicked(){
+    // database->db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
     //obter strings
     QString nome = ui->nameText->text();
     QString licenca = ui->IDText->text();

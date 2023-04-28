@@ -11,6 +11,8 @@
 #include <vector>
 #include <mutex>
 
+std::vector<boost::asio::ip::tcp::socket*> open_sockets; // vetor para armazenar os sockets abertos
+
 int aux = 0;
 
 using boost::asio::ip::tcp;
@@ -29,18 +31,18 @@ bool newPractice = false, newMatch = false, newFinal = false;
 bool oldPractice = false, oldFinal = false, oldMatch = false;
 bool oldStart = false;
 
+std::atomic<bool> finish(false);
+
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
 
     //create database
     Database* database = new Database();
-    database->db_INSERT_Rank(3, 255, "POR0804");
     
-    InitWindow i;  
+    //create windows
+    InitWindow i = InitWindow(nullptr, database);  
     i.show();
-    i.setDatabase(database);
-
     MainWindow* w = i.getMainWindow();
     MainWindow2* w2 = w->getMainWindow2();
     RifleWindow* rfl = w2->getRifleWindow();
@@ -48,6 +50,22 @@ int main(int argc, char *argv[]){
 
     //start server thread
     std::thread server(server_thread, w, w2, ptl, rfl);
+
+    // conectar sinal para fechar threads e sockets
+    // QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
+    //     io_context.stop();
+    //     finish = true;
+
+    //     // fechar todos os sockets abertos antes de sair da função
+    //     for (auto socket : open_sockets) {
+    //         boost::system::error_code ec;
+    //         socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    //         socket->close(ec);
+    //         delete socket;
+    //     }
+
+    //     server.join();
+    // });
 
     return a.exec();
 }
@@ -60,16 +78,43 @@ bool funcFROMdatabase(int new_clientID){
 }
 
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
+    // std::vector<boost::asio::ip::tcp::socket*> open_sockets; // vetor para armazenar os sockets abertos
+
     try{
         tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
-
         std::cout << "Server started. Listening on port 8080..." << std::endl;
 
-        for (;;){
-            tcp::socket socket(io_context);
-            acceptor.accept(socket);
+        for(;;){
+            if(finish){
 
-            std::string client_ip = socket.remote_endpoint().address().to_string();
+                break;
+            }
+
+            tcp::socket *socket = new tcp::socket(io_context);
+
+            std::cout << "antes" << std::endl;
+
+            boost::system::error_code ec;
+            acceptor.accept(*socket, ec);
+
+            std::cout << "depois" << std::endl;
+
+            // verificar se houve erro ou se a condição de término foi atingida
+            if (ec == boost::asio::error::operation_aborted || finish) {
+                delete socket; // liberar o socket
+                break; // sair do loop
+            }
+            else if (ec) {
+                // tratar o erro, caso ocorra
+                std::cerr << "Erro ao aceitar conexão: " << ec.message() << std::endl;
+                delete socket; // liberar o socket
+                continue;
+            }
+
+            // adicionar o socket ao vetor de sockets abertos
+            open_sockets.push_back(socket);
+
+            std::string client_ip = socket->remote_endpoint().address().to_string();
 
             /*****************************************/
             aux++;
@@ -97,13 +142,21 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
             window->updateClientList(clients);
 
             // handle the client in a separate thread
-            std::thread client_thread(handle_client, std::move(socket), window, window2, ptlwindow, rflwindow);
+            std::thread client_thread(handle_client, std::move(*socket), window, window2, ptlwindow, rflwindow);
             client_thread.detach();
         }
     }
     catch (std::exception& e){
         std::cerr << "Error: " << e.what() << std::endl;
     }
+
+    // // fechar todos os sockets abertos antes de sair da função
+    // for (auto socket : open_sockets) {
+    //     boost::system::error_code ec;
+    //     socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    //     socket->close(ec);
+    //     delete socket;
+    // }
 }
 
 void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
@@ -121,7 +174,7 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
         client_ip = new_ip.to_string();
         /*****************************************/
 
-        for (;;){
+        while(!finish){
             if(initial){
                 if(window->isMainWindow){
                     if(window->cellWasChanged[client_ip]){

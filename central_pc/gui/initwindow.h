@@ -17,19 +17,20 @@ class InitWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    InitWindow(QWidget *parent = 0);
+    InitWindow(QWidget *parent = 0, Database *db = nullptr);
     ~InitWindow();
     
 signals:
 
 public slots:
     MainWindow* getMainWindow();
-    void setDatabase(Database *db);
 
 private slots:
     void on_exitButton_clicked();
     void on_continueButton_clicked();
     void on_addButton_clicked();
+    void on_importButton_clicked();
+    void on_exportButton_clicked();
     
 private:
     Ui::InitWindow *ui;
