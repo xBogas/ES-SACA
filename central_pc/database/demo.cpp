@@ -59,15 +59,13 @@ int main()
     Database my_db;
     
     //my_db.db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
-    /*my_db.db_INSERT_Competition("Torneio Páscoa", "Braga", "22/4/2022", "P");
-    my_db.db_INSERT_Competition("Torneio Mensal", "Coimbra", "1/2/2023", "P");
-    my_db.db_INSERT_Series(4, 602.1, 2647, "BRAGA_22/4/22_P");
-    my_db.update_score(2647, "BRAGA_22/4/22_P", 1, 1.4, 1.3, 9.3);
-    my_db.db_INSERT_Rank(3, 2647, "BRAGA_22/4/22_P");
-    my_db.get_name_from_id(2647);
-    
-    my_db.verify_id(9364);
-    my_db.verify_id(2299);*/
+    //my_db.db_INSERT_Competition("Torneio Páscoa", "Braga", "22/4/2022", "P");
+    //my_db.db_INSERT_Competition("Torneio Mensal", "Coimbra", "1/2/2023", "P");
+    //my_db.db_INSERT_Series(4, 602.1, 2423, "BRAGA_22/4/22_P");
+    //my_db.update_score(2423, "BRAGA_22/4/22_P", 1, 1.4, 1.3, 9.3);
+    //my_db.db_INSERT_Rank(3, 2423, "BRAGA_22/4/22_P");
+    //my_db.get_name_from_id(2647);
+
     //my_db.~Database();
 }
 

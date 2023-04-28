@@ -42,41 +42,75 @@ vector<vector<string>> Database::execute(const string& query, bool is_select) {
         return rows;
 
     } catch (const std::exception& e) {
-        std::cerr << "Error executing query: " << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         throw;
     }
 
 }
 
-void Database::update_score(int licenseid, string competitionid, int coordinatesid, float coordinatex, float coordinatey, float score){
+bool Database::update_score(int licenseid, string competitionid, int coordinatesid, float coordinatex, float coordinatey, float score){
     string seriesid = create_seriesid(licenseid, competitionid);
 
-    db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid);
+    if(db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid)) return true;
+    else return false;
 }
 
 bool Database::verify_id(int ID){
 
     try{
-        string sql = "SELECT * FROM \"Athlete\" WHERE licenseid = " + to_string(ID) + ";";
+        string sql = "SELECT * FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
         vector<vector<string>> rows = execute(sql, true);
 
-        cout << !rows.empty() << endl;
         return !rows.empty();
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return false;
+}
+
+bool Database::verify_competitionid(string id){
+
+    try{
+        string sql = "SELECT * FROM \"Competition\" WHERE competitionid = '" + id + "';";
+        vector<vector<string>> rows = execute(sql, true);
+
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return false;
+}
+
+bool Database::verify_seriesid(string id){
+
+    try{
+        string sql = "SELECT * FROM \"Series\" WHERE seriesid = '" + id + "';";
+        vector<vector<string>> rows = execute(sql, true);
+
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
     }
 
     return false;
 }
 
 string Database::get_name_from_id(int ID){
+
     try{
-        string sql = "SELECT name FROM \"Athlete\" WHERE licenseid = " + to_string(ID) + ";";
+        string sql = "SELECT \"Nome\" FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
 
         vector<vector<string>> rows = execute(sql, true);
 
-        if (rows.empty()) return NULL;
+        if (rows.empty()) return "";
         else {
             cout << rows[0][0] << endl;
             return rows[0][0];
@@ -84,14 +118,15 @@ string Database::get_name_from_id(int ID){
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
-      return NULL;
+      return "";
     }
-    return NULL;
 
 }
 
 
-void Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
+bool Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
+
+    if(verify_id(licenseid)) return false;
 
     try{
         string sql = "INSERT INTO \"Athlete\" VALUES (" 
@@ -100,15 +135,19 @@ void Database::db_INSERT_Athlete(int licenseid, string name, string gender, stri
         execute(sql, false);
 
         cout << "Updated Athlete successfully" << endl;
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
     }
 }
 
-void Database::db_INSERT_Competition(string name, string location, string date, string category){
+bool Database::db_INSERT_Competition(string name, string location, string date, string category){
 
     string competitionid = create_competitionid(location, date, category);
+
+    if(verify_competitionid(competitionid)) return false;
 
     try{
         string sql = "INSERT INTO \"Competition\" VALUES ('" 
@@ -117,16 +156,22 @@ void Database::db_INSERT_Competition(string name, string location, string date, 
         execute(sql, false);
 
         cout << "Updated Competition successfully" << endl;
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
     }
 
 }
 
-void Database::db_INSERT_Series(int participantrow, float finalscore, int licenseid, string competitionid){
+bool Database::db_INSERT_Series(int participantrow, float finalscore, int licenseid, string competitionid){
 
     string seriesid = create_seriesid(licenseid, competitionid);
+
+    if(verify_seriesid(seriesid)) return false;
+    if(!verify_id(licenseid)) return false;
+    if(!verify_competitionid(competitionid)) return false;
 
     try{
         string sql = "INSERT INTO \"Series\" VALUES ('"
@@ -135,15 +180,19 @@ void Database::db_INSERT_Series(int participantrow, float finalscore, int licens
         execute(sql, false);
 
         cout << "Updated Series successfully" << endl;
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
     }
 }
 
 //ver problemas em ter que mandar seriesid, que melhor forma é para otimizar isto
 //ver problemas com coordinatesid
-void Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid){
+bool Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid){
+
+    if(!verify_seriesid(seriesid)) return false;
     
     try{
         string sql = "INSERT INTO \"Coordinates\" VALUES (" 
@@ -152,14 +201,18 @@ void Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float
         execute(sql, false);
 
         cout << "Updated Coordinates successfully" << endl;
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
     }
 }
 
-void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
+bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
+
     string seriesid = create_seriesid(licenseid, competitionid);
+    if(!verify_seriesid(seriesid)) return false;
 
     try{
         string sql = "INSERT INTO \"Rank\" VALUES ('" + seriesid + "', " + to_string(place) + ", " + to_string(licenseid) + ", '" + competitionid + "')";
@@ -167,9 +220,11 @@ void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
         execute(sql, false);
 
         cout << "Updated Rank successfully" << endl;
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
+      return false;
     }
 }
 
@@ -177,7 +232,7 @@ void Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
 string Database::create_seriesid(int licenseid, string competitionid){
     string id = to_string(licenseid) + "_" + competitionid;
 
-    cout << "series id: " << id << endl;
+    //cout << "series id: " << id << endl;
     
     return id;
 }
@@ -193,7 +248,7 @@ string Database::create_competitionid(string location, string date, string categ
     size_t slash3 = date.find('/', slash2+1);
 
     id += location + "_" + date.substr(0, slash1) + "/" + date.substr(slash1+1, slash2-slash1-1) + "/" + date.substr(slash2+3, 2) + "_" + category;
-    cout << "competition id: " << id << endl;
+    //cout << "competition id: " << id << endl;
     
     return id;
 }
