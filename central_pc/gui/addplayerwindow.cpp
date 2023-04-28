@@ -19,24 +19,21 @@ void AddPlayerWindow::on_cancelButton_clicked(){
 }
 
 void AddPlayerWindow::on_saveButton_clicked(){
-    // database->db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
     //obter strings
-    QString nome = ui->nameText->text();
-    QString licenca = ui->IDText->text();
-    QString clube = ui->clubeText->text();
-    QString disciplina = ui->disciplinaText->text();
+    string nome = ui->nameText->text().toStdString();
+    int licenca = ui->IDText->text().toInt();
+    string clube = ui->clubeText->text().toStdString();
+    string disciplina = ui->disciplinaText->text().toStdString();
     QString escalao = ui->escalaoText->text();
-    QString observacoes = ui->obserText->toPlainText();
+    string observacoes = ui->obserText->toPlainText().toStdString();
 
     //guardar na base de dados
-    // std::cout << database->verify_id(23) << std::endl;
-
-    // std::cout << nome.toStdString() << std::endl;
-    // std::cout << licenca.toStdString() << std::endl;
-    // std::cout << clube.toStdString() << std::endl;
-    // std::cout << disciplina.toStdString() << std::endl;
-    // std::cout << escalao.toStdString() << std::endl;
-    // std::cout << observacoes.toStdString() << std::endl;
+    // int a = database->db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
+    bool insert = database->db_INSERT_Athlete(licenca, nome, "M", "Português", 22, clube);
+    if(insert)
+        QMessageBox::information(this, "Sucesso", "Atleta adicionado com sucesso");
+    else
+        QMessageBox::critical(this, "Erro", "Atleta já existente");
 
     this->close();
 }

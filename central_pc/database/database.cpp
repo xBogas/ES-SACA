@@ -123,7 +123,6 @@ string Database::get_name_from_id(int ID){
 
 }
 
-
 bool Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
 
     if(verify_id(licenseid)) return false;

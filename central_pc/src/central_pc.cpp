@@ -92,12 +92,8 @@ void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwi
 
             tcp::socket *socket = new tcp::socket(io_context);
 
-            std::cout << "antes" << std::endl;
-
             boost::system::error_code ec;
             acceptor.accept(*socket, ec);
-
-            std::cout << "depois" << std::endl;
 
             // verificar se houve erro ou se a condição de término foi atingida
             if (ec == boost::asio::error::operation_aborted || finish) {
