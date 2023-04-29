@@ -7,7 +7,9 @@ Detector::Detector(QObject *parent): QObject(parent), m_camera(0)
 
 }
 #else
-Detector::Detector(QObject *parent): QObject(parent)
+Detector::Detector(QObject *parent)
+	: QObject(parent),
+	m_approx(525, 525, 14)
 {
 #ifdef DEBUG
 	std::cout << "I don't have a camera\nRunning with test images\n";
@@ -20,13 +22,11 @@ Detector::Detector(QObject *parent): QObject(parent)
 	
 	m_ratio = m_image.rows/170.0f;
 
-	// starting point at center of image
-	m_approx = new Approx<double>(m_image.rows/2, m_image.cols/2, 10);
 #ifdef DEBUG
 	cv::imshow("Test image", m_image);
 #endif
 	getCenter();
-	//getPoints();
+	getPoints();
 }
 #endif
 
@@ -50,32 +50,32 @@ void Detector::getCenter()
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
-			m_approx->setInitialPoint(x_init, y_init);
+			m_approx.setInitialPoint(x_init, y_init);
 
-			m_approx->insertPoints(contours[i]);
+			m_approx.insertPoints(contours[i]);
 					
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
-			m_approx->setRadius(new_r);
+			m_approx.setRadius(new_r);
 
 			int iter = 0;
 			while (iter < 100)
 			{
-				m_approx->updateJac();
-				m_approx->updateF();
-				m_approx->nextIter();
-				//m_approx->print();
+				m_approx.updateJac();
+				m_approx.updateF();
+				m_approx.nextIter();
+				//m_approx.print();
 				iter++;
 
-				auto [x,y] = m_approx->getCenter();
+				auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
 			std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 			}
 
-			m_approx->print();
-			auto [x,y] = m_approx->getCenter();
+			m_approx.print();
+			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
 			std::cout << "Center " << m_center << "\n";
 			cv::circle(alt, cv::Point(x,y), 1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
@@ -111,6 +111,7 @@ void Detector::getCenter()
 //#endif
 	
 }
+
 
 std::tuple<double,double>
 Detector::mean(const std::vector<cv::Vec3f> &data)
@@ -255,31 +256,31 @@ void Detector::getPoints()
 #ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
-			m_approx->setInitialPoint(x_init, y_init);
+			m_approx.setInitialPoint(x_init, y_init);
 
-			m_approx->insertPoints(contours[i]);
+			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
-			m_approx->setRadius(new_r);
+			m_approx.setRadius(new_r);
 
 			int iter = 0;
 			while (iter < 100)
 			{
-				m_approx->updateJac();
-				m_approx->updateF();
-				m_approx->nextIter();
-				//m_approx->print();
+				m_approx.updateJac();
+				m_approx.updateF();
+				m_approx.nextIter();
+				//m_approx.print();
 				iter++;
 
-				auto [x,y] = m_approx->getCenter();
+				auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
 				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 			}
-			m_approx->print();
-			auto [x,y] = m_approx->getCenter();
+			m_approx.print();
+			auto [x,y] = m_approx.getCenter();
 			
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
