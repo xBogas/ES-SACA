@@ -9,8 +9,9 @@ Detector::Detector(QObject *parent): QObject(parent), m_camera(0)
 #else
 Detector::Detector(QObject *parent): QObject(parent)
 {
+#ifdef DEBUG
 	std::cout << "I don't have a camera\nRunning with test images\n";
-
+#endif
 	m_image = cv::imread("../images/sample2-align.jpg", cv::IMREAD_COLOR); 
 	if (m_image.empty())
 		throw std::runtime_error("Failed to read image for testing");
@@ -21,7 +22,9 @@ Detector::Detector(QObject *parent): QObject(parent)
 
 	// starting point at center of image
 	m_approx = new Approx<double>(m_image.rows/2, m_image.cols/2, 10);
+#ifdef DEBUG
 	cv::imshow("Test image", m_image);
+#endif
 	getPoints();
 	//getCenter();
 	cv::waitKey(2);
@@ -114,35 +117,41 @@ void Detector::getPoints()
 
 	cv::Mat gray;
 	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
+#ifdef DEBUG
 	cv::imwrite("ref.jpg", m_image);
-
+#endif
 	
-	{cv::Mat alt = m_image.clone();
-	std::vector<cv::Vec3f> circles;
-	HoughCircles(gray, circles, cv::HOUGH_GRADIENT_ALT, 1.7,
-				 gray.rows/16,  // change this value to detect circles with different distances to each other
-				 300, 0.98, 170, 200// change the last two parameters (min_radius & max_radius) to detect larger circles
-	);
-
-	for( size_t i = 0; i < circles.size(); i++ )
 	{
-		cv::Point center = cv::Point(circles[i][0], circles[i][1]);
-		circle( alt, center, 1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-		// circle outline
-		int radius = circles[i][2];
-		circle( alt, center, radius, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-		std::cout << "[Alt]Detected circle at " << center << " and radius " << radius << std::endl;
-	}
-	cv::imshow("[Alt]detected circles", alt);}
+		cv::Mat alt = m_image.clone();
+		std::vector<cv::Vec3f> circles;
+		HoughCircles(gray, circles, cv::HOUGH_GRADIENT_ALT, 1.7,
+					gray.rows/16,  // change this value to detect circles with different distances to each other
+					300, 0.98, 170, 200// change the last two parameters (min_radius & max_radius) to detect larger circles
+		);
 
+		for( size_t i = 0; i < circles.size(); i++ )
+		{
+			cv::Point center = cv::Point(circles[i][0], circles[i][1]);
+			circle( alt, center, 1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+			// circle outline
+			int radius = circles[i][2];
+			circle( alt, center, radius, cv::Scalar(0,0,255), 1, cv::LINE_AA);
+#ifdef DEBUG
+			std::cout << "[Alt]Detected circle at " << center << " and radius " << radius << std::endl;
+#endif
+	}
+#ifdef DEBUG
+		cv::imshow("[Alt]detected circles", alt);
+#endif
+	}
 	cv::Mat normal = m_image.clone();
 	std::vector<cv::Vec3f> circles;
 
-	//blur(gray, gray, cv::Size(5,5) );
+	blur(gray, gray, cv::Size(5,5) );
 	HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1.5,
 				 1,  // change this value to detect circles with different distances to each other
 				 500, 250, 170, 200); // change the last two parameters (min_radius & max_radius) to detect larger circles
-	
+
 	for( size_t i = 0; i < circles.size(); i++ )
 	{
 		cv::Point center(circles[i][0], circles[i][1]);
@@ -150,27 +159,28 @@ void Detector::getPoints()
 		// circle outline
 		int radius = circles[i][2];
 		circle( normal, center, radius, cv::Scalar(0,0,255), 1, cv::LINE_AA);
+#ifdef DEBUG
 		std::cout << "Detected circle at " << center << " and radius " << radius << std::endl;
+#endif
 	}
+#ifdef DEBUG
 	cv::imshow("detected circles", normal);
 	std::cout << "Image center: [" << normal.cols/2.f << ", " << normal.rows/2.f << "]\n";
-	
-
-	cv::Point p_center(525, 525);
-	int radius = 185;
+#endif
 	
 	// HSV color space
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
-	cv::inRange(hsv, cv::Vec3b(105,10,170), cv::Vec3b(180,40,220), op2);
+	cv::inRange(hsv, cv::Vec3b(100,0,170), cv::Vec3b(190,50,255), op2);
+#ifdef DEBUG
 	cv::imshow("Points hsv", op2);
-	
-	
+#endif
 	cv::Mat res1 = m_image.clone();
-	cv::bitwise_and(m_image, cv::Scalar(0,0,255), res1, op2);
+	cv::bitwise_and(m_image, cv::Scalar(0,0,255), m_image, op2);
+#ifdef DEBUG
 	cv::imshow("Img1", res1);
 	cv::waitKey();
-
+#endif
 
 	// BGR color space
 	/* cv::inRange(m_image, cv::Scalar(180,180,160), cv::Scalar(220,230,200), m_points);
@@ -182,29 +192,31 @@ void Detector::getPoints()
 
 	std::vector<std::vector<cv::Point>> contours;
 	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-	std::cout << "Found " << contours.size() << "\n";
 
+#ifdef DEBUG
+	std::cout << "Found " << contours.size() << "\n";
+#endif
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 20)
+		if (contours[i].size() > 30)
 		{
-			int new_r = 1;
-			for (size_t j = 0; j < contours[i].size(); j++)
-			{
-				double dist = cv::norm(contours[i][0]-contours[i][j]);
-				if (dist > new_r)
-					new_r = dist;
-			}
+			std::cout << "Contours with size " << contours[i].size() << "\n";
+			double new_r = 4.5/2.0f * 1050.0f/170.0f;
+			
+
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
+#ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
+#endif
 			m_approx->setInitialPoint(x_init, y_init);
 
 			m_approx->insertPoints(contours[i]);
 			
-			
-			std::cout << "Set radius " << new_r/2 << "\n";
-			m_approx->setRadius(new_r/2);
+#ifdef DEBUG
+			std::cout << "Set radius " << new_r << "\n";
+#endif
+			m_approx->setRadius(new_r);
 
 			int iter = 0;
 			while (iter < 100)
@@ -216,18 +228,20 @@ void Detector::getPoints()
 				iter++;
 
 				auto [x,y] = m_approx->getCenter();
+#ifdef DEBUG
 				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
+#endif
 			}
 			m_approx->print();
 			auto [x,y] = m_approx->getCenter();
-			std::cout << "Center " << cv::Point(x,y) << "\n";
-			cv::circle(m_image, cv::Point(x,y), new_r/2, cv::Scalar(255,0,0));
-			cv::imshow("Contours", m_image);
-			cv::waitKey();
 			
-			return;
+
+			std::cout << "Center[" << i  << "]" << cv::Point(x,y) << "\n";
+			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
 		}
 	}
+	cv::imshow("Contours", m_image);
+	cv::waitKey();
 }
 
 struct DistFunc
