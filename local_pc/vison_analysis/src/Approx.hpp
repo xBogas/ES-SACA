@@ -5,6 +5,7 @@
 #include <cmath>
 #include <array>
 
+#include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
 
 // TODO: check for div error if Type = int
@@ -45,7 +46,7 @@ public:
 	Approx()
 		: m_iter(m_points)
 	{
-		u << 5.3794, 7.2532; //starting point
+		u << 550, 550; //starting point
 	}
 
 	Approx(Type x_init, Type y_init, Type radius)
@@ -56,7 +57,7 @@ public:
 
 	~Approx(){};
 
-	// Overload for insertion into m_points matrix
+	// Operator for insertion into m_points matrix
 	Approx&
 	operator<<(Type t)
 	{
@@ -64,7 +65,7 @@ public:
 		return *this;
 	}
 
-	// Overload for insertion into m_points matrix
+	// Operator for insertion into m_points matrix
 	Approx&
 	operator,(Type t)
 	{
@@ -132,6 +133,40 @@ public:
 	int
 	size()
 	{ return m_points.rows(); }
+
+	void
+	setInitialPoint(Type x, Type y)
+	{
+		u.coeffRef(0) = x;
+		u.coeffRef(1) = y;
+	}
+
+	void
+	setRadius(Type r)
+	{
+		m_radius = r;
+	}
+
+	void
+	insertPoints(const std::vector<cv::Point>& data)
+	{
+		m_points.resize(data.size(), 2);
+		jac.resize(data.size(), 2);
+		f.resize(data.size(),1);
+
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			m_points.coeffRef(i,0) = data[i].x;
+			m_points.coeffRef(i,1) = data[i].y;
+		}
+		std::cout << "Here is matrix resized \n" << m_points << "\n";
+	}
+
+	std::tuple<Type,Type>
+	getCenter()
+	{
+		return std::make_tuple(u.coeff(0), u.coeff(1));
+	}
 
 private:
 

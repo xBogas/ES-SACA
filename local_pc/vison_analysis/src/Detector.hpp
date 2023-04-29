@@ -79,7 +79,11 @@ private:
 	void
 	getPoints();
 
-	cv::VideoCapture m_camara;
+#ifdef CAMERA
+	cv::VideoCapture m_camera;
+#endif
+	// in millimeters/pixel
+	float m_ratio;
 	cv::Mat m_image;
 	//std::vector<cv::Point2f> m_points;
 	cv::Mat m_points;

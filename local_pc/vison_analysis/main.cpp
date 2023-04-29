@@ -9,7 +9,7 @@ int main(int argc, char const *argv[])
 	Detector det;
 
 	return 0;
-	//load data points
+/* 	//load data points
 	std::ifstream file;
 	file.open("../Data.txt");
 	if (!file.is_open())
@@ -46,5 +46,5 @@ int main(int argc, char const *argv[])
 	demo.print();
 
 
-	return 0;
+	return 0; */
 }
