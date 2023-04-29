@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <array>
+#include <fstream>
 
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
@@ -80,7 +81,6 @@ public:
 	{
 		h = jac.colPivHouseholderQr().solve(f);
 		//jac. ldlt().solve(f)
-				
 		u.coeffRef(0) = u.coeff(0) + h.coeff(0);
 		u.coeffRef(1) = u.coeff(1) + h.coeff(1);
 	};
@@ -120,10 +120,14 @@ public:
 	void
 	print()
 	{
-		std::cout << "Printing points:\n" << m_points << std::endl;
-		std::cout << "Print jac:\n" << jac << std::endl;
-		std::cout << "Print f:\n" << f << std::endl;
-		std::cout << "Print u:\n" << u << std::endl;
+		std::fstream file;
+		file.open("log.txt", std::ios::out);
+		/* file << "Printing points:\n" << m_points << std::endl;
+		file << "Print jac:\n" << jac << std::endl;
+		file << "Print f:\n" << f << std::endl;
+		file << "Print u:\n" << u << std::endl; */
+		file << m_points;
+		file.close();
 	};
 
 	double
@@ -159,7 +163,6 @@ public:
 			m_points.coeffRef(i,0) = data[i].x;
 			m_points.coeffRef(i,1) = data[i].y;
 		}
-		std::cout << "Here is matrix resized \n" << m_points << "\n";
 	}
 
 	std::tuple<Type,Type>

@@ -79,6 +79,7 @@ private:
 	void
 	getPoints();
 
+
 #ifdef CAMERA
 	cv::VideoCapture m_camera;
 #endif

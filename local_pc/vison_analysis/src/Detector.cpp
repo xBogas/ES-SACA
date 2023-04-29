@@ -159,7 +159,7 @@ void Detector::getPoints()
 	cv::Point p_center(525, 525);
 	int radius = 185;
 	
-	// HSV color space //cv::Scalar(15,10,180), cv::Scalar(45,35,230)
+	// HSV color space
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
 	cv::inRange(hsv, cv::Vec3b(105,10,170), cv::Vec3b(180,40,220), op2);
@@ -179,48 +179,55 @@ void Detector::getPoints()
 	cv::bitwise_and(m_image, cv::Scalar(0,0,255), res2, m_points);
 	cv::imshow("Img2", res2);
 	*/
-	std::vector<cv::Point> data;
-	cv::findNonZero(op2, data);
-	
-	int min_dist = 30;
-	min_dist *= min_dist;
-	std::vector<int> labels;
 
-	int n_labels = partition(data, labels, 
-		[min_dist](const cv::Point& p1, const cv::Point& p2){
-			return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < min_dist;
-		});
-	
-	std::vector<std::vector<cv::Point>> separate_data(n_labels);
+	std::vector<std::vector<cv::Point>> contours;
+	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	std::cout << "Found " << contours.size() << "\n";
 
-	for (size_t i = 0; i < labels.size(); i++)
-		separate_data[labels[i]].push_back(data[i]);
-
-	for (size_t i = 0; i < separate_data.size(); i++)
+	for (size_t i = 0; i < contours.size(); i++)
 	{
-		std::cout << "Label " << i << " has " << separate_data[i].size() << " points\n";
-
-		if (separate_data[i].size() >= 250)
+		if (contours[i].size() > 20)
 		{
-			m_approx->insertPoints(separate_data[i]);
-			m_approx->setRadius(4.5*m_ratio);
-			double h_norm = 1;
-			double min = 1E-6;
+			int new_r = 1;
+			for (size_t j = 0; j < contours[i].size(); j++)
+			{
+				double dist = cv::norm(contours[i][0]-contours[i][j]);
+				if (dist > new_r)
+					new_r = dist;
+			}
+			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
+			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
+			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
+			m_approx->setInitialPoint(x_init, y_init);
 
-			while (h_norm > min)
+			m_approx->insertPoints(contours[i]);
+			
+			
+			std::cout << "Set radius " << new_r/2 << "\n";
+			m_approx->setRadius(new_r/2);
+
+			int iter = 0;
+			while (iter < 100)
 			{
 				m_approx->updateJac();
 				m_approx->updateF();
 				m_approx->nextIter();
 				//m_approx->print();
-				h_norm = m_approx->hNorm();
+				iter++;
+
+				auto [x,y] = m_approx->getCenter();
+				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 			}
+			m_approx->print();
 			auto [x,y] = m_approx->getCenter();
+			std::cout << "Center " << cv::Point(x,y) << "\n";
+			cv::circle(m_image, cv::Point(x,y), new_r/2, cv::Scalar(255,0,0));
+			cv::imshow("Contours", m_image);
+			cv::waitKey();
+			
+			return;
 		}
 	}
-
-	
-	
 }
 
 struct DistFunc
@@ -234,6 +241,26 @@ struct DistFunc
 		return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < dist;
 	}
 };
+
+// separate data
+/* 	std::vector<cv::Point> data;
+	cv::findNonZero(op2, data);
+	int min_dist = 30;
+	min_dist *= min_dist;
+	std::vector<int> labels;
+
+	int n_labels = partition(data, labels, 
+		[min_dist](const cv::Point& p1, const cv::Point& p2){
+			return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < min_dist;
+		});
+	
+	std::vector<std::vector<cv::Point>> separate_data(n_labels);
+
+	for (size_t i = 0; i < labels.size(); i++)
+		separate_data[labels[i]].push_back(data[i]); 
+*/
+
+
 
 /*
 cv::Mat mask1(m_image.rows, m_image.cols, m_image.type(), cv::Scalar(0,0,0));
