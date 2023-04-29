@@ -88,6 +88,7 @@ private:
 	cv::Mat m_image;
 	//std::vector<cv::Point2f> m_points;
 	cv::Mat m_points;
+	cv::Point2d m_center;
 	Approx<double>* m_approx;
 };
 
