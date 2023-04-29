@@ -12,7 +12,7 @@ Detector::Detector(QObject *parent): QObject(parent)
 #ifdef DEBUG
 	std::cout << "I don't have a camera\nRunning with test images\n";
 #endif
-	m_image = cv::imread("../images/sample2-align.jpg", cv::IMREAD_COLOR); 
+	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR); 
 	if (m_image.empty())
 		throw std::runtime_error("Failed to read image for testing");
 	else if (m_image.rows < 1020)
@@ -169,9 +169,10 @@ void Detector::getPoints()
 #endif
 	
 	// HSV color space
+	// TODO: Correct background
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
-	cv::inRange(hsv, cv::Vec3b(100,0,170), cv::Vec3b(190,50,255), op2);
+	cv::inRange(hsv, cv::Vec3b(100,0,120), cv::Vec3b(190,55,220), op2);
 #ifdef DEBUG
 	cv::imshow("Points hsv", op2);
 #endif
@@ -198,12 +199,9 @@ void Detector::getPoints()
 #endif
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 30)
+		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
 		{
-			std::cout << "Contours with size " << contours[i].size() << "\n";
 			double new_r = 4.5/2.0f * 1050.0f/170.0f;
-			
-
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 #ifdef DEBUG
@@ -235,8 +233,9 @@ void Detector::getPoints()
 			m_approx->print();
 			auto [x,y] = m_approx->getCenter();
 			
-
-			std::cout << "Center[" << i  << "]" << cv::Point(x,y) << "\n";
+			std::cout.setf(std::ios::fixed,std::ios::floatfield);
+    		std::cout.precision(3);
+			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with " << cv::contourArea(contours[i]) << " contours area\n";
 			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
 		}
 	}
