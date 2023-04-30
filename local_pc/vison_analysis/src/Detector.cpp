@@ -46,7 +46,8 @@ void Detector::getCenter()
 	{
 		if (contours[i].size() > 500)
 		{
-			double new_r = 185; /* 59.5/2 * 1050/170 */
+			double new_r = 185; //TODO: change /* 59.5/2 * 1050/170 */
+			m_center_radius = new_r;
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
@@ -250,7 +251,7 @@ void Detector::getPoints()
 	{
 		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
 		{
-			double new_r = 4.5/2.0f * 1050.0f/170.0f;
+			double new_r = 4.5/2.0f * 1050.0f/170.0f; //TODO: change
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 #ifdef DEBUG
@@ -291,13 +292,27 @@ void Detector::getPoints()
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
+
+			if (result > m_center_radius+15) // 185 -> center circle
+			{
+				std::cout << "Create mask for pixels at " << shot << "\n";
+				std::cout << "ESP should not move\n";
+			}
+			else if (result < m_center_radius-15)
+			{
+				double distance = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				std::cout << "ESP should move " << distance << " pixels\n";
+			}
+			else
+				std::cout << "Shot at limit\nMust mask and move ESP\n";
+			
 		}
 	}
-	cv::imshow("Contours", m_image);
+	cv::imshow("Shot detection", m_image);
 	cv::waitKey();
 }
 
-struct DistFunc
+/* struct DistFunc
 {
 	int dist;
 
@@ -308,7 +323,7 @@ struct DistFunc
 		return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < dist;
 	}
 };
-
+ */
 // separate data
 /* 	std::vector<cv::Point> data;
 	cv::findNonZero(op2, data);

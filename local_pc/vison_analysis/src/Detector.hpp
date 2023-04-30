@@ -90,6 +90,8 @@ private:
 	cv::Mat m_points;
 	/// @brief Target center
 	cv::Point2d m_center;
+	/// @brief Target black circle radius
+	double m_center_radius;
 	/// @brief Approximation algorithm
 	Approx<double> m_approx;
 };
