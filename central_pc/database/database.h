@@ -29,7 +29,7 @@ public:
     Database();
     ~Database();
 
-    bool db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club);
+    bool db_INSERT_Athlete(int licenseid, string nome, string clube, string disciplina, string escalao, string dataNascimento, string pais, string observacoes);
     bool db_INSERT_Competition(string name, string location, string date, string category);
     bool db_INSERT_Series(int participantrow, float finalscore, int licenseid, string competitionid);
     bool db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid);

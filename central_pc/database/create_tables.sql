@@ -1,10 +1,12 @@
 CREATE TABLE "Athlete"(
 	"Licença" INT NOT NULL,
 	"Nome" VARCHAR NOT NULL,
-	"Género" VARCHAR,
-	"Nacionalidade" VARCHAR,
-	"Idade" INT,
-	"Clube" VARCHAR,
+	"Clube" VARCHAR NOT NULL,
+	"Disciplina" VARCHAR,
+	"Escalão" VARCHAR,
+	"Data de Nascimento" DATE,
+	"País" VARCHAR,
+	"Observações" VARCHAR,
 	CONSTRAINT PK_Athlete PRIMARY KEY ("Licença")
 );
 
