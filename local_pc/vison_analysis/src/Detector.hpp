@@ -78,6 +78,9 @@ private:
 	getPoints();
 
 
+	void
+	getScore(double distance);
+
 #ifdef CAMERA
 	/// @brief Camera object
 	cv::VideoCapture m_camera;

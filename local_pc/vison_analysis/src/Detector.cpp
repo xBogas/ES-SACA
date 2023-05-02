@@ -46,7 +46,7 @@ void Detector::getCenter()
 	{
 		if (contours[i].size() > 500)
 		{
-			double new_r = 185; //TODO: change /* 59.5/2 * 1050/170 */
+			double new_r = 185; //TODO: change /* 30 * 1050/170 */
 			m_center_radius = new_r;
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
@@ -292,6 +292,7 @@ void Detector::getPoints()
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
+			getScore(result);
 
 			if (result > m_center_radius+15) // 185 -> center circle
 			{
@@ -300,8 +301,8 @@ void Detector::getPoints()
 			}
 			else if (result < m_center_radius-15)
 			{
-				double distance = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				std::cout << "ESP should move " << distance << " pixels\n";
+				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
 			}
 			else
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
@@ -311,6 +312,60 @@ void Detector::getPoints()
 	cv::imshow("Shot detection", m_image);
 	cv::waitKey();
 }
+
+void Detector::getScore(double distance)
+{
+	double score = 0;
+	distance = abs(distance*170/1050 - 4.5/2);
+	std::cout << "Distance " << distance << " mm\n";
+	std::cout << "Score is ";
+	if(distance <= 5.75)
+	{
+		score += 10;
+		int dec = (5.75-distance)/(0.575);
+		std::cout << score + dec*0.1 << "\n";
+	}
+	else if(distance <= 77.75)
+	{
+		double delta = 0.8;
+		distance = 72-(distance-5.75);
+		int score = distance/delta +10;
+		std::cout << (float)score/(10.0f) << "\n";
+	}
+}
+
+
+/**
+ * 10 Ring: 5.75  mm
+ * 9  Ring: 13.75 mm
+ * 8  Ring: 21.75 mm
+ * 7  Ring: 29.75 mm
+ * 6  Ring: 37.75 mm
+ * 5  Ring: 45.75 mm
+ * 4  Ring: 53.75 mm
+ * 3  Ring: 61.75 mm
+ * 2  Ring: 69.75 mm
+ * 1  Ring: 77.75 mm
+ */
+
+/**
+ * 
+ * 109 Ring: 2.50  mm
+ * 100 Ring: 5.75  mm
+ * 90  Ring: 13.75 mm
+ * 80  Ring: 21.75 mm
+ * 70  Ring: 29.75 mm
+ * 60  Ring: 37.75 mm
+ * 50  Ring: 45.75 mm
+ * 40  Ring: 53.75 mm
+ * 30  Ring: 61.75 mm
+ * 20  Ring: 69.75 mm
+ * 10  Ring: 77.75 mm
+ */
+
+
+
+
 
 /* struct DistFunc
 {
