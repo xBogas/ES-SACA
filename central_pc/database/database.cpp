@@ -209,6 +209,25 @@ bool Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float
     }
 }
 
+bool Database::db_Import(string file_loc, string table){
+
+
+    try{
+        
+
+        string sql = "copy \""+ to_string(table)+"\" FROM '"+ to_string(file_loc)+"' WITH (FORMAT csv, HEADER, DELIMITER ';',ENCODING 'ISO-8859-1');";
+        execute(sql, false);
+        cout << "Imported successfully" << endl;
+
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return true;
+}
+
 bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
 
     string seriesid = create_seriesid(licenseid, competitionid);
