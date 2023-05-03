@@ -33,6 +33,7 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
+    void shootzoom();
     void finalButtonClicked();
     void matchButtonClicked();
     void practiceButtonClicked();
@@ -57,9 +58,15 @@ private:
     float totaldecshot;
     float x;
     float y;
+    float w;
+    float h;
+    short int timezoom;
     QTimer reloj;
     QTimer alert;
+    QTimer timedzoom;
     QGraphicsScene *scene;
+    QGraphicsPixmapItem* item;
+    QGraphicsPixmapItem* itemblue;
     enum Columna
     {
         Tiro,Int, Dec

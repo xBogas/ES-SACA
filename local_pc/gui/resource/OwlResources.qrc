@@ -6,5 +6,7 @@
         <file>img/exit.png</file>
         <file>img/PistolTarget.png</file>
         <file>img/RifleTarget.png</file>
+        <file>img/Red Dot.png</file>
+        <file>img/Blue Dot.png</file>
     </qresource>
 </RCC>
