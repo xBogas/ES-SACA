@@ -53,21 +53,12 @@ int main(int argc, char *argv[]){
     //start server thread
     std::thread server(server_thread, w, w2, ptl, rfl);
 
-    // conectar sinal para fechar threads e sockets
-    // QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
-    //     io_context.stop();
-    //     finish = true;
-
-    //     // fechar todos os sockets abertos antes de sair da função
-    //     for (auto socket : open_sockets) {
-    //         boost::system::error_code ec;
-    //         socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    //         socket->close(ec);
-    //         delete socket;
-    //     }
-
-    //     server.join();
-    // });
+    //conectar sinal para fechar threads e sockets
+    QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
+        io_context.stop();
+        finish = true;
+        //server.join();
+    });
 
     return a.exec();
 }
@@ -159,7 +150,8 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                         int new_clientID = window->clientPlayerIds[client_ip];
 
                         if(database->verify_id(new_clientID) && !window->samePlayerIds[client_ip]){
-                            std::string athlete = "athlete: " + (database->get_name_from_id(new_clientID));
+                            std::string name = database->get_name_from_id(new_clientID);
+                            std::string athlete = name + ";" + std::to_string(new_clientID);
                             boost::asio::write(socket, boost::asio::buffer(athlete));
 
                             old_clientID = new_clientID;
@@ -324,6 +316,9 @@ void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window
                 boost::asio::write(socket, boost::asio::buffer("Received message."));
             }
         }
+
+        socket.close();
+        std::cout << "socket closed" << std::endl;
     }
     catch (std::exception& e){
         std::cerr << "Error: " << e.what() << std::endl;

@@ -30,3 +30,23 @@ sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-
   sudo apt-get install libpqxx-dev
   ```
 - To install libpqxx, the c++ library for postgresql database connection.
+
+# Database management
+//create database
+sudo apt update
+sudo apt install postgresql 
+sudo service postgresql start
+createdb es_saca
+psql es_saca
+
+//access database
+sudo su postgres
+psql es_saca
+
+//paste format
+once inside the database, paste the create_tables.sql content
+
+//change password
+sudo su postgres
+psql
+\password postgres

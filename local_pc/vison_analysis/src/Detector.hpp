@@ -11,79 +11,92 @@ class Detector : public QObject
 
 public:
 
+	/// @brief Default Constructor
+	/// @param parent QObject parent
 	explicit Detector(QObject *parent = nullptr);
 	
+
+	/// @brief Default Destructor
 	~Detector(){};
 
 private:
 
+	/// @brief Calculate target center
 	void
 	getCenter();
 	
+
+	/// @brief Calculate mean of circles data where each element has (x,y,radius)
+	/// @param data Vector with 3 channels per element
+	/// @return Average values of first 2 channels (x,y)
 	std::tuple<double,double>
 	mean(const std::vector<cv::Vec3f>& data);
 
+
+	/// @brief Calculates standard deviation of circle data
+	/// @param data Circle data
+	/// @param mean_x Average value of x circle
+	/// @param mean_y Average value of y circle
+	/// @return Deviation of x and y of data
 	std::tuple<double,double>
 	standardDeviation(const std::vector<cv::Vec3f>& data, double mean_x = 0, double mean_y = 0);
 
+
+	/// @brief Reject circle data outliers
+	/// @param data Circle data vector
+	/// @param threshold Above this threshold all data is considered an outlier
+	/// @return Average value of circle center
 	std::tuple<int, int>
 	rejectOutliers(const std::vector<cv::Vec3f>& data, int threshold);
 
 
+	/// @brief Calculate mean of circles data where each element has (x,y,radius)
+	/// @param data Vector with 3 channels per element
+	/// @return Average circle center
 	cv::Point
-	mean(const std::vector<cv::Point> &data)
-	{
-		double sum_x = 0, sum_y = 0;
-		for (size_t i = 0; i < data.size(); i++)
-		{
-			sum_x += data[i].x;
-			sum_y += data[i].y;
-		}
-		
-		return cv::Point(sum_x/data.size(), sum_y/data.size());
-	}
+	mean(const std::vector<cv::Point> &data);
 
+	/// @brief Calculates standard deviation of data points
+	/// @param data Points vector
+	/// @param mean_x Average value of x
+	/// @param mean_y Average value of y
+	/// @return Deviation of x and y of data
 	std::tuple<double,double>
-	standardDeviation(const std::vector<cv::Point> &data, double mean_x, double mean_y)
-	{
-		double sum_x = 0, sum_y = 0;
-		for (size_t i = 0; i < data.size(); i++){
-			sum_x += pow(data[i].x - mean_x,2);
-			sum_y += pow(data[i].y - mean_y,2);
-		}
-		return std::make_tuple(sqrt(sum_x/data.size()), sqrt(sum_y/data.size()));
-	}
+	standardDeviation(const std::vector<cv::Point> &data, double mean_x, double mean_y);
 
+
+	/// @brief Reject data points outliers
+	/// @param data Points vector
+	/// @param threshold Above this threshold all points are considered outliers
+	/// @param output Points vector without outliers
 	void
-	rejectOutliers(const std::vector<cv::Point>& data, int threshold, std::vector<cv::Point>& output)
-	{
-		auto [mean_x, mean_y] = mean(data);
-    	auto [devi_x, devi_y] = standardDeviation(data, mean_x, mean_y);
-		if ( devi_x == 0 || devi_y == 0)
-			return ;
-        
-		int x = 0, y = 0, samples = 0;
-		for (size_t i = 0; i < data.size(); i++)
-		{
-			if(std::abs(data[i].x - mean_x)/devi_x <= threshold 
-			&& std::abs(data[i].y - mean_y)/devi_y <= threshold)
-			{
-				x += data[i].x;
-				y += data[i].y;
-				output.emplace_back(data[i].x,data[i].y);
-				samples++;
-			}
-    	}
-	}
+	rejectOutliers(const std::vector<cv::Point>& data, int threshold, std::vector<cv::Point>& output);
 
+
+	/// @brief Shot detection algorithm
 	void
 	getPoints();
 
-	cv::VideoCapture m_camara;
+
+	void
+	getScore(double distance);
+
+#ifdef CAMERA
+	/// @brief Camera object
+	cv::VideoCapture m_camera;
+#endif
+	/// @brief Ratio of pixel/mm
+	float m_ratio;
+	/// @brief Image object to analyze
 	cv::Mat m_image;
-	//std::vector<cv::Point2f> m_points;
+	/// @brief Points Mat
 	cv::Mat m_points;
-	Approx<double>* m_approx;
+	/// @brief Target center
+	cv::Point2d m_center;
+	/// @brief Target black circle radius
+	double m_center_radius;
+	/// @brief Approximation algorithm
+	Approx<double> m_approx;
 };
 
 #endif

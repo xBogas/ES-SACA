@@ -123,13 +123,14 @@ string Database::get_name_from_id(int ID){
 
 }
 
-bool Database::db_INSERT_Athlete(int licenseid, string name, string gender, string nationality, int age, string club){
+bool Database::db_INSERT_Athlete(int licenseid, string nome, string clube, string disciplina, string escalao, string dataNascimento, string pais, string observacoes){
 
     if(verify_id(licenseid)) return false;
 
     try{
         string sql = "INSERT INTO \"Athlete\" VALUES (" 
-                        + to_string(licenseid) + ", '" + name + "', '" + gender + "', '" + nationality + "', " + to_string(age) +", '" + club + "');";
+                        + to_string(licenseid) + ", '" + nome + "', '" + clube + "', '" + disciplina + "', '" + escalao + "', '" 
+                        + dataNascimento + "', '" + pais + "', '" + observacoes + "');";
 
         execute(sql, false);
 

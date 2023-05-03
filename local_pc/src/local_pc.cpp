@@ -38,12 +38,13 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         boost::asio::connect(socket, endpoints);
 
         std::cout << "Connected to server." << std::endl;
+        
+        std::string name;
+        int ID;
 
         for(;;){
-            char init[1024];
-            char type[1024];
-            char mode[1024];
-
+            char init[1024], athlete[1024], type[1024], mode[1024];
+            
             if(initial){
                 // Receive reply from server
                 size_t init_length = socket.read_some(boost::asio::buffer(init));
@@ -55,6 +56,14 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     decideType = true;
                     initial = false;
                 }
+                else{
+                    std::strcpy(athlete, init);
+                    std::string athl(athlete);
+
+                    size_t delimiter_pos = athl.find(';');
+                    name = athl.substr(0, delimiter_pos);
+                    ID = std::stoi(athl.substr(delimiter_pos + 1));
+                }
             }
             else if(decideType){
                 // Receive reply from server
@@ -65,12 +74,16 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                 if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
                     emit window->openPistolWindowSignal();
+                    ptlwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
+                    ptlwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
 
                     decideMode = true;
                     decideType = false; 
                 }
                 else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
                     emit window->openRifleWindowSignal();
+                    rflwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
+                    rflwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
 
                     decideMode = true;
                     decideType = false; 
@@ -133,7 +146,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     }
 
                     if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
-                        emit ptlwindow->startButtonClickedSignal();
+                        emit rflwindow->startButtonClickedSignal();
                         
                         canStart = false;
 
