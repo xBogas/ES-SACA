@@ -26,13 +26,13 @@ bool verify_ID(int ID);
 string get_name_from_id(int ID);
 string create_seriesid(int licenseid, string competitionid);
 bool update_score(int licenseid, string competitionid, float score);
-
+int db_Import(connection& conn ,string file_loc, string table);
 
 int main()
 {   
     //putenv("PQXX_DEBUG=1");
     /************************/
-    /*Para correr usar comando "g++ demo.cpp -L/usr/lib/x86_64-linux-gnu/ -lpqxx -lpq -o demo.o" no terminal*/
+    /*Para correr usar comando "g++ demo.cpp -L/usr/lib/x86_64-linux-gnu/ -lpqxx -lpq -o demo.o no terminal*/
     /*Necesário instalar libpqxx e postgresql no pc*/
     /*Pensar se é melhor adicionar um paramentro com a conexão a cada função em vez de fazer essa conexão cada vez que se pretenda usar*/
     /************************/
@@ -56,7 +56,9 @@ int main()
 
     conn.disconnect();*/
 
-    Database my_db;
+    connection& conn=db_connection();
+    db_Import(conn,"/tmp/db_nonull.csv","Athlete");
+    conn.disconnect();
     
     //my_db.db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
     //my_db.db_INSERT_Competition("Torneio Páscoa", "Braga", "22/4/2022", "P");
@@ -73,7 +75,7 @@ connection& db_connection() {
     const string DbHostIP="127.0.0.1";
     const string DbName="es_saca";
     const string DbUser="postgres";
-    const string DbPassword="equipaE_saca";
+    const string DbPassword="saca";
     const string DbPort="5432";
 
     static connection conn("host="+DbHostIP+" dbname="+DbName+" user="+DbUser+" password="+DbPassword+" port="+DbPort);
@@ -276,6 +278,27 @@ int db_SELECT(connection conn){
     return 0;
 }
 
+int db_Import(connection& conn ,string file_loc, string table){
+
+    std::__cxx11::basic_string<char> sql;
+
+    try{
+        
+
+        work W(conn);
+        sql = "copy \""+ to_string(table)+"\" FROM '"+ to_string(file_loc)+"' WITH (FORMAT csv, HEADER, DELIMITER ';',ENCODING 'ISO-8859-1');";
+        W.exec(sql.c_str());
+        W.commit();
+        cout << "Updated successfully" << endl;
+
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return 1;
+    }
+
+    return 0;
+}
 
 //talvez repensar maneira de criar seriesid
 //dar update ao nome da função 
