@@ -228,6 +228,8 @@ bool Database::db_Import(string file_loc, string table){
     return true;
 }
 
+
+
 bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
 
     string seriesid = create_seriesid(licenseid, competitionid);
@@ -246,6 +248,26 @@ bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
       return false;
     }
 }
+
+bool Database::update_Routine(){
+
+    try{
+        string sql1="UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\";";
+
+        string sql2="INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\")SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
+
+        string sql=sql1+sql2;
+
+        execute(sql, false);
+
+        cout << "Updated Temp and Athlete successfully" << endl;
+        return true;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+}   
 
 //1234_PORTO_12/02/22_P
 string Database::create_seriesid(int licenseid, string competitionid){
