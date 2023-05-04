@@ -12,6 +12,7 @@ bool initial = true, decideType = false, decideMode = false, canStart = false;
 bool matchORfinal = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
+void handle_ESP_communication();
 
 int main(int argc, char *argv[]){
     //gui code
@@ -21,8 +22,9 @@ int main(int argc, char *argv[]){
     PistolWindow *ptl = w.getPistolWindow();
     RifleWindow *rfl = w.getRifleWindow();
     
-    //start client thread
+    //start threads
     std::thread client(client_thread, &w, ptl, rfl);
+    // std::thread ESP(handle_ESP_communication);
 
     return a.exec();;
 }
@@ -182,6 +184,8 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     break;
                 }
 
+                // when the signal from electret is received, then activate the function to process the vision analysis once
+
                 // Send message to server
                 boost::asio::write(socket, boost::asio::buffer(message));
 
@@ -203,5 +207,9 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         std::cerr << "Error: " << e.what() << std::endl;
     }
 
+    return;
+}
+
+void handle_ESP_communication(){
     return;
 }
