@@ -39,7 +39,7 @@ public:
     bool verify_id(int ID);
     string get_name_from_id(int ID);
     bool db_Import(string file_loc, string table);
-    bool Database::update_Routine();
+    bool update_Routine();
     //update table series para atualizar final score
 
 };
