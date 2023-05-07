@@ -8,25 +8,16 @@ PistolWindow::PistolWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    int w = ui->Target->width();
-    int h = ui->Target->height();
-    QPixmap PistolTarget(":/resources/img/PistolTarget.png");
-    QGraphicsScene *scene = new QGraphicsScene(this);
-    scene->addPixmap(PistolTarget.scaled(w-2,h-2));
-    ui->Target->setScene(scene);
-
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item->setScale(0.01);
-    item->setPos(283.5,249);
-    scene->addItem(item);
-    
-    QGraphicsPixmapItem* item2 = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
-    item2->setScale(0.01);
-    item2->setPos(300,240);
-    scene->addItem(item2);
-    
-
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
+
+    QStringList titulos; 
+    ui->tableWidget->setColumnCount(4);
+    ui->tableWidget->setRowCount(10);
+    titulos << "Lugar" << "Atleta" << "Pont.(Int)" << "Pont.(Dec)";
+    ui->tableWidget->setHorizontalHeaderLabels(titulos);
+    ui->tableWidget->verticalHeader()->setVisible(0);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     
     practiceSignal = false;
     matchSignal = false;
@@ -38,9 +29,21 @@ PistolWindow::PistolWindow(QWidget *parent) :
     horas=0;
     procss=0;
     al=0;
+    lug_1=0;
+    lug_2=0;
+    lug_3=0;
+    lug_4=0;
+    lug_5=0;
+    lug_6=0;
+    lug_7=0;
+    lug_8=0;
+    lug_9=0;
+    lug_10=0;
+    lug_igual=0;
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
+
 }
 
 PistolWindow::~PistolWindow()
@@ -64,8 +67,8 @@ void PistolWindow::on_PracticeButton_clicked()
         matchSignal = false;
         finalSignal = false;
 
-        segundos=2;
-        minutos=1;
+        segundos=0;
+        minutos=15;
         horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
@@ -127,12 +130,6 @@ void PistolWindow::on_ExitButton_clicked()
     qApp->quit();
 }
 
-void PistolWindow::on_horizontalSlider_valueChanged(int value){
-    int w = ui->Target->width();
-    int h = ui->Target->height();
-    ui->Target->setTransform(QTransform::fromScale(value/100,value/100));
-}
-
 void PistolWindow::processar()
 {
     if(minutos==0 && segundos==0) {
@@ -171,6 +168,177 @@ void PistolWindow::processar()
     if(procss==1 && segundos%2==1){
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
     }
+
+    //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
+    int z;
+    int i;
+    int d;
+
+    // while(procss==1){                   //por a funçaõ a correr enquanto o processo estiver ativo
+    //     for(z=1; z<=10; z++){
+    //         QString lug;
+    //         /* lug="1º";
+    //         QString atl = "Altair";
+    //         ui->tableWidget->setItem(1-1,Lugar,new QTableWidgetItem(lug));
+    //         ui->tableWidget->setItem(1-1,Atleta,new QTableWidgetItem(atl));
+    //         ui->tableWidget->setItem(1-1,Inte,new QTableWidgetItem(QString::number(40)));
+    //         ui->tableWidget->setItem(1-1,Dec,new QTableWidgetItem(QString::number(40.7))); */
+
+    //         while(i=1;i<=tt;i++){                            //percorrer todos os atletas, tt=total de atletas.
+    //             if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9 || i==lug_10){
+    //                 continue;                   //passa para o seguinte i;
+    //             }
+
+    //             //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
+    //             if(z==2 && /*se pontuação de i é igual à de lug_1*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==3 && /*se pontuação de i é igual à de lug_2*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==4 && /*se pontuação de i é igual à de lug_3*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==5 && /*se pontuação de i é igual à de lug_4*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==6 && /*se pontuação de i é igual à de lug_5*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==7 && /*se pontuação de i é igual à de lug_6*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==8 && /*se pontuação de i é igual à de lug_7*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==9 && /*se pontuação de i é igual à de lug_8*/){
+    //                 lug_igual==1;
+    //             }
+    //             if(z==10 && /*se pontuação de i é igual à de lug_9*/){
+    //                 lug_igual==1;
+    //             }
+
+    //             if(lug_igual==0){
+    //                 for(d=1; d<=tt; d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
+    //                     if(i!=d){
+    //                         if(/*se pontuação de i é menor que de d*/){
+    //                             i=d-1;
+    //                             break;
+    //                         }
+    //                     }
+    //                 }
+    //             }
+
+    //             if(d==tt){
+    //                 if(z==1){
+    //                     lug_1=i;
+    //                     break;
+    //                 }
+    //                 if(z==2){
+    //                     lug_2=i;
+    //                     break;
+    //                 }
+    //                 if(z==3){
+    //                     lug_3=i;
+    //                     break;
+    //                 }
+    //                 if(z==4){
+    //                     lug_4=i;
+    //                     break;
+    //                 }
+    //                 if(z==5){
+    //                     lug_5=i;
+    //                     break;
+    //                 }
+    //                 if(z==6){
+    //                     lug_6=i;
+    //                     break;
+    //                 }
+    //                 if(z==7){
+    //                     lug_7=i;
+    //                     break;
+    //                 }
+    //                 if(z==8){
+    //                     lug_8=i;
+    //                     break;
+    //                 }
+    //                 if(z==9){
+    //                     lug_9=i;
+    //                     break;
+    //                 }
+    //                 if(z==10){
+    //                     lug_10=i;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         if(z==1){
+    //             lug="1º";
+    //         }
+    //         if(z==2){
+    //             if(lug_igual!=1){
+    //                 lug="2º";
+    //             }
+    //         }
+    //         if(z==3){
+    //             if(lug_igual!=1){
+    //                 lug="3º";
+    //             }
+    //         }
+    //         if(z==4){
+    //         if(lug_igual!=1){
+    //                 lug="4º";
+    //             } 
+    //         }
+    //         if(z==5){
+    //             if(lug_igual!=1){
+    //                 lug="5º";
+    //             }
+    //         }
+    //         if(z==6){
+    //             if(lug_igual!=1){
+    //                 lug="6º";
+    //             }
+    //         }
+    //         if(z==7){
+    //             if(lug_igual!=1){
+    //                 lug="7º";
+    //             }
+    //         }
+    //         if(z==8){
+    //             if(lug_igual!=1){
+    //                 lug="8º";
+    //             }
+    //         }
+    //         if(z==9){
+    //             if(lug_igual!=1){
+    //                 lug="9º";
+    //             }
+    //         }
+    //         if(z==10){
+    //             if(lug_igual!=1){
+    //                 lug="10º";
+    //             }
+    //         }
+    //         ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
+    //         ui->tableWidget->setItem(z-1,Atleta,/*nome ou numero do atleta*/);
+    //         ui->tableWidget->setItem(z-1,Inte,/*pontuação atual só com números inteiros*/);
+    //         ui->tableWidget->setItem(z-1,Dec,/*pontuação atual*/);
+
+    //         lug_igual=0;
+    //     }
+    //     lug_1=0;
+    //     lug_2=0;
+    //     lug_3=0;
+    //     lug_4=0;
+    //     lug_5=0;
+    //     lug_6=0;
+    //     lug_7=0;
+    //     lug_8=0;
+    //     lug_9=0;
+    //     lug_10=0;
+    // }
 }
 
 void PistolWindow::alerta()

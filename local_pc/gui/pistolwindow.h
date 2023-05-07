@@ -66,7 +66,7 @@ private:
     QGraphicsPixmapItem* item;
     enum Columna
     {
-        Tiro,Int, Dec
+        Tiro,Inte, Dec
     };
 };
 

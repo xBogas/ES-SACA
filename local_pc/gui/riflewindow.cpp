@@ -211,21 +211,26 @@ void RifleWindow::on_horizontalSlider_valueChanged(int value){
     }
 }   
 
-
+//Botão temorário para simular disparo. Pôr o código que está dentro, com as devidas alterações, no PistolWindow::processar(), quando eliminar-se o botão.
 //Botão temorário para simular disparo.
 void RifleWindow::on_ShootButton_clicked(){
-    x=ui->doubleSpinBox->value();
-    y=ui->doubleSpinBox_2->value();
+    x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    y=ui->doubleSpinBox_2->value();             //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    //intshot=                                  //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
+    //decshot=                                  //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
     QPixmap RedDot(":/resources/img/Red Dot.png");
 
     //if(procss==1){
         timedzoom.start(400); 
 
+        //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.01);
         item->setPos(257.5+x,257.5+y);
         scene->addItem(item);
 
+
+        //Código temporário para simular a pontuação. A ser eliminado quando já não for necessário.
         //10th circle
         if(((x+257.5)-257.5)*((x+257.5)-257.5)+((y+257.5)-257.5)*((y+257.5)-257.5)<=23*23){
             intshot=10;
@@ -576,6 +581,7 @@ void RifleWindow::on_ShootButton_clicked(){
             }
         }
 
+        //Código para preencher a tabela e os labels abaixo da tabela.
         totalintshot=totalintshot+intshot;
         totaldecshot=totaldecshot+decshot;
         ui->lastshot->setText(QString::number(decshot));
@@ -584,9 +590,11 @@ void RifleWindow::on_ShootButton_clicked(){
         ui->total_dec_2->setText(QString::number(totaldecshot));
         ui->tableWidget->insertRow(ui->tableWidget->rowCount());
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Tiro,new QTableWidgetItem(QString::number(nim)));
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Int,new QTableWidgetItem(QString::number(intshot)));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Inte,new QTableWidgetItem(QString::number(intshot)));
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Dec,new QTableWidgetItem(QString::number(decshot)));
 
+
+        //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(5,5));
             ui->Target->centerOn(QPointF(259.0+x,259.0+y));
@@ -596,6 +604,7 @@ void RifleWindow::on_ShootButton_clicked(){
     //}
 }
 
+//Código para alternar o ponto entre vermelho e azul enquanto está a fazer zoom onde houve o disparo. Também termina o zoom após algum tempo.
 void RifleWindow::shootzoom()
 {   
     QPixmap RedDot(":/resources/img/Red Dot.png");
