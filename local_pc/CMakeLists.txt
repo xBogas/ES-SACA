@@ -19,21 +19,18 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
-add_executable(local_pc
+# add folder files
+file(GLOB_RECURSE VISION_FILES src/*.cpp vision_analysis/src/*.hpp)
+file(GLOB_RECURSE GUI_FILES gui/*.cpp gui/*.h gui/*.ui)
+
+add_executable(${PROJECT_NAME}
     gui/resource/OwlResources.qrc
     src/local_pc.cpp
-    gui/mainwindow.cpp
-    gui/mainwindow.h
-    gui/mainwindow.ui
-    gui/pistolwindow.cpp
-    gui/pistolwindow.h
-    gui/pistolwindow.ui
-    gui/riflewindow.cpp
-    gui/riflewindow.h
-    gui/riflewindow.ui
+    ${GUI_FILES}
+    ${VISION_FILES}
 )
 
-target_link_libraries(local_pc
+target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Widgets
     ${OpenCV_LIBS}
     ${QT_LIBRARIES}
