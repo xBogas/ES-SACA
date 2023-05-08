@@ -226,7 +226,7 @@ void RifleWindow::on_ShootButton_clicked(){
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
+        item->setPos(257.5+x,257.5+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 

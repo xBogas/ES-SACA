@@ -216,8 +216,8 @@ void PistolWindow::on_horizontalSlider_valueChanged(int value){
 void PistolWindow::on_ShootButton_clicked(){
     electretSignal = true;
 
-    x=ui->doubleSpinBox->value();
-    y=ui->doubleSpinBox_2->value();
+    x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    y=ui->doubleSpinBox_2->value();             //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     //intshot=                                  //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
     //decshot=                                  //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
     QPixmap RedDot(":/resources/img/Red Dot.png");
@@ -228,7 +228,7 @@ void PistolWindow::on_ShootButton_clicked(){
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
+        item->setPos(257.5+x,257.5+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
         
 
