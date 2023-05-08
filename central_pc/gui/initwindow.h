@@ -31,6 +31,7 @@ private slots:
     void on_addButton_clicked();
     void on_importButton_clicked();
     void on_exportButton_clicked();
+    void onBackButtonClicked();
     
 private:
     Ui::InitWindow *ui;

@@ -16,6 +16,9 @@ class PistolWindow : public QMainWindow
 {
     Q_OBJECT
 
+signals:
+    void stopButtonClicked();
+
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
     ~PistolWindow();
@@ -31,6 +34,7 @@ private slots:
     void on_FinalButton_clicked();
     void on_ExitButton_clicked();
     void on_MainButton_clicked();
+    void on_stopButton_clicked();
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();

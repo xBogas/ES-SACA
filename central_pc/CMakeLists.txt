@@ -26,6 +26,9 @@ add_executable(central_pc
     database/database.cpp
     database/database.h
     gui/resource/OwlResources.qrc
+    gui/initwindow.cpp
+    gui/initwindow.h
+    gui/initwindow.ui
     gui/mainwindow.cpp
     gui/mainwindow.h
     gui/mainwindow.ui
@@ -41,9 +44,6 @@ add_executable(central_pc
     gui/addplayerwindow.cpp
     gui/addplayerwindow.h
     gui/addplayerwindow.ui
-    gui/initwindow.cpp
-    gui/initwindow.h
-    gui/initwindow.ui
 )
 
 target_link_libraries(central_pc

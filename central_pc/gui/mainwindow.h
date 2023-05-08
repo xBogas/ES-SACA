@@ -23,11 +23,9 @@ public:
     std::map<std::string, bool> samePlayerIds;
     std::map<std::string, bool> cellWasChanged;
 
-private:
-    std::vector<std::string> connected_clients;
-
 signals:
     void showErrorMessageSignal(std::string errorType);
+    void backButtonClicked();
 
 public slots:
     void updateClientList(std::vector<std::string> clients);
@@ -41,8 +39,10 @@ private slots:
     bool differentID(int ID, int row);
     bool rightIDs();
     void updateCellWasChanged(std::string clientIp);
+    void on_backButton_clicked();
     
 private:
+    std::vector<std::string> connected_clients;
     Ui::MainWindow *ui;
     MainWindow2 *mainwindow2;
     QTableWidget *IP_ID_Table;

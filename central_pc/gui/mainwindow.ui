@@ -23,9 +23,9 @@
    <widget class="QPushButton" name="exitButton">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>520</y>
-      <width>191</width>
+      <x>1070</x>
+      <y>30</y>
+      <width>101</width>
       <height>41</height>
      </rect>
     </property>
@@ -254,106 +254,169 @@
     <column/>
     <column/>
     <item row="0" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="1" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="2" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="3" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="4" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="5" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="6" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="7" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="8" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="9" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="10" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="11" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="12" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="13" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="14" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="15" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="16" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="17" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="18" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="19" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
     </item>
     <item row="20" column="1">
+     <property name="text">
+      <string/>
+     </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
      </property>
@@ -390,7 +453,7 @@
    <widget class="QPushButton" name="continueButton">
     <property name="geometry">
      <rect>
-      <x>770</x>
+      <x>980</x>
       <y>520</y>
       <width>191</width>
       <height>41</height>
@@ -406,6 +469,27 @@
     </property>
     <property name="text">
      <string>CONTINUAR</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="backButton">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>520</y>
+      <width>191</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(170, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string>VOLTAR</string>
     </property>
    </widget>
   </widget>

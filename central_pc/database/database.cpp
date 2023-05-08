@@ -112,7 +112,6 @@ string Database::get_name_from_id(int ID){
 
         if (rows.empty()) return "";
         else {
-            cout << rows[0][0] << endl;
             return rows[0][0];
         }
 

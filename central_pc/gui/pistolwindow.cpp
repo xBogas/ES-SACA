@@ -57,6 +57,11 @@ void PistolWindow::on_StartButton_clicked()
     procss=1;
 }
 
+void PistolWindow::on_stopButton_clicked()
+{  
+    emit stopButtonClicked();
+}
+
 void PistolWindow::on_PracticeButton_clicked()
 { 
     if(procss==0){

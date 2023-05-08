@@ -505,6 +505,28 @@
      <enum>QGraphicsView::NoDrag</enum>
     </property>
    </widget>
+   <widget class="QPushButton" name="stopButton">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>600</y>
+      <width>261</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>26</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(100, 100, 100);</string>
+    </property>
+    <property name="text">
+     <string>STOP</string>
+    </property>
+   </widget>
    <zorder>PracticeButton</zorder>
    <zorder>MatchButton</zorder>
    <zorder>FinalButton</zorder>
@@ -528,6 +550,7 @@
    <zorder>label_8</zorder>
    <zorder>label_7</zorder>
    <zorder>Target</zorder>
+   <zorder>stopButton</zorder>
   </widget>
  </widget>
  <resources/>

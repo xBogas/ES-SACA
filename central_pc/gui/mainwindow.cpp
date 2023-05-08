@@ -35,6 +35,11 @@ MainWindow2* MainWindow::getMainWindow2(){
     return mainwindow2;
 }
 
+void MainWindow::on_backButton_clicked(){
+    this->close();
+    emit backButtonClicked();
+}
+
 void MainWindow::on_exitButton_clicked(){
     this->close();
 }
@@ -52,26 +57,6 @@ bool MainWindow::rightIDs(){
         if(nonPlayerIds[client] || samePlayerIds[client])
             return false;
     }
-    
-    // for(int row = 0; row < ui->IP_ID_Table->rowCount(); row++){
-    //     QTableWidgetItem *item = ui->IP_ID_Table->item(row, 1);
-    //     if(item != nullptr){
-    //         int value = item->text().toInt();
-
-    //         for(int rowAux = 0; rowAux < ui->IP_ID_Table->rowCount(); rowAux++){
-    //             if(row != rowAux){
-    //                 QTableWidgetItem *itemAux = ui->IP_ID_Table->item(rowAux, 1);
-    //                 if(itemAux != nullptr){
-    //                     int valueAux = itemAux->text().toInt();
-
-    //                     if(value == valueAux)
-    //                         return false;
-    //                 }
-    //             }
-    //         }
-    //     }
-        
-    // }
 
     return true;
 }
@@ -97,6 +82,8 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
 
 void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
+        std::cout << "cellChanged" << std::endl;
+
         std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
 
@@ -143,6 +130,5 @@ void MainWindow::showErrorMessage(std::string errorType){
     else if(errorType == "sameID")
         QMessageBox::critical(this, "Erro", "ID já atribuído");
 }
-
 
 

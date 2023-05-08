@@ -4,12 +4,17 @@
 #include <QtWidgets/QApplication>
 #include <thread>
 #include <iostream>
+#include <chrono>
+#include <random>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
+boost::asio::io_context io_context;
 
 bool initial = true, decideType = false, decideMode = false, canStart = false;
 bool matchORfinal = false;
+bool entry = true;
+bool finish = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 void handle_ESP_communication();
@@ -26,16 +31,24 @@ int main(int argc, char *argv[]){
     std::thread client(client_thread, &w, ptl, rfl);
     // std::thread ESP(handle_ESP_communication);
 
+    //connect signals
+    QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
+        io_context.stop();
+        finish = true;
+        client.join();
+    });
+
     return a.exec();;
 }
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
-        boost::asio::io_context io_context;
+        long long initial_millis;
+        int delay_ms;
 
         tcp::resolver resolver(io_context);
         //tcp::resolver::results_type endpoints = resolver.resolve("192.168.0.1", "8080");
-        tcp::resolver::results_type endpoints = resolver.resolve("127.0.0.1", "8080");
+        tcp::resolver::results_type endpoints = resolver.resolve("10.0.2.15", "8080");
 
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);
@@ -47,6 +60,9 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
         for(;;){
             char init[1024], athlete[1024], type[1024], mode[1024];
+
+            if(finish)
+                break;
             
             if(initial){
                 // Receive reply from server
@@ -157,50 +173,70 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                             decideMode = false;
                     }
                 }
-
-                // if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
-                //     if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
-                //         emit ptlwindow->startButtonClickedSignal();
-                        
-                //         if(std::strncmp(mode, "match", std::strlen("match")) == 0)
-                //             decideMode = false;
-                //     }
-                //     else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
-                //         emit rflwindow->startButtonClickedSignal();
-
-                //         if(std::strncmp(mode, "match", std::strlen("match")) == 0)
-                //             decideMode = false;
-                //     }
-                // }
             }
             else{
-                // Read input from user
-                std::string message;
-                std::cout << "Enter message: ";
-                std::getline(std::cin, message);
+                if(entry){
+                    auto initial = std::chrono::system_clock::now();
+                    auto initial_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(initial);
+                    initial_millis = initial_ms.time_since_epoch().count();
 
-                // Exit loop if something happens
-                if (message == "quit") {
-                    break;
+                    std::random_device rd;
+                    std::mt19937 gen(rd());
+                    std::uniform_int_distribution<> dis(5000, 8000);
+                    delay_ms = dis(gen);
+                    delay_ms = 5000;
+
+                    entry = false;
                 }
 
-                // when the signal from electret is received, then activate the function to process the vision analysis once
+                auto now = std::chrono::system_clock::now();
+                auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+                long long now_millis = now_ms.time_since_epoch().count();
 
-                // Send message to server
-                boost::asio::write(socket, boost::asio::buffer(message));
+                if(now_millis - initial_millis > delay_ms){
+                    std::cout << "5 sec passados" << std::endl;
 
-                // Receive reply from server
-                char reply[1024];
-                size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+                    // Read input from user
+                    // std::string message;
+                    // std::cout << "Enter message: ";
+                    // std::getline(std::cin, message);
 
-                std::cout << "Server replied: ";
-                std::cout.write(reply, reply_length);
-                std::cout << std::endl;
+                    // // Exit loop if something happens
+                    // if (message == "quit") {
+                    //     break;
+                    // }
+
+                    // when the signal from electret is received, then activate the function to process the vision analysis once
+
+                    // boost::asio::async_write(socket, boost::asio::buffer("practice"),
+                    //     [&](const boost::system::error_code& ec, std::size_t bytes_transferred) {
+                    //         if (!ec) {
+                    //             std::cout << "Sent data to server: " << std::endl;
+                    //         } else {
+                    //             std::cerr << "Error sending data to server: " << ec.message() << std::endl;
+                    //         }
+                    //     });
+
+                    // Send message to server
+                    boost::asio::write(socket, boost::asio::buffer("5 sec"));
+
+                    // Receive reply from server
+                    char reply[1024];
+                    size_t reply_length = socket.read_some(boost::asio::buffer(reply));
+
+                    std::cout << "Server replied: ";
+                    std::cout.write(reply, reply_length);
+                    std::cout << std::endl;
+
+                    entry = true;
+                }
+                
             }
         }
 
         // Close socket
         socket.close();
+        std::cout << "Socket closed" << std::endl;
     }
     catch (std::exception& e)
     {
