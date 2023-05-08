@@ -30,7 +30,6 @@ Detector::Detector(QObject *parent)
 }
 #endif
 
-
 void Detector::getCenter()
 {
 	cv::Mat alt = m_image.clone(), edge;

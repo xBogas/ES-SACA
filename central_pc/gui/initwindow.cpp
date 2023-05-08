@@ -15,6 +15,9 @@ InitWindow::InitWindow(QWidget *parent, Database *db)
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
     QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);
+
+    //conect signal
+    connect(mainwindow, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
 }
 
 InitWindow::~InitWindow(){
@@ -52,6 +55,10 @@ void InitWindow::on_continueButton_clicked(){
 void InitWindow::on_addButton_clicked(){
     addplayerwindow->show();
     addplayerwindow->move(100,100);
+}
+
+void InitWindow::onBackButtonClicked(){
+    this->show();
 }
 
 

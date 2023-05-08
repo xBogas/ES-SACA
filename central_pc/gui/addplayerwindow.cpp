@@ -19,21 +19,31 @@ void AddPlayerWindow::on_cancelButton_clicked(){
 }
 
 void AddPlayerWindow::on_saveButton_clicked(){
+    //verificação dos campos
+    if (ui->IDText->text().trimmed().isEmpty() || ui->nameText->text().trimmed().isEmpty()) {
+        // Exibe uma mensagem de erro caso um dos campos esteja vazio
+        QMessageBox::critical(this, "Erro", "Nome ou licença do atleta não preenchido");
+        return;
+    }
+
     //obter strings
-    string nome = ui->nameText->text().toStdString();
     int licenca = ui->IDText->text().toInt();
+    string nome = ui->nameText->text().toStdString();
     string clube = ui->clubeText->text().toStdString();
     string disciplina = ui->disciplinaText->text().toStdString();
-    QString escalao = ui->escalaoText->text();
+    string escalao = ui->escalaoText->text().toStdString();
+    string nascimento = ui-> birthText->date().toString("yyyy-MM-dd").toStdString();
+    string pais = ui->paisText->text().toUpper().toStdString();
     string observacoes = ui->obserText->toPlainText().toStdString();
 
     //guardar na base de dados
-    // int a = database->db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");
-    bool insert = database->db_INSERT_Athlete(licenca, nome, "M", "Português", 22, clube);
+    bool insert = database->db_INSERT_Athlete(licenca, nome, clube, disciplina, escalao, nascimento, pais, observacoes);
     if(insert)
         QMessageBox::information(this, "Sucesso", "Atleta adicionado com sucesso");
-    else
+    else{
         QMessageBox::critical(this, "Erro", "Atleta já existente");
+        return;
+    }
 
     this->close();
 }

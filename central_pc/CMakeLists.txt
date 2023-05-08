@@ -21,37 +21,23 @@ include_directories(${PostgreSQL_INCLUDE_DIRS})
 
 find_library(libpqxx_LIBRARY NAMES pqxx PATHS /usr/local/lib /usr/lib)
 
-add_executable(central_pc
-    src/central_pc.cpp
-    database/database.cpp
-    database/database.h
+# add folder files
+file(GLOB_RECURSE DATABASE_FILES database/*.cpp database/*.h)
+file(GLOB_RECURSE GUI_FILES gui/*.cpp gui/*.h gui/*.ui)
+
+add_executable(${PROJECT_NAME}
     gui/resource/OwlResources.qrc
-    gui/mainwindow.cpp
-    gui/mainwindow.h
-    gui/mainwindow.ui
-    gui/mainwindow2.cpp
-    gui/mainwindow2.h
-    gui/mainwindow2.ui
-    gui/pistolwindow.cpp
-    gui/pistolwindow.h
-    gui/pistolwindow.ui
-    gui/riflewindow.cpp
-    gui/riflewindow.h
-    gui/riflewindow.ui
-    gui/addplayerwindow.cpp
-    gui/addplayerwindow.h
-    gui/addplayerwindow.ui
-    gui/initwindow.cpp
-    gui/initwindow.h
-    gui/initwindow.ui
+    src/central_pc.cpp
+    ${DATABASE_FILES}
+    ${GUI_FILES}
 )
 
-target_link_libraries(central_pc
+target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Widgets
     ${OpenCV_LIBS}
     ${QT_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PostgreSQL_LIBRARIES}
     ${libpqxx_LIBRARY}
-    ${Vulkan_LIBRARIES}
+    # ${Vulkan_LIBRARIES}
 )

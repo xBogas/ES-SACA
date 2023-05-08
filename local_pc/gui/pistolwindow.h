@@ -19,6 +19,7 @@ class PistolWindow : public QMainWindow
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
     ~PistolWindow();
+    bool electretSignal;
 
 signals:    
     void finalButtonClickedSignal();

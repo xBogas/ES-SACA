@@ -36,17 +36,18 @@ sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-
 sudo apt update
 sudo apt install postgresql 
 sudo service postgresql start
-createdb es_saca
-psql es_saca
+createdb saca
+psql saca
 
 //access database
-sudo su postgres
-psql es_saca
+sudo su - postgres
+psql saca
 
 //paste format
 once inside the database, paste the create_tables.sql content
 
 //change password
 sudo su postgres
-psql
+psql saca
 \password postgres
+//change to "saca"

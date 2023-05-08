@@ -10,6 +10,8 @@ CREATE TABLE "Athlete"(
 	CONSTRAINT PK_Athlete PRIMARY KEY ("Licença")
 );
 
+CREATE TEMPORARY TABLE temp AS TABLE "Athlete" WITH NO DATA;
+
 CREATE TABLE "Series"(
 	seriesid VARCHAR NOT NULL,
 	participantrow INT NOT NULL,

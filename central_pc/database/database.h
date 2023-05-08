@@ -38,7 +38,8 @@ public:
     bool update_score(int licenseid, string competitionid, int coordinatesid, float coordinatex, float coordinatey, float score);
     bool verify_id(int ID);
     string get_name_from_id(int ID);
-
+    bool db_Import(string file_loc, string table);
+    bool update_Routine();
     //update table series para atualizar final score
 
 };
