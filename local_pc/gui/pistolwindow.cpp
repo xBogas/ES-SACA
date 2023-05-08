@@ -36,6 +36,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     totalintshot=0;
     decshot=0;
     totaldecshot=0;
+    electretSignal = false;
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
@@ -214,6 +215,8 @@ void PistolWindow::on_horizontalSlider_valueChanged(int value){
 
 //Botão temorário para simular disparo.
 void PistolWindow::on_ShootButton_clicked(){
+    electretSignal = true;
+
     x=ui->doubleSpinBox->value();
     y=ui->doubleSpinBox_2->value();
     QPixmap RedDot(":/resources/img/Red Dot.png");

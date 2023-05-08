@@ -20,7 +20,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
 # add folder files
-file(GLOB_RECURSE VISION_FILES src/*.cpp vision_analysis/src/*.hpp)
+file(GLOB_RECURSE VISION_FILES vision_analysis/src/*.cpp vision_analysis/src/*.hpp)
 file(GLOB_RECURSE GUI_FILES gui/*.cpp gui/*.h gui/*.ui)
 
 add_executable(${PROJECT_NAME}

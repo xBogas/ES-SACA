@@ -8,6 +8,10 @@
 #include <random>
 #include <boost/asio.hpp>
 
+#include <opencv2/opencv.hpp>
+#include "../vision_analysis/src/Detector.hpp"
+#include <fstream>
+
 using boost::asio::ip::tcp;
 boost::asio::io_context io_context;
 
@@ -15,6 +19,7 @@ bool initial = true, decideType = false, decideMode = false, canStart = false;
 bool matchORfinal = false;
 bool entry = true;
 bool finish = false;
+bool electretSignal = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 void handle_ESP_communication();
@@ -182,9 +187,9 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     std::random_device rd;
                     std::mt19937 gen(rd());
-                    std::uniform_int_distribution<> dis(5000, 8000);
+                    std::uniform_int_distribution<> dis(5000, 8000); //random time between 5000 and 8000 milliseconds
                     delay_ms = dis(gen);
-                    delay_ms = 5000;
+                    //delay_ms = 5000;
 
                     entry = false;
                 }
@@ -193,32 +198,10 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
                 long long now_millis = now_ms.time_since_epoch().count();
 
-                if(now_millis - initial_millis > delay_ms){
-                    std::cout << "5 sec passados" << std::endl;
-
-                    // Read input from user
-                    // std::string message;
-                    // std::cout << "Enter message: ";
-                    // std::getline(std::cin, message);
-
-                    // // Exit loop if something happens
-                    // if (message == "quit") {
-                    //     break;
-                    // }
-
-                    // when the signal from electret is received, then activate the function to process the vision analysis once
-
-                    // boost::asio::async_write(socket, boost::asio::buffer("practice"),
-                    //     [&](const boost::system::error_code& ec, std::size_t bytes_transferred) {
-                    //         if (!ec) {
-                    //             std::cout << "Sent data to server: " << std::endl;
-                    //         } else {
-                    //             std::cerr << "Error sending data to server: " << ec.message() << std::endl;
-                    //         }
-                    //     });
-
+                electretSignal = ptlwindow->electretSignal;
+                if((now_millis - initial_millis > delay_ms) and !electretSignal){ // timeout
                     // Send message to server
-                    boost::asio::write(socket, boost::asio::buffer("5 sec"));
+                    boost::asio::write(socket, boost::asio::buffer("timeout"));
 
                     // Receive reply from server
                     char reply[1024];
@@ -229,6 +212,11 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     std::cout << std::endl;
 
                     entry = true;
+                }
+                else if(electretSignal){ // process vision_analysis
+                    std::cout << "ElectretSignal Activated" << std::endl;
+
+                    ptlwindow->electretSignal = false;
                 }
                 
             }

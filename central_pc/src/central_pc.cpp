@@ -122,7 +122,6 @@ void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwi
 
 void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
-        boost::system::error_code ec;
         std::string client_ip = socket.remote_endpoint().address().to_string();
         int old_clientID = 0;
 
@@ -257,8 +256,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                 }
             }
             else{
+                boost::system::error_code ec;
                 char data[1024];
-
                 size_t length = socket.read_some(boost::asio::buffer(data), ec);
 
                 if (ec == boost::asio::error::eof){
