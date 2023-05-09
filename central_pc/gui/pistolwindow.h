@@ -40,7 +40,6 @@ private slots:
     void on_stopButton_clicked();
     void on_switchButton_clicked();
     void on_backButton_clicked();
-    void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
     void resetTimer();
@@ -53,9 +52,25 @@ private:
     short int segundos;
     short int procss;
     short int al;
+    short int lug_1;
+    short int lug_2;
+    short int lug_3;
+    short int lug_4;
+    short int lug_5;
+    short int lug_6;
+    short int lug_7;
+    short int lug_8;
+    short int lug_9;
+    short int lug_10;
+    short int lug_igual;
+    
     QTimer reloj;
     QTimer alert;
     bool block;
+    enum Columna
+    {
+        Lugar,Atleta,Inte,Dec
+    };
 };
 
 #endif // PISTOLWINDOW_H
