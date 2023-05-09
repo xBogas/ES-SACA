@@ -13,6 +13,8 @@
 class MainWindow2 : public QMainWindow
 {
     Q_OBJECT
+signals:
+    void backButtonClicked();
 
 public:
     MainWindow2(QWidget *parent = 0);
@@ -27,10 +29,13 @@ public slots:
 private slots:
     void on_rifleButton_clicked();
     void on_pistolButton_clicked();
+    void on_backButton_clicked();
+    void on_exitButton_clicked();
+    void onBackButtonClicked();
 
 private:
     Ui::MainWindow2 *ui;
-    PistolWindow *pistolwindow = new PistolWindow();
-    RifleWindow *riflewindow = new RifleWindow();
+    PistolWindow *pistolwindow;
+    RifleWindow *riflewindow;
 };
 #endif // MAINWINDOW2_H

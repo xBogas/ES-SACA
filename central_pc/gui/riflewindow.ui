@@ -107,7 +107,7 @@
      <rect>
       <x>1230</x>
       <y>20</y>
-      <width>21</width>
+      <width>22</width>
       <height>22</height>
      </rect>
     </property>
@@ -182,8 +182,8 @@
    <widget class="QPushButton" name="MatchButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>490</y>
+      <x>990</x>
+      <y>370</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -287,8 +287,8 @@
    <widget class="QPushButton" name="PracticeButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>430</y>
+      <x>990</x>
+      <y>310</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -322,17 +322,17 @@
      <string>Lat Shot:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="MainButton">
+   <widget class="QPushButton" name="backButton">
     <property name="geometry">
      <rect>
-      <x>1120</x>
+      <x>1140</x>
       <y>20</y>
       <width>80</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>MainScreen</string>
+     <string>VOLTAR</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -398,8 +398,8 @@
    <widget class="QPushButton" name="FinalButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>550</y>
+      <x>990</x>
+      <y>430</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -414,7 +414,7 @@
      <string notr="true">background-color: rgb(85, 85, 255);</string>
     </property>
     <property name="text">
-     <string>Final</string>
+     <string>FINAL</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_3">
@@ -431,19 +431,6 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="JournalButton">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>20</y>
-      <width>81</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Journal</string>
     </property>
    </widget>
    <widget class="QLabel" name="total_dec_2">
@@ -488,6 +475,28 @@
     </property>
     <property name="text">
      <string>INICIAR</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="switchButton">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>490</y>
+      <width>311</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>26</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230);</string>
+    </property>
+    <property name="text">
+     <string>MUDAR MODO</string>
     </property>
    </widget>
   </widget>

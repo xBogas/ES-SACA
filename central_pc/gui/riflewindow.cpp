@@ -15,6 +15,8 @@ RifleWindow::RifleWindow(QWidget *parent) :
     matchSignal = false;
     finalSignal = false;
     startSignal = false;
+    switchModeSignal = false;
+    backSignal = false;
 
     segundos=0;
     minutos=0;
@@ -100,14 +102,23 @@ void RifleWindow::on_FinalButton_clicked()
     }
 }
 
-void RifleWindow::on_MainButton_clicked(){
-    this->hide();
-    this->parentWidget()->show();
-}
-
 void RifleWindow::on_ExitButton_clicked()
 {
     qApp->quit();
+}
+
+void RifleWindow::on_switchButton_clicked()
+{
+    switchModeSignal = true;
+    resetTimer();
+}
+
+void RifleWindow::on_backButton_clicked()
+{
+    backSignal = true;
+
+    this->close();
+    emit backButtonClicked();
 }
 
 void RifleWindow::on_horizontalSlider_valueChanged(int value){
@@ -140,12 +151,7 @@ void RifleWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        reloj.stop();
-        procss=0;
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+        resetTimer();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;
@@ -193,3 +199,15 @@ void RifleWindow::alerta()
     }
 }
 
+void RifleWindow::resetTimer()
+{  
+    reloj.stop();
+    procss = 0;
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
+    ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
+    ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+}

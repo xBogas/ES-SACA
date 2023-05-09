@@ -23,8 +23,8 @@
    <widget class="QPushButton" name="PracticeButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>430</y>
+      <x>990</x>
+      <y>310</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -45,8 +45,8 @@
    <widget class="QPushButton" name="MatchButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>490</y>
+      <x>990</x>
+      <y>370</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -67,8 +67,8 @@
    <widget class="QPushButton" name="FinalButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>550</y>
+      <x>990</x>
+      <y>430</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -83,7 +83,7 @@
      <string notr="true">background-color: rgb(85, 85, 255);</string>
     </property>
     <property name="text">
-     <string>Final</string>
+     <string>FINAL</string>
     </property>
    </widget>
    <widget class="QPushButton" name="StartButton">
@@ -409,30 +409,17 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="JournalButton">
+   <widget class="QPushButton" name="backButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>20</y>
-      <width>81</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Journal</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="MainButton">
-    <property name="geometry">
-     <rect>
-      <x>1120</x>
+      <x>1140</x>
       <y>20</y>
       <width>80</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>MainScreen</string>
+     <string>VOLTAR</string>
     </property>
    </widget>
    <widget class="QPushButton" name="ExitButton">
@@ -440,9 +427,12 @@
      <rect>
       <x>1230</x>
       <y>20</y>
-      <width>21</width>
+      <width>22</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
     </property>
     <property name="text">
      <string/>
@@ -450,6 +440,12 @@
     <property name="icon">
      <iconset>
       <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>16</width>
+      <height>16</height>
+     </size>
     </property>
    </widget>
    <widget class="QLabel" name="label_8">
@@ -527,6 +523,28 @@
      <string>STOP</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="switchButton">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>490</y>
+      <width>311</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>26</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230);</string>
+    </property>
+    <property name="text">
+     <string>MUDAR MODO</string>
+    </property>
+   </widget>
    <zorder>PracticeButton</zorder>
    <zorder>MatchButton</zorder>
    <zorder>FinalButton</zorder>
@@ -544,13 +562,13 @@
    <zorder>label_5</zorder>
    <zorder>horizontalSlider</zorder>
    <zorder>label_6</zorder>
-   <zorder>JournalButton</zorder>
-   <zorder>MainButton</zorder>
+   <zorder>backButton</zorder>
    <zorder>ExitButton</zorder>
    <zorder>label_8</zorder>
    <zorder>label_7</zorder>
    <zorder>Target</zorder>
    <zorder>stopButton</zorder>
+   <zorder>switchButton</zorder>
   </widget>
  </widget>
  <resources/>

@@ -14,6 +14,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->addPixmap(PistolTarget.scaled(w-2,h-2));
     ui->Target->setScene(scene);
+    ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap(":/resources/img/exit.png"));
     item->setScale(0.01);
@@ -25,13 +26,12 @@ PistolWindow::PistolWindow(QWidget *parent) :
     item2->setPos(300,240);
     scene->addItem(item2);
     
-
-    ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
-    
     practiceSignal = false;
     matchSignal = false;
     finalSignal = false;
     startSignal = false;
+    switchModeSignal = false;
+    backSignal = false;
 
     segundos=0;
     minutos=0;
@@ -122,14 +122,23 @@ void PistolWindow::on_FinalButton_clicked()
     }
 }
 
-void PistolWindow::on_MainButton_clicked(){
-    this->hide();
-    this->parentWidget()->show();
-}
-
 void PistolWindow::on_ExitButton_clicked()
 {
     qApp->quit();
+}
+
+void PistolWindow::on_switchButton_clicked()
+{
+    switchModeSignal = true;
+    resetTimer();
+}
+
+void PistolWindow::on_backButton_clicked()
+{
+    backSignal = true;
+
+    this->close();
+    emit backButtonClicked();
 }
 
 void PistolWindow::on_horizontalSlider_valueChanged(int value){
@@ -153,12 +162,7 @@ void PistolWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        reloj.stop();
-        procss=0;
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+        resetTimer();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;
@@ -204,4 +208,17 @@ void PistolWindow::alerta()
         ui->minutes->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
         ui->hours->setStyleSheet("QLCDNumber{color: rgb(0, 0, 0)}");
     }
+}
+
+void PistolWindow::resetTimer()
+{  
+    reloj.stop();
+    procss = 0;
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
+    ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
+    ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
 }

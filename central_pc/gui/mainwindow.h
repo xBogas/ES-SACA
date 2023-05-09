@@ -35,11 +35,13 @@ private slots:
     void on_exitButton_clicked();
     void on_continueButton_clicked();
     void on_IP_ID_Table_cellChanged(int row, int column);
+    void on_backButton_clicked();
+    void onBackButtonClicked();
     void showErrorMessage(std::string errorType);
     bool differentID(int ID, int row);
     bool rightIDs();
     void updateCellWasChanged(std::string clientIp);
-    void on_backButton_clicked();
+    
     
 private:
     std::vector<std::string> connected_clients;

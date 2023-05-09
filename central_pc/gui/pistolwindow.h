@@ -18,6 +18,7 @@ class PistolWindow : public QMainWindow
 
 signals:
     void stopButtonClicked();
+    void backButtonClicked();
 
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
@@ -26,6 +27,8 @@ public:
     bool matchSignal;
     bool finalSignal;
     bool startSignal;
+    bool switchModeSignal;
+    bool backSignal;
 
 private slots:
     void on_StartButton_clicked();
@@ -33,11 +36,13 @@ private slots:
     void on_MatchButton_clicked();
     void on_FinalButton_clicked();
     void on_ExitButton_clicked();
-    void on_MainButton_clicked();
     void on_stopButton_clicked();
+    void on_switchButton_clicked();
+    void on_backButton_clicked();
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
+    void resetTimer();
 
 
 private:

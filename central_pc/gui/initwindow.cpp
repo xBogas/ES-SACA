@@ -7,9 +7,10 @@ InitWindow::InitWindow(QWidget *parent, Database *db)
 {
     ui->setupUi(this);
 
+    ui->exitButton->setIcon(QIcon(":/resources/img/exit.png"));
+
     //create window
     mainwindow = new MainWindow();
-
     addplayerwindow = new AddPlayerWindow(nullptr, database);
 
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
