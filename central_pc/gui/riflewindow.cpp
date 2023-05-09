@@ -23,6 +23,9 @@ RifleWindow::RifleWindow(QWidget *parent) :
     matchSignal = false;
     finalSignal = false;
     startSignal = false;
+    switchModeSignal = false;
+    backSignal = false;
+    block = false;
 
     segundos=0;
     minutos=0;
@@ -43,6 +46,7 @@ RifleWindow::RifleWindow(QWidget *parent) :
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
+    QObject::connect(this, &RifleWindow::backToDecideModeSignal, this, &RifleWindow::resetTimer);
 }
 
 RifleWindow::~RifleWindow()
@@ -52,16 +56,18 @@ RifleWindow::~RifleWindow()
 
 void RifleWindow::on_StartButton_clicked()
 {  
-    startSignal = true;
+    if(!block){
+        startSignal = true;
 
-    reloj.start(1000);
-    alert.start(250);
-    procss=1;
+        reloj.start(1000);
+        alert.start(250);
+        procss=1;
+    }
 }
 
 void RifleWindow::on_PracticeButton_clicked()
 {  
-    if(procss==0){
+    if(procss==0 && !block){
         practiceSignal = true;
         matchSignal = false;
         finalSignal = false;
@@ -81,7 +87,7 @@ void RifleWindow::on_PracticeButton_clicked()
 
 void RifleWindow::on_MatchButton_clicked()
 {  
-    if(procss==0){
+    if(procss==0 && !block){
         matchSignal = true;
         practiceSignal = false;
         finalSignal = false;
@@ -101,7 +107,7 @@ void RifleWindow::on_MatchButton_clicked()
 
 void RifleWindow::on_FinalButton_clicked()
 { 
-    if(procss==0){
+    if(procss==0 && !block){
         finalSignal = true;
         practiceSignal = false;
         matchSignal = false;
@@ -119,14 +125,23 @@ void RifleWindow::on_FinalButton_clicked()
     }
 }
 
-void RifleWindow::on_MainButton_clicked(){
-    this->hide();
-    this->parentWidget()->show();
-}
-
 void RifleWindow::on_ExitButton_clicked()
 {
     qApp->quit();
+}
+
+void RifleWindow::on_switchButton_clicked()
+{
+    switchModeSignal = true;
+    blockDecideMode();
+}
+
+void RifleWindow::on_backButton_clicked()
+{
+    backSignal = true;
+
+    this->close();
+    emit backButtonClicked();
 }
 
 void RifleWindow::processar()
@@ -144,12 +159,7 @@ void RifleWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        reloj.stop();
-        procss=0;
-        ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
-        ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
-        ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
-        ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+        resetTimer();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;
@@ -368,3 +378,29 @@ void RifleWindow::alerta()
     }
 }
 
+void RifleWindow::resetTimer()
+{  
+    reloj.stop();
+    procss = 0;
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    block = false;
+    ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
+    ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
+    ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+}
+
+void RifleWindow::blockDecideMode(){
+    reloj.stop();
+    procss = 0;
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    block = true;
+    ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+}

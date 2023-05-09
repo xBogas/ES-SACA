@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
     QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);
+    ui->exitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
     //tablewidgetconnect 94.130.134.104:27023
     ui->IP_ID_Table->setHorizontalHeaderLabels({"Endereço IP", "ID do Atleta"});
@@ -21,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //conect signals
     QObject::connect(this, &MainWindow::showErrorMessageSignal, this, &MainWindow::showErrorMessage);
+    connect(mainwindow2, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
 }
 
 MainWindow::~MainWindow(){
@@ -36,7 +38,7 @@ MainWindow2* MainWindow::getMainWindow2(){
 }
 
 void MainWindow::on_backButton_clicked(){
-    this->close();
+    this->hide();
     emit backButtonClicked();
 }
 
@@ -82,8 +84,6 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
 
 void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
-        std::cout << "cellChanged" << std::endl;
-
         std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
 
@@ -131,4 +131,7 @@ void MainWindow::showErrorMessage(std::string errorType){
         QMessageBox::critical(this, "Erro", "ID já atribuído");
 }
 
+void MainWindow::onBackButtonClicked(){
+    this->show();
+}
 

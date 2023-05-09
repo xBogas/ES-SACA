@@ -15,11 +15,11 @@
 using boost::asio::ip::tcp;
 boost::asio::io_context io_context;
 
-bool initial = true, decideType = false, decideMode = false, canStart = false;
+bool initial = true, decideType = false, decideMode = false, canStart = false, readSignal = false;
 bool matchORfinal = false;
 bool entry = true;
 bool finish = false;
-bool electretSignal = false;
+bool isPistol = false, isRifle = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 void handle_ESP_communication();
@@ -64,7 +64,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         int ID;
 
         for(;;){
-            char init[1024], athlete[1024], type[1024], mode[1024];
+            char init[1024], athlete[1024], type[1024], mode[1024], backToType[1024], backToMode[1024];
 
             if(finish)
                 break;
@@ -101,6 +101,8 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     ptlwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
                     ptlwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
 
+                    isPistol = true;
+                    isRifle = false;
                     decideMode = true;
                     decideType = false; 
                 }
@@ -108,7 +110,9 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     emit window->openRifleWindowSignal();
                     rflwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
                     rflwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
-
+                    
+                    isRifle = true;
+                    isPistol = false;
                     decideMode = true;
                     decideType = false; 
                 }    
@@ -120,7 +124,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 std::cout.write(mode, mode_length);
                 std::cout << std::endl;
 
-                if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
+                if(isPistol){
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit ptlwindow->practiceButtonClickedSignal();
 
@@ -142,14 +146,23 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
                         emit ptlwindow->startButtonClickedSignal();
-                        
-                        canStart = false;
 
-                        if(matchORfinal)
+                        if(matchORfinal){
+                            canStart = false;
                             decideMode = false;
+                            matchORfinal = false;
+                        }
+                            
+                    }
+
+                    if(std::strncmp(mode, "backToDecideMode", std::strlen("backToDecideMode")) == 0){
+                        emit ptlwindow->backToDecideModeSignal();
+                        
+                        matchORfinal = false;
+                        decideMode = true;
                     }
                 }
-                else if(std::strncmp(type, "rifle", std::strlen("rifle")) == 0){
+                else if(isRifle){
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit rflwindow->practiceButtonClickedSignal();
                         
@@ -172,10 +185,18 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
                         emit rflwindow->startButtonClickedSignal();
                         
-                        canStart = false;
-
-                        if(matchORfinal)
+                        if(matchORfinal){
+                            canStart = false;
                             decideMode = false;
+                            matchORfinal = false;
+                        }
+                    }
+
+                    if(std::strncmp(mode, "backToDecideMode", std::strlen("backToDecideMode")) == 0){
+                        emit rflwindow->backToDecideModeSignal();
+                        
+                        matchORfinal = false;
+                        decideMode = true;
                     }
                 }
             }
@@ -198,27 +219,42 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
                 long long now_millis = now_ms.time_since_epoch().count();
 
-                electretSignal = ptlwindow->electretSignal;
-                if((now_millis - initial_millis > delay_ms) and !electretSignal){ // timeout
+                if((now_millis - initial_millis > delay_ms) and !ptlwindow->electretSignal){ // timeout
                     // Send message to server
                     boost::asio::write(socket, boost::asio::buffer("timeout"));
 
-                    // Receive reply from server
-                    char reply[1024];
-                    size_t reply_length = socket.read_some(boost::asio::buffer(reply));
-
-                    std::cout << "Server replied: ";
-                    std::cout.write(reply, reply_length);
-                    std::cout << std::endl;
-
                     entry = true;
+                    readSignal = true;
                 }
-                else if(electretSignal){ // process vision_analysis
+                else if(ptlwindow->electretSignal){ // process vision_analysis
                     std::cout << "ElectretSignal Activated" << std::endl;
 
                     ptlwindow->electretSignal = false;
+                    readSignal = true;
                 }
-                
+
+                if(readSignal){
+                    // Receive reply from server
+                    size_t backToMode_length = socket.read_some(boost::asio::buffer(backToMode));
+                    std::cout << "Server replied: ";
+                    std::cout.write(backToMode, backToMode_length);
+                    std::cout << std::endl;
+
+                    if(std::strncmp(backToMode, "backToDecideMode", std::strlen("backToDecideMode")) == 0){
+                        if(isPistol){
+                            emit ptlwindow->backToDecideModeSignal();
+                        }
+                        else if(isRifle){
+                            emit rflwindow->backToDecideModeSignal();
+                        }
+                        
+                        decideMode = true;
+                        readSignal = false;
+                    }
+                    else if(std::strncmp(backToMode, "proceed", std::strlen("proceed")) == 0){
+                        readSignal = false;
+                    }
+                }
             }
         }
 

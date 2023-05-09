@@ -18,8 +18,25 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="3" colspan="5">
-     <widget class="QPushButton" name="PracticeButton">
+    <item row="0" column="7">
+     <widget class="QPushButton" name="ExitButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3" colspan="5">
+     <widget class="QPushButton" name="MatchButton">
       <property name="font">
        <font>
         <pointsize>20</pointsize>
@@ -27,28 +44,12 @@
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 0);</string>
+       <string notr="true">background-color: rgb(170, 0, 0);</string>
       </property>
       <property name="text">
-       <string>TREINO</string>
+       <string>QUALIFICAÇÃO</string>
       </property>
      </widget>
-    </item>
-    <item row="0" column="6">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>10</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item row="1" column="3" colspan="5">
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -111,8 +112,8 @@
       </item>
      </layout>
     </item>
-    <item row="4" column="3" colspan="5">
-     <widget class="QPushButton" name="MatchButton">
+    <item row="5" column="3" colspan="5">
+     <widget class="QPushButton" name="FinalButton">
       <property name="font">
        <font>
         <pointsize>20</pointsize>
@@ -120,32 +121,15 @@
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(170, 0, 0);</string>
+       <string notr="true">background-color: rgb(85, 85, 255);</string>
       </property>
       <property name="text">
-       <string>QUALIFICAÇÃO</string>
+       <string>FINAL</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="7">
-     <widget class="QPushButton" name="ExitButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <spacer name="verticalSpacer_3">
+    <item row="6" column="3">
+     <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
@@ -160,40 +144,69 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="3">
-     <spacer name="verticalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
+    <item row="0" column="5">
+     <widget class="QPushButton" name="backButton">
+      <property name="text">
+       <string>VOLTAR</string>
       </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
+     </widget>
     </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QLabel" name="label_6">
+    <item row="7" column="3" colspan="5">
+     <widget class="QPushButton" name="StartButton">
       <property name="font">
        <font>
         <pointsize>26</pointsize>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(100, 100, 100);</string>
+      </property>
       <property name="text">
-       <string>CARABINA</string>
+       <string>INICIAR</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="0" column="4">
-     <spacer name="horizontalSpacer_2">
+    <item row="1" column="0">
+     <spacer name="horizontalSpacer_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Minimum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="1" rowspan="7">
+     <widget class="QTableWidget" name="tableWidget"/>
+    </item>
+    <item row="3" column="3" colspan="5">
+     <widget class="QPushButton" name="PracticeButton">
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 0);</string>
+      </property>
+      <property name="text">
+       <string>TREINO</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="6">
+     <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -203,22 +216,6 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>10</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="1" column="2">
-     <spacer name="horizontalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
         <height>20</height>
        </size>
       </property>
@@ -257,8 +254,8 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <spacer name="horizontalSpacer_4">
+    <item row="1" column="2">
+     <spacer name="horizontalSpacer_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -267,7 +264,7 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>40</width>
+        <width>20</width>
         <height>20</height>
        </size>
       </property>
@@ -289,24 +286,8 @@
       </property>
      </spacer>
     </item>
-    <item row="7" column="3" colspan="5">
-     <widget class="QPushButton" name="StartButton">
-      <property name="font">
-       <font>
-        <pointsize>26</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(100, 100, 100);</string>
-      </property>
-      <property name="text">
-       <string>INICIAR</string>
-      </property>
-     </widget>
-    </item>
     <item row="8" column="3" colspan="5">
-     <widget class="QPushButton" name="stopButton">
+     <widget class="QPushButton" name="switchButton">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -315,15 +296,15 @@
       </property>
       <property name="font">
        <font>
-        <pointsize>26</pointsize>
+        <pointsize>20</pointsize>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(100, 100, 100);</string>
+       <string notr="true">background-color:  rgb(230, 230, 230);</string>
       </property>
       <property name="text">
-       <string>STOP</string>
+       <string>RESET</string>
       </property>
      </widget>
     </item>
