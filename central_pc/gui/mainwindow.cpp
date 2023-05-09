@@ -84,8 +84,6 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
 
 void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
     if (column == 1){
-        std::cout << "cellChanged" << std::endl;
-
         std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
 

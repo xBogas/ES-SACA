@@ -32,6 +32,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     startSignal = false;
     switchModeSignal = false;
     backSignal = false;
+    block = false;
 
     segundos=0;
     minutos=0;
@@ -41,6 +42,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
+    QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::resetTimer);
 }
 
 PistolWindow::~PistolWindow()
@@ -50,11 +52,13 @@ PistolWindow::~PistolWindow()
 
 void PistolWindow::on_StartButton_clicked()
 {  
-    startSignal = true;
+    if(!block){
+        startSignal = true;
 
-    reloj.start(1000);
-    alert.start(250);
-    procss=1;
+        reloj.start(1000);
+        alert.start(250);
+        procss=1;
+    }
 }
 
 void PistolWindow::on_stopButton_clicked()
@@ -64,7 +68,7 @@ void PistolWindow::on_stopButton_clicked()
 
 void PistolWindow::on_PracticeButton_clicked()
 { 
-    if(procss==0){
+    if(procss==0 && !block){
         practiceSignal = true;
         matchSignal = false;
         finalSignal = false;
@@ -84,7 +88,7 @@ void PistolWindow::on_PracticeButton_clicked()
 
 void PistolWindow::on_MatchButton_clicked()
 {  
-    if(procss==0){
+    if(procss==0 && !block){
         matchSignal = true;
         practiceSignal = false;
         finalSignal = false;
@@ -104,7 +108,7 @@ void PistolWindow::on_MatchButton_clicked()
 
 void PistolWindow::on_FinalButton_clicked()
 { 
-    if(procss==0){
+    if(procss==0 && !block){
         finalSignal = true;
         practiceSignal = false;
         matchSignal = false;
@@ -130,7 +134,7 @@ void PistolWindow::on_ExitButton_clicked()
 void PistolWindow::on_switchButton_clicked()
 {
     switchModeSignal = true;
-    resetTimer();
+    blockDecideMode();
 }
 
 void PistolWindow::on_backButton_clicked()
@@ -217,8 +221,22 @@ void PistolWindow::resetTimer()
     segundos = 0;
     minutos = 0;
     horas = 0;
+    block = false;
     ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
     ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(85, 85, 255)}");
+}
+
+void PistolWindow::blockDecideMode(){
+    reloj.stop();
+    procss = 0;
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    block = true;
+    ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+    ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
 }

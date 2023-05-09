@@ -18,6 +18,7 @@ class RifleWindow : public QMainWindow
 
 signals:
     void backButtonClicked();
+    void backToDecideModeSignal();
 
 public:
     explicit RifleWindow(QWidget *parent = nullptr);
@@ -41,6 +42,7 @@ private slots:
     void processar();
     void alerta();
     void resetTimer();
+    void blockDecideMode();
 
 private:
     Ui::RifleWindow *ui;
@@ -51,6 +53,7 @@ private:
     short int al;
     QTimer reloj;
     QTimer alert;
+    bool block;
 };
 
 #endif // RIFLEWINDOW_H

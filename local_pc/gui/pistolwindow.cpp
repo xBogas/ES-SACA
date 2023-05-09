@@ -46,6 +46,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QObject::connect(this, &PistolWindow::practiceButtonClickedSignal, this, &PistolWindow::practiceButtonClicked);
     QObject::connect(this, &PistolWindow::matchButtonClickedSignal, this, &PistolWindow::matchButtonClicked);
     QObject::connect(this, &PistolWindow::startButtonClickedSignal, this, &PistolWindow::startButtonClicked);
+    QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::backToDecideMode);
 }
 
 PistolWindow::~PistolWindow()
@@ -134,12 +135,7 @@ void PistolWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        reloj.stop();
-        procss=0;
-        ui->Start->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-        ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-        ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
-        ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+        resetTimer();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;
@@ -212,6 +208,22 @@ void PistolWindow::on_horizontalSlider_valueChanged(int value){
     }
 }   
 
+void PistolWindow::resetTimer()
+{  
+    reloj.stop();
+    procss=0;
+    segundos=0;
+    minutos=0;
+    horas=0;
+    ui->Start->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+    ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+    ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+    ui->Final->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
+}
+
+void PistolWindow::backToDecideMode(){
+    resetTimer();
+}
 
 //Botão temorário para simular disparo.
 void PistolWindow::on_ShootButton_clicked(){

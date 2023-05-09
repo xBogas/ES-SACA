@@ -29,6 +29,8 @@ bool wasClicked = false;
 bool newPractice = false, newMatch = false, newFinal = false;
 bool oldPractice = false, oldFinal = false, oldMatch = false;
 bool oldStart = false;
+bool isPistol = false, isRifle = false;
+bool matchORfinal = false;
 
 std::atomic<bool> finish(false);
 
@@ -171,18 +173,24 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                 if(window2->pistol){
                     boost::asio::write(socket, boost::asio::buffer("pistol"));
 
+                    isPistol = true;
+                    isRifle = false;
                     decideMode = true;
                     decideType = false;
+                    window2->pistol = false;
                 } 
                 else if(window2->rifle){
                     boost::asio::write(socket, boost::asio::buffer("rifle"));
                     
+                    isRifle = true;
+                    isPistol = false;
                     decideMode = true;
                     decideType = false;
+                    window2->rifle = false;
                 } 
             }
             else if(decideMode){
-                if(window2->pistol){
+                if(isPistol){
                     newPractice = ptlwindow->practiceSignal;
                     newMatch = ptlwindow->matchSignal;
                     newFinal = ptlwindow->finalSignal;
@@ -190,34 +198,59 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     if(newPractice && !oldPractice){
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
+                        matchORfinal = false;
+                        ptlwindow->practiceSignal = false;
                         canStart = true;
                     }
                     else if(newMatch && !oldMatch){
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
+                        matchORfinal = true;
+                        ptlwindow->matchSignal = false;
                         canStart = true;
                     }
                     else if(newFinal && !oldFinal){
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
+                        matchORfinal = true;
+                        ptlwindow->finalSignal = false;
                         canStart = true;
-                    }
-
-                    if(canStart && ptlwindow->startSignal){
-                        boost::asio::write(socket, boost::asio::buffer("start"));
-
-                        canStart = false;
-                        ptlwindow->startSignal = false;
-
-                        if(newMatch || newFinal)
-                            decideMode = false;
                     }
 
                     oldPractice = newPractice;
                     oldFinal = newFinal;
                     oldMatch = newMatch;
+
+                    if(canStart && ptlwindow->startSignal){
+                        boost::asio::write(socket, boost::asio::buffer("start"));
+
+                        ptlwindow->startSignal = false;
+
+                        if(matchORfinal){
+                            decideMode = false;
+                            canStart = false;
+                            oldPractice = false;
+                            oldFinal = false;
+                            oldMatch = false;
+                            matchORfinal = false;
+                        }
+                    }
+
+                    if(canStart && ptlwindow->switchModeSignal){
+                        boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
+
+                        emit ptlwindow->backToDecideModeSignal();
+                        
+                        decideMode = true;
+                        ptlwindow->switchModeSignal = false;
+                        oldPractice = false;
+                        oldFinal = false;
+                        oldMatch = false;
+                        canStart = false;
+                        matchORfinal = false;
+                    }
                 }
-                else if(window2->rifle){
+                else if(isRifle){
                     newPractice = rflwindow->practiceSignal;
                     newMatch = rflwindow->matchSignal;
                     newFinal = rflwindow->finalSignal;
@@ -225,49 +258,59 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     if(newPractice && !oldPractice){
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
+                        matchORfinal = false;
+                        rflwindow->practiceSignal = false;
                         canStart = true;
                     }
                     else if(newMatch && !oldMatch){
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
+                        matchORfinal = true;
+                        rflwindow->matchSignal = false;
                         canStart = true;
                     }
                     else if(newFinal && !oldFinal){
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
+                        matchORfinal = true;
+                        rflwindow->finalSignal = false;
                         canStart = true;
-                    }
-
-                    if(canStart && rflwindow->startSignal){
-                        boost::asio::write(socket, boost::asio::buffer("start"));
-                            
-                        //canStart = false;    
-                        rflwindow->startSignal = false;
-
-                        if(newMatch || newFinal)
-                            decideMode = false;
                     }
 
                     oldPractice = newPractice;
                     oldFinal = newFinal;
                     oldMatch = newMatch;
+
+                    if(canStart && rflwindow->startSignal){
+                        boost::asio::write(socket, boost::asio::buffer("start"));
+   
+                        rflwindow->startSignal = false;
+
+                        if(matchORfinal){
+                            decideMode = false;
+                            canStart = false;
+                            oldPractice = false;
+                            oldFinal = false;
+                            oldMatch = false;
+                            matchORfinal = false;
+                        }
+                    }
+
+                    if(canStart && rflwindow->switchModeSignal){
+                        boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
+
+                        emit rflwindow->backToDecideModeSignal();
+     
+                        decideMode = true;
+                        rflwindow->switchModeSignal = false;
+                        oldPractice = false;
+                        oldFinal = false;
+                        oldMatch = false;
+                        matchORfinal = false;
+                    }
                 }
             }
             else{
-                if(rflwindow->switchModeSignal || ptlwindow->switchModeSignal){
-                    boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
-
-                    decideMode = true;
-                    rflwindow->switchModeSignal = false;
-                    ptlwindow->switchModeSignal = false;
-                }
-                // else if(){
-
-                // }
-                else{
-                    boost::asio::write(socket, boost::asio::buffer("proceed"));
-                }
-
                 boost::system::error_code ec;
                 char data[1024];
                 size_t length = socket.read_some(boost::asio::buffer(data), ec);
@@ -296,13 +339,36 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                 std::string message(data, length);
                 std::cout << "Received message from client " << client_ip << ": " << message << std::endl;
-
-                boost::asio::write(socket, boost::asio::buffer("Received message."));
-
+                
                 // analyse the received message
                 if(std::strncmp(data, "timeout", std::strlen("timeout")) != 0){ // if the message has the total shots
                     //database->db_INSERT_Coordinates;
                 }
+
+                //boost::asio::write(socket, boost::asio::buffer("Received message."));
+                if(rflwindow->switchModeSignal || ptlwindow->switchModeSignal){
+                    boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
+
+                    if(isPistol){
+                        emit ptlwindow->backToDecideModeSignal();
+
+                        std::cout << "AQUIIIII" << std::endl;
+                    }
+                    else if(isRifle){
+                        emit rflwindow->backToDecideModeSignal();
+                    }
+
+                    decideMode = true;
+                    rflwindow->switchModeSignal = false;
+                    ptlwindow->switchModeSignal = false;
+                }
+                // else if(){
+
+                // }
+                else{
+                    boost::asio::write(socket, boost::asio::buffer("proceed"));
+                }
+                
             }
         }
 

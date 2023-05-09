@@ -19,6 +19,7 @@ class PistolWindow : public QMainWindow
 signals:
     void stopButtonClicked();
     void backButtonClicked();
+    void backToDecideModeSignal();
 
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
@@ -43,7 +44,7 @@ private slots:
     void processar();
     void alerta();
     void resetTimer();
-
+    void blockDecideMode();
 
 private:
     Ui::PistolWindow *ui;
@@ -54,6 +55,7 @@ private:
     short int al;
     QTimer reloj;
     QTimer alert;
+    bool block;
 };
 
 #endif // PISTOLWINDOW_H

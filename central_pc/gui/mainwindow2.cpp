@@ -67,6 +67,8 @@ void MainWindow2::on_backButton_clicked(){
 
 void MainWindow2::onBackButtonClicked(){
     this->show();
+    pistol = false;
+    rifle = false;
 }
 
 
