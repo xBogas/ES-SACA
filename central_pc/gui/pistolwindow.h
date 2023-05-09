@@ -17,7 +17,6 @@ class PistolWindow : public QMainWindow
     Q_OBJECT
 
 signals:
-    void stopButtonClicked();
     void backButtonClicked();
     void backToDecideModeSignal();
 
@@ -37,7 +36,6 @@ private slots:
     void on_MatchButton_clicked();
     void on_FinalButton_clicked();
     void on_ExitButton_clicked();
-    void on_stopButton_clicked();
     void on_switchButton_clicked();
     void on_backButton_clicked();
     void processar();

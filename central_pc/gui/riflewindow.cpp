@@ -7,8 +7,6 @@ RifleWindow::RifleWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QPixmap RifleTarget(":/resources/img/RifleTarget.png");
-    ui->Target->setPixmap(RifleTarget);
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
     practiceSignal = false;
@@ -123,21 +121,6 @@ void RifleWindow::on_backButton_clicked()
 
     this->close();
     emit backButtonClicked();
-}
-
-void RifleWindow::on_horizontalSlider_valueChanged(int value){
-    QPixmap RifleTarget(":/resources/img/RifleTarget.png");
-    int w = ui->Target->width();
-    int h = ui->Target->height();
-    if(value==0){
-        ui->Target->setScaledContents(true);
-        ui->Target->setPixmap(RifleTarget);
-    }
-    else{
-        ui->Target->setScaledContents(false);
-        ui->Target->setAlignment(Qt::AlignCenter);
-        ui->Target->setPixmap(RifleTarget.scaled(w+value,h+value));
-    }
 }
 
 void RifleWindow::processar()

@@ -351,8 +351,6 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                     if(isPistol){
                         emit ptlwindow->backToDecideModeSignal();
-
-                        std::cout << "AQUIIIII" << std::endl;
                     }
                     else if(isRifle){
                         emit rflwindow->backToDecideModeSignal();
