@@ -26,6 +26,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     switchModeSignal = false;
     backSignal = false;
     block = false;
+    canBack = true;
 
     segundos=0;
     minutos=0;
@@ -72,8 +73,8 @@ void PistolWindow::on_PracticeButton_clicked()
         matchSignal = false;
         finalSignal = false;
 
-        segundos=5;
-        minutos=0;
+        segundos=0;
+        minutos=15;
         horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
@@ -92,9 +93,9 @@ void PistolWindow::on_MatchButton_clicked()
         practiceSignal = false;
         finalSignal = false;
 
-        segundos=5;
-        minutos=0;
-        horas=0;
+        segundos=0;
+        minutos=15;
+        horas=1;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
         ui->hours->display(horas);
@@ -138,10 +139,13 @@ void PistolWindow::on_switchButton_clicked()
 
 void PistolWindow::on_backButton_clicked()
 {
-    backSignal = true;
+    if(canBack){
+        backSignal = true;
+        resetTimer();
 
-    this->close();
-    emit backButtonClicked();
+        this->close();
+        emit backButtonClicked();
+    }
 }
 
 void PistolWindow::processar()
@@ -387,6 +391,9 @@ void PistolWindow::resetTimer()
     minutos = 0;
     horas = 0;
     block = false;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
@@ -400,6 +407,9 @@ void PistolWindow::blockDecideMode(){
     minutos = 0;
     horas = 0;
     block = true;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");

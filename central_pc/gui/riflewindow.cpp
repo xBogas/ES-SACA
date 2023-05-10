@@ -26,6 +26,7 @@ RifleWindow::RifleWindow(QWidget *parent) :
     switchModeSignal = false;
     backSignal = false;
     block = false;
+    canBack = true;
 
     segundos=0;
     minutos=0;
@@ -138,10 +139,13 @@ void RifleWindow::on_switchButton_clicked()
 
 void RifleWindow::on_backButton_clicked()
 {
-    backSignal = true;
+    if(canBack){
+        backSignal = true;
+        resetTimer();
 
-    this->close();
-    emit backButtonClicked();
+        this->close();
+        emit backButtonClicked();
+    }
 }
 
 void RifleWindow::processar()
@@ -387,6 +391,9 @@ void RifleWindow::resetTimer()
     minutos = 0;
     horas = 0;
     block = false;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(255, 255, 0)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(170, 0, 0)}");
@@ -400,6 +407,9 @@ void RifleWindow::blockDecideMode(){
     minutos = 0;
     horas = 0;
     block = true;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");

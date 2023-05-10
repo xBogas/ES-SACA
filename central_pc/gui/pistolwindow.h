@@ -29,6 +29,7 @@ public:
     bool startSignal;
     bool switchModeSignal;
     bool backSignal;
+    bool canBack;
 
 private slots:
     void on_StartButton_clicked();

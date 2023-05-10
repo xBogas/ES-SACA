@@ -47,6 +47,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QObject::connect(this, &PistolWindow::matchButtonClickedSignal, this, &PistolWindow::matchButtonClicked);
     QObject::connect(this, &PistolWindow::startButtonClickedSignal, this, &PistolWindow::startButtonClicked);
     QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::backToDecideMode);
+    QObject::connect(this, &PistolWindow::backToDecideTypeSignal, this, &PistolWindow::backToDecideType);
 }
 
 PistolWindow::~PistolWindow()
@@ -214,6 +215,9 @@ void PistolWindow::resetTimer()
     segundos=0;
     minutos=0;
     horas=0;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->Start->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
     ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
     ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
@@ -222,6 +226,12 @@ void PistolWindow::resetTimer()
 
 void PistolWindow::backToDecideMode(){
     resetTimer();
+}
+
+void PistolWindow::backToDecideType(){
+    emit backButtonClickedSignal();
+    resetTimer();
+    this->close();
 }
 
 //Botão temorário para simular disparo. Pôr o código que está dentro, com as devidas alterações, no PistolWindow::processar(), quando eliminar-se o botão.

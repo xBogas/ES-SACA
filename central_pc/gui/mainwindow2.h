@@ -19,8 +19,9 @@ signals:
 public:
     MainWindow2(QWidget *parent = 0);
     ~MainWindow2();
-    bool rifle = false;
-    bool pistol = false;  
+    bool rifle;
+    bool pistol;  
+    bool backSignal;
 
 public slots:
     PistolWindow *getPistolWindow();

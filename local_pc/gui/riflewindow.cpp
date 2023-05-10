@@ -46,6 +46,7 @@ RifleWindow::RifleWindow(QWidget *parent) :
     QObject::connect(this, &RifleWindow::matchButtonClickedSignal, this, &RifleWindow::matchButtonClicked);
     QObject::connect(this, &RifleWindow::startButtonClickedSignal, this, &RifleWindow::startButtonClicked);
     QObject::connect(this, &RifleWindow::backToDecideModeSignal, this, &RifleWindow::backToDecideMode);
+    QObject::connect(this, &RifleWindow::backToDecideTypeSignal, this, &RifleWindow::backToDecideType);
 }
 
 RifleWindow::~RifleWindow()
@@ -214,6 +215,9 @@ void RifleWindow::resetTimer()
     segundos=0;
     minutos=0;
     horas=0;
+    ui->seconds->display(segundos);
+    ui->minutes->display(minutos);
+    ui->hours->display(horas);
     ui->Start->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
     ui->Practice->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
     ui->Match->setStyleSheet("QLabel{background-color: rgb(100, 100, 100)}");
@@ -222,6 +226,12 @@ void RifleWindow::resetTimer()
 
 void RifleWindow::backToDecideMode(){
     resetTimer();
+}
+
+void RifleWindow::backToDecideType(){
+    emit backButtonClickedSignal();
+    resetTimer();
+    this->close();
 }
 
 //Botão temorário para simular disparo.

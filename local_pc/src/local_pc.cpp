@@ -85,8 +85,10 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     std::string athl(athlete);
 
                     size_t delimiter_pos = athl.find(';');
-                    name = athl.substr(0, delimiter_pos);
-                    ID = std::stoi(athl.substr(delimiter_pos + 1));
+                    if (delimiter_pos != std::string::npos) {
+                        name = athl.substr(0, delimiter_pos);
+                        ID = std::stoi(athl.substr(delimiter_pos + 1));
+                    }
                 }
             }
             else if(decideType){
@@ -95,6 +97,11 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 std::cout << "Server replied: ";
                 std::cout.write(type, type_length);
                 std::cout << std::endl;
+
+                if(std::strncmp(type, "backToInitial", std::strlen("backToInitial")) == 0){
+                    initial = true;
+                    decideType = false; 
+                }
 
                 if(std::strncmp(type, "pistol", std::strlen("pistol")) == 0){
                     emit window->openPistolWindowSignal();
@@ -125,6 +132,13 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 std::cout << std::endl;
 
                 if(isPistol){
+                    if(std::strncmp(mode, "backToDecideType", std::strlen("backToDecideType")) == 0){
+                        emit ptlwindow->backToDecideTypeSignal();
+
+                        decideMode = false;
+                        decideType = true;
+                    }
+
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit ptlwindow->practiceButtonClickedSignal();
 
@@ -163,6 +177,13 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     }
                 }
                 else if(isRifle){
+                    if(std::strncmp(mode, "backToDecideType", std::strlen("backToDecideType")) == 0){
+                        emit rflwindow->backToDecideTypeSignal();
+
+                        decideMode = false;
+                        decideType = true;
+                    }
+
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit rflwindow->practiceButtonClickedSignal();
                         

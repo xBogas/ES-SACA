@@ -13,9 +13,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QPixmap owl(":/resources/img/Target owl.png");
     ui->label->setPixmap(owl);
 
+    pistolwindow = new PistolWindow();
+    riflewindow = new RifleWindow();
+
     //conect signals
     QObject::connect(this, &MainWindow::openPistolWindowSignal, this, &MainWindow::openPistolWindow);
     QObject::connect(this, &MainWindow::openRifleWindowSignal, this, &MainWindow::openRifleWindow);
+    connect(pistolwindow, SIGNAL(backButtonClickedSignal()), this, SLOT(onBackButtonClicked()));
+    connect(riflewindow, SIGNAL(backButtonClickedSignal()), this, SLOT(onBackButtonClicked()));
 }
 
 MainWindow::~MainWindow()
@@ -46,4 +51,8 @@ void MainWindow::openPistolWindow()
 void MainWindow::on_exitButton_clicked()
 {
     qApp->quit();
+}
+
+void MainWindow::onBackButtonClicked(){
+    this->show();
 }

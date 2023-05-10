@@ -23,6 +23,10 @@ MainWindow2::MainWindow2(QWidget *parent)
     pistolwindow = new PistolWindow();
     riflewindow = new RifleWindow();
 
+    rifle = false;
+    pistol = false; 
+    backSignal = false;
+
     //conect signal
     connect(pistolwindow, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
     connect(riflewindow, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
@@ -62,6 +66,7 @@ void MainWindow2::on_exitButton_clicked(){
 
 void MainWindow2::on_backButton_clicked(){
     this->hide();
+    backSignal = true;
     emit backButtonClicked();
 }
 

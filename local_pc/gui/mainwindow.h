@@ -29,10 +29,11 @@ private slots:
     void on_exitButton_clicked();
     void openRifleWindow();
     void openPistolWindow();
+    void onBackButtonClicked();
 
 private:
     Ui::MainWindow *ui;
-    PistolWindow *pistolwindow = new PistolWindow();
-    RifleWindow *riflewindow = new RifleWindow();
+    PistolWindow *pistolwindow;
+    RifleWindow *riflewindow;
 };
 #endif // MAINWINDOW_H

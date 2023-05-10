@@ -26,6 +26,8 @@ signals:
     void practiceButtonClickedSignal();
     void startButtonClickedSignal();
     void backToDecideModeSignal();
+    void backToDecideTypeSignal();
+    void backButtonClickedSignal();
 
 private slots:
     void on_ExitButton_clicked();
@@ -41,6 +43,7 @@ private slots:
     void startButtonClicked();
     void resetTimer();
     void backToDecideMode();
+    void backToDecideType();
 
 protected:
     void showEvent(QShowEvent *revent);
