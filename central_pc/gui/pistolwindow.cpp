@@ -72,8 +72,8 @@ void PistolWindow::on_PracticeButton_clicked()
         matchSignal = false;
         finalSignal = false;
 
-        segundos=0;
-        minutos=15;
+        segundos=5;
+        minutos=0;
         horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
@@ -92,9 +92,9 @@ void PistolWindow::on_MatchButton_clicked()
         practiceSignal = false;
         finalSignal = false;
 
-        segundos=0;
-        minutos=15;
-        horas=1;
+        segundos=5;
+        minutos=0;
+        horas=0;
         ui->seconds->display(segundos);
         ui->minutes->display(minutos);
         ui->hours->display(horas);
@@ -159,7 +159,8 @@ void PistolWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        resetTimer();
+        switchModeSignal = true;
+        blockDecideMode();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;

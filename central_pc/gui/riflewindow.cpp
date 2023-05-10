@@ -159,7 +159,8 @@ void RifleWindow::processar()
     ui->minutes->display(minutos);
     ui->hours->display(horas);
     if(segundos==0 && minutos==0 && horas==0){
-        resetTimer();
+        switchModeSignal = true;
+        blockDecideMode();
     }
     if(minutos==0 && segundos==0) {
         minutos=60;

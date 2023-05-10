@@ -64,7 +64,7 @@ bool MainWindow::rightIDs(){
 }
 
 void MainWindow::updateClientList(std::vector<std::string> clients){
-    ui->IP_ID_Table->setRowCount(clients.size());
+    // ui->IP_ID_Table->setRowCount(clients.size());
     int row = 0;
 
     connected_clients = clients;
@@ -75,14 +75,14 @@ void MainWindow::updateClientList(std::vector<std::string> clients){
         ipItem->setTextAlignment(Qt::AlignCenter);
         ui->IP_ID_Table->setItem(row, 0, ipItem);
 
-        // QTableWidgetItem *playerIdItem = new QTableWidgetItem(QString::number(clientPlayerIds[client]));
-        // ui->IP_ID_Table->setItem(row, 1, playerIdItem);
-
         row++;
     }
 }
 
-void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
+void MainWindow::on_IP_ID_Table_itemChanged(QTableWidgetItem* item){
+    int row = item->row();
+    int column = item->column();
+
     if (column == 1){
         std::string clientIp = ui->IP_ID_Table->item(row, 0)->text().toStdString();
         int playerId = ui->IP_ID_Table->item(row, 1)->text().toInt();
@@ -99,7 +99,7 @@ void MainWindow::on_IP_ID_Table_cellChanged(int row, int column){
 }
 
 bool MainWindow::differentID(int ID, int row){
-    for(int rowNumber = 0; rowNumber < ui->IP_ID_Table->rowCount(); rowNumber++) {
+    for(int rowNumber = 0; rowNumber < connected_clients.size(); rowNumber++) {
         if(rowNumber != row){
             QTableWidgetItem *item = ui->IP_ID_Table->item(rowNumber, 1);
             if(item != nullptr){

@@ -34,7 +34,7 @@ public slots:
 private slots:
     void on_exitButton_clicked();
     void on_continueButton_clicked();
-    void on_IP_ID_Table_cellChanged(int row, int column);
+    void on_IP_ID_Table_itemChanged(QTableWidgetItem* item);
     void on_backButton_clicked();
     void onBackButtonClicked();
     void showErrorMessage(std::string errorType);
