@@ -35,9 +35,9 @@ namespace Network
 		}
 		
 		sockaddr_in _this;
-		_this.sin_family = AF_INET;
-		_this.sin_addr.s_addr = (address == AddressType::Any) ? INADDR_ANY : INADDR_BROADCAST;
-		_this.sin_port = htons(port) ;
+		_this.sin_family 		= AF_INET;
+		_this.sin_addr.s_addr 	= (address == AddressType::Any) ? INADDR_ANY : INADDR_BROADCAST;
+		_this.sin_port 			= htons(port);
 		
 		if(::bind(handle, (struct sockaddr*)&_this, sizeof(_this)))
 			throw std::runtime_error("[TCPsocket] failed to bind socket");

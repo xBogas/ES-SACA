@@ -1,19 +1,27 @@
 #include "Detector.hpp"
 #include <vector>
 
-#ifdef CAMERA
-Detector::Detector(QObject *parent): QObject(parent), m_camera(0)
+// TODO: clean getCenter and getPoints 
+
+Detector::Detector(int type, QObject *parent)
+	: QObject(parent), m_approx(525, 525, 14)
 {
 
-}
-#else
-Detector::Detector(QObject *parent)
-	: QObject(parent),
-	m_approx(525, 525, 14)
-{
-#ifdef DEBUG
-	std::cout << "I don't have a camera\nRunning with test images\n";
-#endif
+	switch (type)
+	{
+	case 0:
+		m_target = Target::Pistol;
+		break;
+	
+	case 1:
+		m_target = Target::Rifle;
+		break;
+
+	default:
+		throw std::runtime_error("Invalid target type");
+		break;
+	}
+
 	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR); 
 	if (m_image.empty())
 		throw std::runtime_error("Failed to read image for testing");
@@ -28,13 +36,32 @@ Detector::Detector(QObject *parent)
 	getCenter();
 	getPoints();
 }
-#endif
+
+void Detector::onMain()
+{
+	bool stop = false;
+	bool doCapture = false;
+	while (!stop)
+	{
+		if (doCapture)
+		{
+			transformImage();
+			getCenter();
+			getPoints();
+			doCapture = false;
+		}
+	}
+}
+
+const char *Detector::getScore()
+{
+	return nullptr;
+}
 
 void Detector::getCenter()
 {
 	cv::Mat alt = m_image.clone(), edge;
 	std::vector<cv::Vec3f> circles;
-	
 
 	std::vector<std::vector<cv::Point>> contours;
 	cv::Canny(m_image, edge, 300, 500);
@@ -45,7 +72,11 @@ void Detector::getCenter()
 	{
 		if (contours[i].size() > 500)
 		{
-			double new_r = 185; //TODO: change /* 30 * 1050/170 */
+			double new_r;
+			if (m_target == Target::Pistol)
+				new_r = 185; //TODO: change /* 30 * 1050/170 */
+			else
+				new_r = 95; // 30.5/2 * 1050/170
 			m_center_radius = new_r;
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
@@ -83,33 +114,7 @@ void Detector::getCenter()
 		}
 	}
 	cv::imshow("m_image circle", alt);
-
-	
-	cv::Mat gray;
-	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
-
-	blur(gray, gray, cv::Size(5,5) );
-	HoughCircles(gray, circles, cv::HOUGH_GRADIENT_ALT, 1.5,
-				gray.rows/16,  // change this value to detect circles with different distances to each other
-				400, 0.99, 170, 200// change the last two parameters (min_radius & max_radius) to detect larger circles
-	);
-
-	for( size_t i = 0; i < circles.size(); i++ )
-	{
-		cv::Point center = cv::Point(circles[i][0], circles[i][1]);
-		circle( m_image, center, 1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-		// circle outline
-		int radius = circles[i][2];
-		circle( m_image, center, radius, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-//#ifdef DEBUG
-		std::cout << "[Alt]Center at " << center << " and radius " << radius << std::endl;
-//#endif
-	}
-//#ifdef DEBUG
-	cv::imshow("[Alt]detected circles", m_image);
 	cv::waitKey();
-//#endif
-	
 }
 
 
@@ -314,25 +319,114 @@ void Detector::getPoints()
 
 void Detector::getScore(double distance)
 {
-	double score = 0;
-	distance = abs(distance*170/1050 - 4.5/2);
-	std::cout << "Distance " << distance << " mm\n";
-	std::cout << "Score is ";
-	if(distance <= 5.75)
+	if (m_target == Target::Pistol)
 	{
-		score += 10;
-		int dec = (5.75-distance)/(0.575);
-		std::cout << score + dec*0.1 << "\n";
+		double score = 0;
+		distance = abs(distance*170/1050 - 4.5/2);
+		std::cout << "Distance " << distance << " mm\n";
+		std::cout << "Score is ";
+		if(distance <= 5.75)
+		{
+			score += 10;
+			int dec = (5.75-distance)/(0.575);
+			std::cout << score + dec*0.1 << "\n";
+		}
+		else if(distance <= 77.75)
+		{
+			double delta = 0.8;
+			distance = 72-(distance-5.75);
+			int score = distance/delta +10;
+			std::cout << (float)score/(10.0f) << "\n";
+		}
 	}
-	else if(distance <= 77.75)
+	else
 	{
-		double delta = 0.8;
-		distance = 72-(distance-5.75);
-		int score = distance/delta +10;
-		std::cout << (float)score/(10.0f) << "\n";
+		double score = 0;
+		distance = abs(distance*170/1050 - 4.5/2);
+		std::cout << "Distance " << distance << " mm\n";
+		std::cout << "Score is ";
+
+		if(distance <= 0.25)
+		{
+			score += 10;
+			int dec = (0.25-distance)/(0.5);
+			std::cout << score + dec*0.1 << "\n";
+		}
+		else if(distance <= 22.75)
+		{
+			double delta = 0.8;
+			distance = 22.5-(distance-0.25);
+			int score = distance/delta +10;
+			std::cout << (float)score/(10.0f) << "\n";
+		}
 	}
+	
+	
 }
 
+void Detector::transformImage()
+{
+	/**
+	 * im1 - input image
+	 * im2 - reference image
+	 * im1Reg - output image
+	 */
+
+	m_camera.retrieve(m_image);
+	// im1 will be m_image
+	// im1Reg will be m_image
+	cv::Mat im1, im2, im1Reg, h;
+
+	const int MAX_FEATURES = 1000;
+	const float GOOD_MATCH_PERCENT = 0.15f;
+
+	// Convert images to grayscale
+	cv::Mat im1Gray, im2Gray;
+	cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
+	cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
+
+	// Variables to store key points and descriptors
+	std::vector<cv::KeyPoint> key_points1, key_points2;
+	cv::Mat descriptors1, descriptors2;
+
+	// Detect ORB features and compute descriptors.
+	cv::Ptr<cv::Feature2D> orb = cv::ORB::create(MAX_FEATURES);
+	orb->detectAndCompute(im1Gray, cv::Mat(), key_points1, descriptors1);
+	orb->detectAndCompute(im2Gray, cv::Mat(), key_points2, descriptors2);
+
+	// Match features.
+	std::vector<cv::DMatch> matches;
+	cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
+	matcher->match(descriptors1, descriptors2, matches);
+	//? (1) Sorting but only matters the highest matches
+	// Sort matches by score
+	std::sort(matches.begin(), matches.end());
+	//? (1)
+	
+	// Remove not so good matches
+	const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
+	matches.erase(matches.begin()+numGoodMatches, matches.end());
+
+	// Draw top matches
+	cv::Mat imMatches;
+	drawMatches(im1, key_points1, im2, key_points2, matches, imMatches);
+	cv::imwrite("matches.jpg", imMatches);
+
+	// Extract location of good matches
+	std::vector<cv::Point2f> points1, points2;
+
+	for( size_t i = 0; i < matches.size(); i++ )
+	{
+		points1.push_back(key_points1[matches[i].queryIdx].pt);
+		points2.push_back(key_points2[matches[i].trainIdx].pt);
+	}
+	//
+	// Find homography
+	h = findHomography(points1, points2, cv::RANSAC);
+
+	// Use homography to warp image
+	warpPerspective(im1, im1Reg, h, im2.size());
+}
 
 /**
  * 10 Ring: 5.75  mm

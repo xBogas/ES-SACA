@@ -1,3 +1,5 @@
+#ifndef NETWORK_TCP_SOCKET_HPP
+#define NETWORK_TCP_SOCKET_HPP
 namespace Network
 {
 	class TCPsocket
@@ -24,3 +26,5 @@ namespace Network
 	};
 	
 }
+
+#endif
