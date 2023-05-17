@@ -8,11 +8,13 @@ RifleWindow::RifleWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    w = ui->Target->width();
-    h = ui->Target->height();
-    QPixmap PistolTarget(":/resources/img/RifleTarget.png");
-    scene = new QGraphicsScene(this);
-    scene->addPixmap(PistolTarget.scaled(w,h));
+    float w = ui->Target->width();
+    float h = ui->Target->height();
+    QImage RifleTarget(":/resources/img/RifleTarget.png");
+    scene = new QGraphicsScene(this);   
+    scene->addPixmap(QPixmap::fromImage(RifleTarget));
+    //QPixmap RifleTarget(":/resources/img/RifleTarget.png");
+    //scene->addPixmap(RifleTarget);
     ui->Target->setScene(scene);
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
@@ -192,7 +194,7 @@ void RifleWindow::resizeEvent(QResizeEvent *event){
         ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
     }
     else{
-        ui->Target->centerOn(QPointF(259,259));
+        ui->Target->centerOn(QPointF(465,465));
     }
     QMainWindow::resizeEvent(event);
 }
@@ -234,6 +236,50 @@ void RifleWindow::backToDecideType(){
     this->close();
 }
 
+
+void RifleWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
+    electretSignal = true;
+
+    x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
+    decshot=pontuação;                                      //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
+    QPixmap RedDot(":/resources/img/Red Dot.png");
+
+    if(procss==1){
+        timedzoom.start(400); 
+        
+        //Inserir imagem
+        item = new QGraphicsPixmapItem(RedDot);
+        item->setScale(0.01);
+        item->setPos(257+x,257+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        scene->addItem(item);
+
+
+        //Código para preencher a tabela e os labels abaixo da tabela.
+        totalintshot=totalintshot+intshot;
+        totaldecshot=totaldecshot+decshot;
+        ui->lastshot->setText(QString::number(intshot));
+        ui->total_int->setText(QString::number(nim));
+        ui->total_dec->setText(QString::number(totalintshot));
+        ui->total_dec_2->setText(QString::number(totaldecshot));
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Tiro,new QTableWidgetItem(QString::number(nim)));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Inte,new QTableWidgetItem(QString::number(intshot)));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Dec,new QTableWidgetItem(QString::number(decshot)));
+
+
+        //Código para fazer zoom onde houve o disparo.
+        if(timezoom==0){
+            ui->Target->setTransform(QTransform::fromScale(5,5));
+            ui->Target->centerOn(QPointF(259.0+x,259.0+y));
+        }
+
+        nim=nim+1;
+    }
+}
+
+
 //Botão temorário para simular disparo.
 void RifleWindow::on_ShootButton_clicked(){
     x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
@@ -248,7 +294,7 @@ void RifleWindow::on_ShootButton_clicked(){
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setPos(257+x,257+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -632,21 +678,17 @@ void RifleWindow::shootzoom()
     QPixmap RedDot(":/resources/img/Red Dot.png");
     QPixmap BlueDot(":/resources/img/Blue Dot.png");
     timezoom++;
-    if(timezoom%2==0 && timezoom<=4){
-        item=new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
-        scene->addItem(item);
+    if(timezoom%2==0){
+        item->setPixmap(RedDot);
     }
-    if(timezoom%2==1 && timezoom<=4){
-        item=new QGraphicsPixmapItem(BlueDot);
-        item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
-        scene->addItem(item);
+    if(timezoom%2==1){
+        item->setPixmap(BlueDot);
     }
-    if(timezoom==4){
+    if(timezoom==8){
         timedzoom.stop();
-        ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
+        if (zoom==0){
+           ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
+        }
         timezoom=0;
     }
 }

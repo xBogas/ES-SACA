@@ -8,11 +8,11 @@ PistolWindow::PistolWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    int w = ui->Target->width();
-    int h = ui->Target->height();
-    QPixmap PistolTarget(":/resources/img/PistolTarget.png");
+    float w = ui->Target->width();
+    float h = ui->Target->height();
+    QImage PistolTarget(":/resources/img/PistolTarget.png");
     scene = new QGraphicsScene(this);
-    scene->addPixmap(PistolTarget.scaled(w,h));
+    scene->addPixmap(QPixmap::fromImage(PistolTarget));
     ui->Target->setScene(scene);
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
@@ -192,7 +192,7 @@ void PistolWindow::resizeEvent(QResizeEvent *event){
         ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
     }
     else{
-        ui->Target->centerOn(QPointF(259.0,259.0));
+        ui->Target->centerOn(QPointF(465.0,465.0));
     }
     QMainWindow::resizeEvent(event);
 }
@@ -234,6 +234,50 @@ void PistolWindow::backToDecideType(){
     this->close();
 }
 
+
+void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
+    electretSignal = true;
+
+    x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
+    intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
+    decshot=pontuação;                                      //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
+    QPixmap RedDot(":/resources/img/Red Dot.png");
+
+    if(procss==1){
+        timedzoom.start(400); 
+        
+        //Inserir imagem
+        item = new QGraphicsPixmapItem(RedDot);
+        item->setScale(0.01);
+        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        scene->addItem(item);
+
+
+        //Código para preencher a tabela e os labels abaixo da tabela.
+        totalintshot=totalintshot+intshot;
+        totaldecshot=totaldecshot+decshot;
+        ui->lastshot->setText(QString::number(intshot));
+        ui->total_int->setText(QString::number(nim));
+        ui->total_dec->setText(QString::number(totalintshot));
+        ui->total_dec_2->setText(QString::number(totaldecshot));
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Tiro,new QTableWidgetItem(QString::number(nim)));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Inte,new QTableWidgetItem(QString::number(intshot)));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Dec,new QTableWidgetItem(QString::number(decshot)));
+
+
+        //Código para fazer zoom onde houve o disparo.
+        if(timezoom==0){
+            ui->Target->setTransform(QTransform::fromScale(3,3));
+            ui->Target->centerOn(QPointF(465+x,465+y));
+        }
+
+        nim=nim+1;
+    }
+}
+
+
 //Botão temorário para simular disparo. Pôr o código que está dentro, com as devidas alterações, no PistolWindow::processar(), quando eliminar-se o botão.
 void PistolWindow::on_ShootButton_clicked(){
     electretSignal = true;
@@ -250,7 +294,7 @@ void PistolWindow::on_ShootButton_clicked(){
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
         
 
@@ -620,8 +664,8 @@ void PistolWindow::on_ShootButton_clicked(){
 
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
-            ui->Target->setTransform(QTransform::fromScale(5,5));
-            ui->Target->centerOn(QPointF(259.0+x,259.0+y));
+            ui->Target->setTransform(QTransform::fromScale(3,3));
+            ui->Target->centerOn(QPointF(465+x,465+y));
         }
 
         nim=nim+1;
@@ -636,21 +680,16 @@ void PistolWindow::shootzoom()
     QPixmap BlueDot(":/resources/img/Blue Dot.png");
     timezoom++;
     if(timezoom%2==0){
-        item=new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
-        scene->addItem(item);
+        item->setPixmap(RedDot);
     }
     if(timezoom%2==1){
-        item=new QGraphicsPixmapItem(BlueDot);
-        item->setScale(0.01);
-        item->setPos(257.5+x,257.5+y);
-        scene->addItem(item);
+        item->setPixmap(BlueDot);
     }
-    if(timezoom==4){
+    if(timezoom==8){
         timedzoom.stop();
         if (zoom==0){
-           ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
+            ui->Target->setTransform(QTransform::fromScale(0.88,0.88));
+            //ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
         }
         timezoom=0;
     }

@@ -37,6 +37,7 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
+    void Disparo(int coordenada_x, int coordenada_y, float pontuação);
     void shootzoom();
     void finalButtonClicked();
     void matchButtonClicked();

@@ -19,6 +19,7 @@ class RifleWindow : public QMainWindow
 public:
     explicit RifleWindow(QWidget *parent = nullptr);
     ~RifleWindow();
+    bool electretSignal;
 
 signals:    
     void finalButtonClickedSignal();
@@ -36,6 +37,7 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
+    void Disparo(int coordenada_x, int coordenada_y, float pontuação);
     void shootzoom();
     void finalButtonClicked();
     void matchButtonClicked();
@@ -64,15 +66,12 @@ private:
     float totaldecshot;
     float x;
     float y;
-    float w;
-    float h;
     short int timezoom;
     QTimer reloj;
     QTimer alert;
     QTimer timedzoom;
     QGraphicsScene *scene;
     QGraphicsPixmapItem* item;
-    QGraphicsPixmapItem* itemblue;
     enum Columna
     {
         Tiro,Inte, Dec
