@@ -4,6 +4,7 @@
 #include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
 #include "Approx.hpp"
+#include "TCPsocket.hpp"
 
 class Detector : public QObject
 {
@@ -13,16 +14,13 @@ public:
 	/// @brief Default Constructor
 	/// @param type Target type 0 for Pistol and 1 for Rifle
 	/// @param parent QObject parent
-	explicit Detector(int type, QObject *parent = nullptr);
+	explicit Detector(int type, int port, const char* addr, QObject *parent = nullptr);
 
 	/// @brief Default Destructor
 	~Detector(){};
 
 	void
 	onMain();
-
-	const char *
-	getScore();
 
 private:
 
@@ -87,12 +85,15 @@ private:
 
 	void transformImage();
 
+	Network::TCPsocket* m_sock;
 	/// @brief Camera object
 	cv::VideoCapture m_camera;
 	/// @brief Ratio of pixel/mm
 	float m_ratio;
 	/// @brief Image object to analyze
 	cv::Mat m_image;
+	/// @brief Image reference
+	cv::Mat m_img_ref;
 	/// @brief Points Mat
 	cv::Mat m_points;
 	/// @brief Target center

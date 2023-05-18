@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 
-	Detector det;
+	Detector det(0);
 
 	return 0;
 }

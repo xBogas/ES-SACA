@@ -3,18 +3,19 @@
 
 // TODO: clean getCenter and getPoints 
 
-Detector::Detector(int type, QObject *parent)
+Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525, 14)
 {
-
 	switch (type)
 	{
 	case 0:
 		m_target = Target::Pistol;
+		m_img_ref = cv::imread("pistol_ref.jpg");
 		break;
 	
 	case 1:
 		m_target = Target::Rifle;
+		m_img_ref = cv::imread("rifle_ref.jpg");
 		break;
 
 	default:
@@ -22,25 +23,14 @@ Detector::Detector(int type, QObject *parent)
 		break;
 	}
 
-	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR); 
-	if (m_image.empty())
-		throw std::runtime_error("Failed to read image for testing");
-	else if (m_image.rows < 1020)
-		throw std::runtime_error("Image size too low");
-	
-	m_ratio = m_image.rows/170.0f;
-
-#ifdef DEBUG
-	cv::imshow("Test image", m_image);
-#endif
-	getCenter();
-	getPoints();
+	m_sock = new Network::TCPsocket();
+	m_sock->connect(port, addr);
 }
 
 void Detector::onMain()
 {
 	bool stop = false;
-	bool doCapture = false;
+	bool doCapture = true;
 	while (!stop)
 	{
 		if (doCapture)
@@ -53,10 +43,6 @@ void Detector::onMain()
 	}
 }
 
-const char *Detector::getScore()
-{
-	return nullptr;
-}
 
 void Detector::getCenter()
 {
@@ -74,9 +60,9 @@ void Detector::getCenter()
 		{
 			double new_r;
 			if (m_target == Target::Pistol)
-				new_r = 185; //TODO: change /* 30 * 1050/170 */
+				new_r = 185;	//TODO: change /* 30 * image.size/170 */
 			else
-				new_r = 95; // 30.5/2 * 1050/170
+				new_r = 95;		// 30.5/2 * image.size/170
 			m_center_radius = new_r;
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
@@ -91,7 +77,7 @@ void Detector::getCenter()
 			m_approx.setRadius(new_r);
 
 			int iter = 0;
-			while (iter < 100)
+			while (iter < 50)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
@@ -109,12 +95,8 @@ void Detector::getCenter()
 			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
 			std::cout << "Center " << m_center << "\n";
-			cv::circle(alt, cv::Point(x,y), 1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-			cv::circle(alt, cv::Point(x,y), new_r, cv::Scalar(0,0,255), 1, cv::LINE_AA);
 		}
 	}
-	cv::imshow("m_image circle", alt);
-	cv::waitKey();
 }
 
 
@@ -227,6 +209,7 @@ void Detector::getPoints()
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
 	cv::inRange(hsv, cv::Vec3b(100,0,120), cv::Vec3b(190,55,220), op2);
+
 #ifdef DEBUG
 	cv::imshow("Points hsv", op2);
 
@@ -237,20 +220,13 @@ void Detector::getPoints()
 	cv::waitKey();
 #endif
 
-	// BGR color space
-	/* cv::inRange(m_image, cv::Scalar(180,180,160), cv::Scalar(220,230,200), m_points);
-
-	cv::Mat res2 = m_image.clone();
-	cv::bitwise_and(m_image, cv::Scalar(0,0,255), res2, m_points);
-	cv::imshow("Img2", res2);
-	*/
-
 	std::vector<std::vector<cv::Point>> contours;
 	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
 #ifdef DEBUG
 	std::cout << "Found " << contours.size() << "\n";
 #endif
+
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
@@ -258,33 +234,33 @@ void Detector::getPoints()
 			double new_r = 4.5/2.0f * 1050.0f/170.0f; //TODO: change
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
+
 #ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
 			m_approx.setInitialPoint(x_init, y_init);
-
 			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
+
 			m_approx.setRadius(new_r);
 
 			int iter = 0;
-			while (iter < 100)
+			while (iter < 50)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
 				m_approx.nextIter();
-				//m_approx.print();
 				iter++;
 
 				auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
 				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
+
 			}
-			m_approx.print();
 			auto [x,y] = m_approx.getCenter();
 			
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
@@ -306,11 +282,16 @@ void Detector::getPoints()
 			else if (result < m_center_radius-15)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				move_ESP *= 170/1050;
+
+				char msg[64] = "Move ";
+				memcpy(&msg[5], &move_ESP, 8);
+				m_sock->write(msg, 5+8);
+
 				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
 			}
 			else
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
-			
 		}
 	}
 	cv::imshow("Shot detection", m_image);
@@ -366,24 +347,15 @@ void Detector::getScore(double distance)
 
 void Detector::transformImage()
 {
-	/**
-	 * im1 - input image
-	 * im2 - reference image
-	 * im1Reg - output image
-	 */
 
 	m_camera.retrieve(m_image);
-	// im1 will be m_image
-	// im1Reg will be m_image
-	cv::Mat im1, im2, im1Reg, h;
-
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
 	cv::Mat im1Gray, im2Gray;
-	cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
-	cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
+	cvtColor(m_image, im1Gray, cv::COLOR_BGR2GRAY);
+	cvtColor(m_img_ref, im2Gray, cv::COLOR_BGR2GRAY);
 
 	// Variables to store key points and descriptors
 	std::vector<cv::KeyPoint> key_points1, key_points2;
@@ -398,34 +370,38 @@ void Detector::transformImage()
 	std::vector<cv::DMatch> matches;
 	cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
 	matcher->match(descriptors1, descriptors2, matches);
+	
+
 	//? (1) Sorting but only matters the highest matches
-	// Sort matches by score
+	//TODO: get matches.size() * GOOD_MATCH_PERCENT highest without sorting all of the vector
 	std::sort(matches.begin(), matches.end());
-	//? (1)
 	
 	// Remove not so good matches
 	const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
 	matches.erase(matches.begin()+numGoodMatches, matches.end());
+	//? (1)
 
-	// Draw top matches
+#if DEBUG
 	cv::Mat imMatches;
-	drawMatches(im1, key_points1, im2, key_points2, matches, imMatches);
+	drawMatches(m_image, key_points1, m_img_ref, key_points2, matches, imMatches);
 	cv::imwrite("matches.jpg", imMatches);
-
+#endif
 	// Extract location of good matches
 	std::vector<cv::Point2f> points1, points2;
-
+	points1.reserve(matches.size());
+	points2.reserve(matches.size());
+	
 	for( size_t i = 0; i < matches.size(); i++ )
 	{
 		points1.push_back(key_points1[matches[i].queryIdx].pt);
 		points2.push_back(key_points2[matches[i].trainIdx].pt);
 	}
-	//
+
 	// Find homography
-	h = findHomography(points1, points2, cv::RANSAC);
+	cv::Mat h = findHomography(points1, points2, cv::RANSAC);
 
 	// Use homography to warp image
-	warpPerspective(im1, im1Reg, h, im2.size());
+	warpPerspective(m_image, m_image, h, m_img_ref.size());
 }
 
 /**
@@ -698,7 +674,7 @@ cv::Mat mask1(m_image.rows, m_image.cols, m_image.type(), cv::Scalar(0,0,0));
 	cv::imshow("s ths inv", out2);
 
 
-	cv::absdiff(h, channels[1], out2);
+	cv::abs diff(h, channels[1], out2);
 	
 	cv::Scalar sat_mean, sat_std;
 	cv::meanStdDev(hsv, sat_mean, sat_std);
