@@ -275,7 +275,7 @@ void Detector::getPoints()
 			std::cout << "Shot distance " << result << "\n";
 			double score = getScore(result);
 
-			emit new_Score(x, y, radius, score);
+			emit new_score(x, y, radius, score);
 			if (result > m_center_radius+15) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";

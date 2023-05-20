@@ -22,7 +22,7 @@ public:
 	void
 	onMain();
 
-signals:
+signals: // This params should be a custom struct has they will always be sent together
 	void new_score(int x, int y, double radius, double score);
 
 private:
