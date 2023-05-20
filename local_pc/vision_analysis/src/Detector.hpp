@@ -14,7 +14,7 @@ public:
 	/// @brief Default Constructor
 	/// @param type Target type 0 for Pistol and 1 for Rifle
 	/// @param parent QObject parent
-	explicit Detector(int type, int port, const char* addr, QObject *parent = nullptr);
+	explicit Detector(int type, int port, const char *addr, QObject *parent = nullptr);
 
 	/// @brief Default Destructor
 	~Detector(){};
@@ -22,8 +22,10 @@ public:
 	void
 	onMain();
 
-private:
+signals:
+	void new_score(int x, int y, double radius, double score);
 
+private:
 	enum class Target
 	{
 		Pistol,
@@ -80,12 +82,12 @@ private:
 	void
 	getPoints();
 
-	void
+	double
 	getScore(double distance);
 
 	void transformImage();
 
-	Network::TCPsocket* m_sock;
+	Network::TCPsocket *m_sock;
 	/// @brief Camera object
 	cv::VideoCapture m_camera;
 	/// @brief Ratio of pixel/mm
@@ -103,7 +105,7 @@ private:
 	/// @brief Approximation algorithm
 	Approx<double> m_approx;
 	/// @brief Target type
-	Target	m_target;
+	Target m_target;
 
 	float m_lastScore;
 };

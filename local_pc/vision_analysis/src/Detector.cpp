@@ -23,8 +23,8 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 		break;
 	}
 
-	m_sock = new Network::TCPsocket();
-	m_sock->connect(port, addr);
+	//m_sock = new Network::TCPsocket();
+	//m_sock->connect(port, addr);
 }
 
 void Detector::onMain()
@@ -262,7 +262,8 @@ void Detector::getPoints()
 
 			}
 			auto [x,y] = m_approx.getCenter();
-			
+			double radius = 0; // TODO: to be return by m_approx
+
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with " << cv::contourArea(contours[i]) << " contours area\n";
@@ -272,8 +273,9 @@ void Detector::getPoints()
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
-			getScore(result);
+			double score = getScore(result);
 
+			emit new_Score(x, y, radius, score);
 			if (result > m_center_radius+15) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
@@ -286,7 +288,7 @@ void Detector::getPoints()
 
 				char msg[64] = "Move ";
 				memcpy(&msg[5], &move_ESP, 8);
-				m_sock->write(msg, 5+8);
+				//m_sock->write(msg, 5+8);
 
 				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
 			}
@@ -298,11 +300,13 @@ void Detector::getPoints()
 	cv::waitKey();
 }
 
-void Detector::getScore(double distance)
+double Detector::getScore(double distance)
 {
+	double score = 0;
+
 	if (m_target == Target::Pistol)
 	{
-		double score = 0;
+		
 		distance = abs(distance*170/1050 - 4.5/2);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
@@ -310,19 +314,21 @@ void Detector::getScore(double distance)
 		{
 			score += 10;
 			int dec = (5.75-distance)/(0.575);
+			score = score + dec*0.1;
 			std::cout << score + dec*0.1 << "\n";
 		}
 		else if(distance <= 77.75)
 		{
 			double delta = 0.8;
 			distance = 72-(distance-5.75);
-			int score = distance/delta +10;
-			std::cout << (float)score/(10.0f) << "\n";
+			int sc = distance/delta +10;
+			score = (float)sc/(10.0f);
+			std::cout << score << "\n";
 		}
+
 	}
 	else
 	{
-		double score = 0;
 		distance = abs(distance*170/1050 - 4.5/2);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
@@ -341,8 +347,7 @@ void Detector::getScore(double distance)
 			std::cout << (float)score/(10.0f) << "\n";
 		}
 	}
-	
-	
+	return score;
 }
 
 void Detector::transformImage()
