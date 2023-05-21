@@ -208,21 +208,34 @@ bool Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float
     }
 }
 
-bool Database::db_Import(string file_loc, string table){
+bool Database::db_IMPORT(string file_loc){
 
 
     try{
+        //give permission
+        string command1 = "sudo chown postgres /home/ines\n";
+        command1 += "sudo chgrp postgres /home/ines";
+        system(command1.c_str());
+
+        //create command
+        string sql = "COPY temp FROM '"+ file_loc + "' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
+        sql += "UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\"; ";
+        sql += "INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
         
-
-        string sql = "copy \""+ to_string(table)+"\" FROM '"+ to_string(file_loc)+"' WITH (FORMAT csv, HEADER, DELIMITER ';',ENCODING 'ISO-8859-1');";
         execute(sql, false);
-        cout << "Imported successfully" << endl;
 
+        //retrieve permission
+        string command2 = "sudo chown ines /home/ines\n";
+        command2 += "sudo chgrp ines /home/ines";
+        system(command2.c_str());
+
+        cout << "Imported successfully" << endl;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
       return false;
     }
+
 
     return true;
 }
@@ -246,27 +259,7 @@ bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
       cerr << e.what() << std::endl;
       return false;
     }
-}
-
-bool Database::update_Routine(){
-
-    try{
-        string sql1="UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\";";
-
-        string sql2="INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\")SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
-
-        string sql=sql1+sql2;
-
-        execute(sql, false);
-
-        cout << "Updated Temp and Athlete successfully" << endl;
-        return true;
-
-    }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return false;
-    }
-}   
+} 
 
 //1234_PORTO_12/02/22_P
 string Database::create_seriesid(int licenseid, string competitionid){
@@ -283,11 +276,7 @@ string Database::create_competitionid(string location, string date, string categ
 
     transform(location.begin(), location.end(), location.begin(), ::toupper);
 
-    size_t slash1 = date.find('/');
-    size_t slash2 = date.find('/', slash1+1);
-    size_t slash3 = date.find('/', slash2+1);
-
-    id += location + "_" + date.substr(0, slash1) + "/" + date.substr(slash1+1, slash2-slash1-1) + "/" + date.substr(slash2+3, 2) + "_" + category;
+    id += location + "_" + date + "_" + category;
     //cout << "competition id: " << id << endl;
     
     return id;
