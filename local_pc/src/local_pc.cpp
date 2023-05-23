@@ -7,7 +7,6 @@
 #include <chrono>
 #include <random>
 #include <boost/asio.hpp>
-
 #include <opencv2/opencv.hpp>
 #include "../vision_analysis/src/Detector.hpp"
 #include <fstream>
@@ -22,7 +21,8 @@ bool finish = false;
 bool isPistol = false, isRifle = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
-void handle_ESP_communication();
+void handle_new_score_pistol(int x, int y, double radius, double score);
+void handle_new_score_rifle(int x, int y, double radius, double score);
 
 int main(int argc, char *argv[]){
     //gui code
@@ -31,6 +31,8 @@ int main(int argc, char *argv[]){
     w.show();
     PistolWindow *ptl = w.getPistolWindow();
     RifleWindow *rfl = w.getRifleWindow();
+    Detector *detector_pistol = new Detector(0, 0, "");
+    Detector *detector_rifle = new Detector(1, 0, "");
     
     //start threads
     std::thread client(client_thread, &w, ptl, rfl);
@@ -43,7 +45,24 @@ int main(int argc, char *argv[]){
         client.join();
     });
 
+    // Connect the signal to a slot (a member function or a lambda)
+    QObject::connect(detector_pistol, &Detector::new_score, [](int x, int y, double radius, double score) {
+        handle_new_score_pistol(x, y, radius, score);
+    });
+
+    QObject::connect(detector_rifle, &Detector::new_score, [](int x, int y, double radius, double score) {
+        handle_new_score_rifle(x, y, radius, score);
+    });
+
     return a.exec();;
+}
+
+void handle_new_score_pistol(int x, int y, double radius, double score){
+    
+}
+
+void handle_new_score_rifle(int x, int y, double radius, double score){
+
 }
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow){

@@ -1,0 +1,39 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+
+const char* ssid = "ESP_SACA_AP";
+const char* password = "SACA123saca";
+const int port = 80;
+
+WiFiServer server(port);
+WiFiClient client;
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.softAP(ssid, password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+
+  server.begin();
+  Serial.println("Server started");
+}
+
+void loop() {
+  if (!client.connected()) {
+    client = server.available();
+  }
+
+  if (client.connected()) {
+    while (client.available()) {
+      String message = client.readStringUntil('\n');
+      Serial.println("Received message: " + message);
+
+      // Process the received message here
+
+      client.println("Message received"); // Send a response back to the client
+      delay(10);
+    }
+  }
+}

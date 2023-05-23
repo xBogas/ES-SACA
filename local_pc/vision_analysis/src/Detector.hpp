@@ -4,7 +4,7 @@
 #include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
 #include "Approx.hpp"
-#include "TCPsocket.hpp"
+#include "../shared/TCPsocket.hpp"
 
 class Detector : public QObject
 {
