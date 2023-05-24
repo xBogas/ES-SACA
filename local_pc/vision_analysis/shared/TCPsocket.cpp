@@ -1,20 +1,28 @@
 #include "TCPsocket.hpp"
 
-#include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <stdexcept>
 
 #define ERROR -1
 
 namespace Network
 {
-	TCPsocket::TCPsocket()
+	TCPsocket::TCPsocket(bool non_block)
 	  : handle(ERROR)
 	{
 		handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (handle == ERROR)
 			throw std::runtime_error("[TCPsocket] failed to create socket");
+		
+		if (non_block)
+		{
+			if(ERROR == fcntl(handle, F_SETFL, O_NONBLOCK)) // 
+				throw std::runtime_error("[TCPsocket] failed to set socket flags");
+		}
 	}
 
 	TCPsocket::~TCPsocket()
@@ -62,14 +70,42 @@ namespace Network
 		
 		if(::connect(handle, (struct sockaddr*)&other, sizeof(other)) < 0)
 			throw std::runtime_error("[TCPsocket] unable to connect");
+		
+		struct pollfd poll_set;
+		poll_set.fd = handle+1;
+		poll_set.events = POLLIN;
+
+
+		while(ERROR == ::connect(handle, (struct sockaddr*)&other, sizeof(other)))
+		{
+			if(errno == EISCONN)
+				return;
+			if (errno == EAGAIN || errno == EINPROGRESS)
+			{
+				int rv = poll(&poll_set, 1, 5000);
+				if(rv == -1)
+					throw std::runtime_error("[TCPsocket] Poll error");
+				else if(rv == 0)
+					throw std::runtime_error("[TCPsocket] Pool timeout");
+			}
+			else
+			{
+				throw std::runtime_error("[TCPsocket] Unable to connect! Errno " + std::to_string(errno));
+				break;
+			}		
+		}
 	}
 	
 	int TCPsocket::read(void *buff, int size)
 	{
 		int rv = ::recv(handle, buff, size, 0);
 		if(ERROR == rv)
-			throw std::runtime_error("Failed to read socket");
-		
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return 0;
+			else
+				throw std::runtime_error("Failed to read socket");
+		}
 		return rv;
 	}
 
@@ -77,5 +113,21 @@ namespace Network
 	{
 		if(ERROR == send(handle, msg, size, 0))
 			throw std::runtime_error("Failed to send msg");
+	}
+
+	bool TCPsocket::waitData()
+	{
+		struct pollfd poll_set;
+		poll_set.fd = handle;
+		poll_set.events = POLLIN;
+
+		int rv = poll(&poll_set, 1, -1);
+		if (rv == ERROR)
+			throw std::runtime_error("Failed poll file descriptor");
+		
+		// empty fd
+		char buf[1024];
+		::recv(handle, buf, 1024, 0);
+		return true;
 	}
 }

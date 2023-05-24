@@ -26,6 +26,10 @@ public:
 	void
 	onMain();
 
+	void
+	stop()
+	{ isRunning = false;}
+
 signals: // This params should be a custom struct has they will always be sent together
 	void new_score(int x, int y, double radius, double score);
 
@@ -91,7 +95,7 @@ private:
 	getPoints();
 
 	double
-	getScore(double distance);
+	getScore(double distance, double radius);
 
 	void transformImage();
 
@@ -116,6 +120,8 @@ private:
 	Target m_target;
 
 	float m_lastScore;
+
+	bool isRunning;
 };
 
 #endif

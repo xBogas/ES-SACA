@@ -6,7 +6,7 @@
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525, 14), socket(io_context)
 {
-	switch (type)
+	/* switch (type)
 	{
 	case 0:
 		m_target = Target::Pistol;
@@ -21,7 +21,7 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	default:
 		throw std::runtime_error("Invalid target type");
 		break;
-	}
+	} */
 
 	tcp::resolver resolver(io_context);
   	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
@@ -30,6 +30,11 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 
 	//m_sock = new Network::TCPsocket();
 	//m_sock->connect(port, addr);
+
+	m_target = Target::Pistol;
+	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR);
+	getCenter();
+	getPoints();
 }
 
 void Detector::onMain()
@@ -100,14 +105,13 @@ void Detector::getCenter()
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
-			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setInitialPoint(x_init, y_init, new_r);
 
 			m_approx.insertPoints(contours[i]);
 					
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
-			m_approx.setRadius(new_r);
 
 			int iter = 0;
 			while (iter < 50)
@@ -118,16 +122,16 @@ void Detector::getCenter()
 				//m_approx.print();
 				iter++;
 
-				auto [x,y] = m_approx.getCenter();
+				//auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
 			std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 			}
 
 			m_approx.print();
-			auto [x,y] = m_approx.getCenter();
+			auto [x,y,r] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
-			std::cout << "Center " << m_center << "\n";
+			std::cout << "Center " << m_center << " and radius " << r << "\n";
 		}
 	}
 }
@@ -264,21 +268,19 @@ void Detector::getPoints()
 	{
 		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
 		{
-			double new_r = 4.5/2.0f * 1050.0f/170.0f; //TODO: change
+			double new_r = 15; //TODO: change
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 
 #ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
-			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setInitialPoint(x_init, y_init, new_r);
 			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
-
-			m_approx.setRadius(new_r);
 
 			int iter = 0;
 			while (iter < 50)
@@ -288,25 +290,25 @@ void Detector::getPoints()
 				m_approx.nextIter();
 				iter++;
 
-				auto [x,y] = m_approx.getCenter();
+				//auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
 				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 
 			}
-			auto [x,y] = m_approx.getCenter();
-			double radius = 0; // TODO: to be return by m_approx
+			auto [x,y,r] = m_approx.getCenter();
+			double radius = r; // TODO: to be return by m_approx
 
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
-			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with " << cv::contourArea(contours[i]) << " contours area\n";
+			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
 			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
 
 			cv::Point2d shot(x,y);
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
-			double score = getScore(result);
+			double score = getScore(result, r);
 
 			emit new_score(x, y, radius, score);
 			if (result > m_center_radius+15) // 185 -> center circle
@@ -333,14 +335,14 @@ void Detector::getPoints()
 	cv::waitKey();
 }
 
-double Detector::getScore(double distance)
+double Detector::getScore(double distance, double radius)
 {
 	double score = 0;
 
 	if (m_target == Target::Pistol)
 	{
 		
-		distance = abs(distance*170/1050 - 4.5/2);
+		distance = abs((distance-radius)*170/1050);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
 		if(distance <= 5.75)
@@ -362,7 +364,7 @@ double Detector::getScore(double distance)
 	}
 	else
 	{
-		distance = abs(distance*170/1050 - 4.5/2);
+		distance = abs((distance-radius)*170/1050);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
 
