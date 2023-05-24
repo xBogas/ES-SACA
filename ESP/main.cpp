@@ -11,18 +11,7 @@ int main() {
   boost::asio::connect(socket, resolver.resolve("192.168.4.1", "80")); // ESP8266 IP address and port
 
   while (true) {
-    std::string message;
-    std::cout << "Enter message to send (or 'quit' to exit): ";
-    std::getline(std::cin, message);
-
-    if (message == "quit") {
-      break;
-    }
-
-    message += "\n";
-    boost::asio::write(socket, boost::asio::buffer(message));
-
-    std::array<char, 128> buffer;
+    char buffer[1024];
     boost::system::error_code error;
     size_t length = socket.read_some(boost::asio::buffer(buffer), error);
 
@@ -33,9 +22,17 @@ int main() {
       std::cout << "Error: " << error.message() << std::endl;
       break;
     } else {
-      std::cout << "Response: ";
-      std::cout.write(buffer.data(), length);
-      std::cout << std::endl;
+      std::string message(buffer, length);
+      std::cout << "Response: " << message << std::endl;
+    }
+
+    if(std::strncmp(buffer, "DISPARO", std::strlen("DISPARO")) == 0){
+
+      boost::asio::write(socket, boost::asio::buffer("ANDA"));
+    }
+    else{
+      //boost::asio::write(socket, boost::asio::buffer("ERRO));
+      std::cout << "Error reading" << std::endl;
     }
   }
 
