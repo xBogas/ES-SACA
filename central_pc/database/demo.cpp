@@ -62,7 +62,7 @@ int main()
 
     Database my_db;
     //my_db.db_INSERT_Competition("Natal", "Braga", "12.02.2021", "P");
-    my_db.db_IMPORT("/home/ines/csv/db_nonull.csv");
+    my_db.db_IMPORT("/home/ines/csv/db_nonull.csv", "ines");
     
     
     //my_db.db_INSERT_Athlete(2423, "Pedro Claro", "M", "Português", 22, "ACP");

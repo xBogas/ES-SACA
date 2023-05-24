@@ -208,13 +208,13 @@ bool Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float
     }
 }
 
-bool Database::db_IMPORT(string file_loc){
+bool Database::db_IMPORT(string file_loc, string user){
 
 
     try{
         //give permission
-        string command1 = "sudo chown postgres /home/ines\n";
-        command1 += "sudo chgrp postgres /home/ines";
+        string command1 = "sudo chown postgres /home/" + user +"\n";
+        command1 += "sudo chgrp postgres /home/" + user;
         system(command1.c_str());
 
         //create command
@@ -224,9 +224,12 @@ bool Database::db_IMPORT(string file_loc){
         
         execute(sql, false);
 
+        string sql2 = "DELETE FROM temp";
+        execute(sql2, false);
+
         //retrieve permission
-        string command2 = "sudo chown ines /home/ines\n";
-        command2 += "sudo chgrp ines /home/ines";
+        string command2 = "sudo chown " + user + " /home/" + user + "\n";
+        command2 += "sudo chgrp " + user + " /home/" + user;
         system(command2.c_str());
 
         cout << "Imported successfully" << endl;
