@@ -4,7 +4,11 @@
 #include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
 #include "Approx.hpp"
+#include <iostream>
+#include <boost/asio.hpp>
 #include "../shared/TCPsocket.hpp"
+
+using boost::asio::ip::tcp;
 
 class Detector : public QObject
 {
@@ -31,6 +35,10 @@ private:
 		Pistol,
 		Rifle
 	};
+
+	boost::asio::io_context io_context;
+	tcp::socket socket;
+
 
 	/// @brief Calculate target center
 	void

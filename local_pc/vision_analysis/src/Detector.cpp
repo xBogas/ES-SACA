@@ -4,13 +4,13 @@
 // TODO: clean getCenter and getPoints 
 
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
-	: QObject(parent), m_approx(525, 525, 14)
+	: QObject(parent), m_approx(525, 525, 14), socket(io_context)
 {
 	switch (type)
 	{
 	case 0:
 		m_target = Target::Pistol;
-		m_img_ref = cv::imread("pistol_ref.jpg");
+		m_img_ref = cv::imread("/home/joao/FEUP/ES/ES-SACA/local_pc/vision_analysis/images/pistol_ref.jpg");
 		break;
 	
 	case 1:
@@ -23,24 +23,57 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 		break;
 	}
 
+	tcp::resolver resolver(io_context);
+  	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+
+	boost::asio::write(socket, boost::asio::buffer("oi"));
+
 	//m_sock = new Network::TCPsocket();
 	//m_sock->connect(port, addr);
 }
 
 void Detector::onMain()
 {
-	bool stop = false;
-	bool doCapture = true;
-	while (!stop)
-	{
-		if (doCapture)
-		{
-			transformImage();
-			getCenter();
-			getPoints();
-			doCapture = false;
-		}
-	}
+	// bool stop = false;
+	// bool doCapture = true;
+	// while (!stop)
+	// {
+	// 	if (doCapture)
+	// 	{
+	// 		transformImage();
+	// 		getCenter();
+	// 		getPoints();
+	// 		doCapture = false;
+	// 	}
+	// }
+	while (true) {
+    std::string message;
+    std::cout << "Enter message to send (or 'quit' to exit): ";
+    std::getline(std::cin, message);
+
+    if (message == "quit") {
+      break;
+    }
+
+    message += "\n";
+    boost::asio::write(socket, boost::asio::buffer(message));
+
+    std::array<char, 128> buffer;
+    boost::system::error_code error;
+    size_t length = socket.read_some(boost::asio::buffer(buffer), error);
+
+    if (error == boost::asio::error::eof) {
+      std::cout << "Connection closed by server." << std::endl;
+      break;
+    } else if (error) {
+      std::cout << "Error: " << error.message() << std::endl;
+      break;
+    } else {
+      std::cout << "Response: ";
+      std::cout.write(buffer.data(), length);
+      std::cout << std::endl;
+    }
+  }
 }
 
 
