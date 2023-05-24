@@ -23,6 +23,7 @@ bool isPistol = false, isRifle = false;
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
 void handle_new_score_pistol(int x, int y, double radius, double score);
 void handle_new_score_rifle(int x, int y, double radius, double score);
+void handle_ESP_communication(Detector *detector);
 
 int main(int argc, char *argv[]){
     //gui code
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]){
     
     //start threads
     std::thread client(client_thread, &w, ptl, rfl);
-    // std::thread ESP(handle_ESP_communication);
+    std::thread ESP(handle_ESP_communication, detector_pistol);
 
     //connect signals
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
@@ -55,6 +56,10 @@ int main(int argc, char *argv[]){
     });
 
     return a.exec();;
+}
+
+void handle_ESP_communication(Detector *detector){
+    detector->onMain();
 }
 
 void handle_new_score_pistol(int x, int y, double radius, double score){
