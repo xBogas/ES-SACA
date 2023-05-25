@@ -10,6 +10,8 @@ int main() {
   tcp::resolver resolver(io_context);
   boost::asio::connect(socket, resolver.resolve("192.168.4.1", "80")); // ESP8266 IP address and port
 
+  boost::asio::write(socket, boost::asio::buffer(""));
+
   while (true) {
     char buffer[1024];
     boost::system::error_code error;
@@ -26,13 +28,12 @@ int main() {
       std::cout << "Response: " << message << std::endl;
     }
 
-    if(std::strncmp(buffer, "DISPARO", std::strlen("DISPARO")) == 0){
+    if(std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0){
 
-      boost::asio::write(socket, boost::asio::buffer("ANDA"));
+      boost::asio::write(socket, boost::asio::buffer("anda"));
     }
     else{
-      //boost::asio::write(socket, boost::asio::buffer("ERRO));
-      std::cout << "Error reading" << std::endl;
+      boost::asio::write(socket, boost::asio::buffer("erro"));
     }
   }
 
