@@ -10,12 +10,12 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	{
 	case 0:
 		m_target = Target::Pistol;
-		m_img_ref = cv::imread("/home/joao/FEUP/ES/ES-SACA/local_pc/vision_analysis/images/pistol_ref.jpg");
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
 		break;
 	
 	case 1:
 		m_target = Target::Rifle;
-		m_img_ref = cv::imread("rifle_ref.jpg");
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
 		break;
 
 	default:
@@ -23,64 +23,53 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 		break;
 	} */
 
-	tcp::resolver resolver(io_context);
-  	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
-
-	boost::asio::write(socket, boost::asio::buffer("oi"));
-
-	//m_sock = new Network::TCPsocket();
-	//m_sock->connect(port, addr);
+	//tcp::resolver resolver(io_context);
+  	//boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+	//boost::asio::write(socket, boost::asio::buffer("oi"));
 
 	m_target = Target::Pistol;
-	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR);
+	m_img_ref = cv::imread("../images/pistol_ref.jpg");
+	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
+	transformImage();
 	getCenter();
 	getPoints();
 }
 
-void Detector::onMain()
+void Detector::onMain(bool& isRunning)
 {
-	// bool stop = false;
-	// bool doCapture = true;
-	// while (!stop)
-	// {
-	// 	if (doCapture)
-	// 	{
-	// 		transformImage();
-	// 		getCenter();
-	// 		getPoints();
-	// 		doCapture = false;
-	// 	}
-	// }
-	while (true) {
-    std::string message;
-    std::cout << "Enter message to send (or 'quit' to exit): ";
-    std::getline(std::cin, message);
-
-    if (message == "quit") {
-      break;
-    }
-
-    message += "\n";
-    boost::asio::write(socket, boost::asio::buffer(message));
-
-    std::array<char, 128> buffer;
+	std::array<char, 128> buffer;
     boost::system::error_code error;
-    size_t length = socket.read_some(boost::asio::buffer(buffer), error);
-
-    if (error == boost::asio::error::eof) {
-      std::cout << "Connection closed by server." << std::endl;
-      break;
-    } else if (error) {
-      std::cout << "Error: " << error.message() << std::endl;
-      break;
-    } else {
-      std::cout << "Response: ";
-      std::cout.write(buffer.data(), length);
-      std::cout << std::endl;
-    }
-  }
+	while (!isRunning)
+	{
+		size_t length = socket.read_some(boost::asio::buffer(buffer), error);
+		if (length > 0)
+		{
+			transformImage();
+			getCenter();
+			getPoints();
+		}
+	}
 }
 
+void Detector::changeMode(int type)
+{
+	switch (type)
+	{
+	case 0:
+		m_target = Target::Pistol;
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		break;
+	
+	case 1:
+		m_target = Target::Rifle;
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		break;
+
+	default:
+		throw std::runtime_error("Invalid target type");
+		break;
+	}
+}
 
 void Detector::getCenter()
 {

@@ -6,10 +6,10 @@
 #include "Approx.hpp"
 #include <iostream>
 #include <boost/asio.hpp>
-#include "../shared/TCPsocket.hpp"
 
 using boost::asio::ip::tcp;
 
+//TODO: add change mode Method
 class Detector : public QObject
 {
 	Q_OBJECT
@@ -24,11 +24,10 @@ public:
 	~Detector(){};
 
 	void
-	onMain();
+	onMain(bool& isRunning);
 
 	void
-	stop()
-	{ isRunning = false;}
+	changeMode(int type);
 
 signals: // This params should be a custom struct has they will always be sent together
 	void new_score(int x, int y, double radius, double score);
@@ -39,9 +38,6 @@ private:
 		Pistol,
 		Rifle
 	};
-
-	boost::asio::io_context io_context;
-	tcp::socket socket;
 
 
 	/// @brief Calculate target center
@@ -99,7 +95,9 @@ private:
 
 	void transformImage();
 
-	Network::TCPsocket *m_sock;
+	boost::asio::io_context io_context;
+
+	tcp::socket socket;
 	/// @brief Camera object
 	cv::VideoCapture m_camera;
 	/// @brief Ratio of pixel/mm
