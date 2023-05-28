@@ -49,6 +49,7 @@ RifleWindow::RifleWindow(QWidget *parent) :
     QObject::connect(this, &RifleWindow::startButtonClickedSignal, this, &RifleWindow::startButtonClicked);
     QObject::connect(this, &RifleWindow::backToDecideModeSignal, this, &RifleWindow::backToDecideMode);
     QObject::connect(this, &RifleWindow::backToDecideTypeSignal, this, &RifleWindow::backToDecideType);
+    QObject::connect(this, &RifleWindow::new_score, this, &RifleWindow::Disparo);
 }
 
 RifleWindow::~RifleWindow()

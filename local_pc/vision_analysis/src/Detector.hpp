@@ -6,6 +6,7 @@
 #include "Approx.hpp"
 #include <iostream>
 #include <boost/asio.hpp>
+#include <thread>
 
 using boost::asio::ip::tcp;
 
@@ -24,7 +25,7 @@ public:
 	~Detector(){};
 
 	void
-	onMain(bool& isRunning);
+	onMain(bool& isRunning, bool& continueReading);
 
 	void
 	changeMode(int type);
@@ -118,8 +119,6 @@ private:
 	Target m_target;
 
 	float m_lastScore;
-
-	bool isRunning;
 };
 
 #endif

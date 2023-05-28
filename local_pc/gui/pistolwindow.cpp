@@ -36,7 +36,6 @@ PistolWindow::PistolWindow(QWidget *parent) :
     totalintshot=0;
     decshot=0;
     totaldecshot=0;
-    electretSignal = false;
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
@@ -48,6 +47,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QObject::connect(this, &PistolWindow::startButtonClickedSignal, this, &PistolWindow::startButtonClicked);
     QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::backToDecideMode);
     QObject::connect(this, &PistolWindow::backToDecideTypeSignal, this, &PistolWindow::backToDecideType);
+    QObject::connect(this, &PistolWindow::new_score, this, &PistolWindow::Disparo);
 }
 
 PistolWindow::~PistolWindow()
@@ -236,8 +236,6 @@ void PistolWindow::backToDecideType(){
 
 
 void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
-    electretSignal = true;
-
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
@@ -280,8 +278,6 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
 
 //Botão temorário para simular disparo. Pôr o código que está dentro, com as devidas alterações, no PistolWindow::processar(), quando eliminar-se o botão.
 void PistolWindow::on_ShootButton_clicked(){
-    electretSignal = true;
-
     x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=ui->doubleSpinBox_2->value();             //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     //intshot=                                  //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.

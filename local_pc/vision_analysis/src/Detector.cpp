@@ -6,7 +6,7 @@
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525, 14), socket(io_context)
 {
-	/* switch (type)
+	switch (type)
 	{
 	case 0:
 		m_target = Target::Pistol;
@@ -21,32 +21,44 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	default:
 		throw std::runtime_error("Invalid target type");
 		break;
-	} */
+	} 
 
-	//tcp::resolver resolver(io_context);
-  	//boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
-	//boost::asio::write(socket, boost::asio::buffer("oi"));
+	// Connect to ESP8266
+	tcp::resolver resolver(io_context);
+  	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+	boost::asio::write(socket, boost::asio::buffer(""));
 
-	m_target = Target::Pistol;
-	m_img_ref = cv::imread("../images/pistol_ref.jpg");
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
-	transformImage();
-	getCenter();
-	getPoints();
 }
 
-void Detector::onMain(bool& isRunning)
+void Detector::onMain(bool& finish, bool& continueReading)
 {
-	std::array<char, 128> buffer;
+	char buffer[1024];
     boost::system::error_code error;
-	while (!isRunning)
+	while (!finish)
 	{
+		std::cout << "[Waiting for data...]" << std::endl;
 		size_t length = socket.read_some(boost::asio::buffer(buffer), error);
-		if (length > 0)
-		{
-			transformImage();
-			getCenter();
-			getPoints();
+		if (error == boost::asio::error::eof) {
+			std::cout << "Connection closed by server." << std::endl;
+			break;
+		} else if (error) {
+			std::cout << "Error: " << error.message() << std::endl;
+			break;
+		}
+		if(continueReading){
+			std::string message(buffer, length);
+			std::cout << "Response: " << message << std::endl;
+
+			if (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0)
+			{
+				transformImage();
+				getCenter();
+				getPoints();
+			}
+		}
+		else{
+			boost::asio::write(socket, boost::asio::buffer("\n"));
 		}
 	}
 }
@@ -312,7 +324,10 @@ void Detector::getPoints()
 
 				char msg[64] = "Move ";
 				memcpy(&msg[5], &move_ESP, 8);
+
+				std::cout << "[Sending data...]" << std::endl;
 				//m_sock->write(msg, 5+8);
+				boost::asio::write(socket, boost::asio::buffer("Move\n"));
 
 				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
 			}
@@ -320,8 +335,8 @@ void Detector::getPoints()
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
 		}
 	}
-	cv::imshow("Shot detection", m_image);
-	cv::waitKey();
+	// cv::imshow("Shot detection", m_image);
+	// cv::waitKey();
 }
 
 double Detector::getScore(double distance, double radius)
