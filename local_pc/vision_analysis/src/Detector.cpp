@@ -37,6 +37,8 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	transformImage();
 	getCenter();
 	getPoints();
+	std::cout << "getPOints 2\n";
+	getPoints();
 #endif
 }
 
@@ -340,6 +342,13 @@ void Detector::getPoints()
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
 			double score = getScore(result, new_r);
+			if (score == m_lastScore)
+			{
+				std::cout << "Same as before not sending\n";
+				continue;
+			}
+			else
+				m_lastScore = score;
 
 			emit new_score(x, y, new_r, score);
 			if (result > m_center_radius+new_r) // 185 -> center circle
@@ -371,11 +380,14 @@ void Detector::getPoints()
 				char msg[64] = "@";
 				memcpy(&msg[1], &move_ESP, 8);
 				memcpy(&msg[9], "*", 1);
+				
+				std::cout << "[Sending data...]" << std::endl;
 				std::cout << "ESP should move " << move_ESP << " mm\n";
 #ifdef ESP_COMS
 				boost::asio::write(socket, boost::asio::buffer(msg));
 #endif
 			}
+			return;
 		}
 	}
 #ifdef VISION_TEST
@@ -387,13 +399,11 @@ void Detector::getPoints()
 double Detector::getScore(double distance, double radius)
 {
 	double score = 0;
-
+	distance = abs((distance-radius)*170/m_image.cols);
+	std::cout << "Distance " << distance << " mm\n";
+	std::cout << "Score is ";
 	if (m_target == Target::Pistol)
 	{
-		
-		distance = abs((distance-radius)*170/m_image.cols);
-		std::cout << "Distance " << distance << " mm\n";
-		std::cout << "Score is ";
 		if(distance <= 5.75)
 		{
 			score += 10;
@@ -407,16 +417,11 @@ double Detector::getScore(double distance, double radius)
 			distance = 72-(distance-5.75);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
-			std::cout << score << "\n";
+			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
-
 	}
 	else
 	{
-		distance = abs((distance-radius)*170/m_image.cols);
-		std::cout << "Distance " << distance << " mm\n";
-		std::cout << "Score is ";
-
 		if(distance <= 0.25)
 		{
 			score += 10;
@@ -427,8 +432,9 @@ double Detector::getScore(double distance, double radius)
 		{
 			double delta = 0.8;
 			distance = 22.5-(distance-0.25);
-			int score = distance/delta +10;
-			std::cout << (float)score/(10.0f) << "\n";
+			int sc = distance/delta +10;
+			score = (float)sc/(10.0f);
+			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
 	}
 	return score;
