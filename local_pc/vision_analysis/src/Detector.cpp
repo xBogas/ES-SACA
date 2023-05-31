@@ -25,7 +25,7 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 
 	// Connect to ESP8266
 #ifdef ESP_COMS
-#warning "no"
+#warning "connection"
 	tcp::resolver resolver(io_context);
   	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
 	boost::asio::write(socket, boost::asio::buffer(""));
@@ -34,9 +34,9 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #ifdef VISION_TEST
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
 
-	transformImage();
-	getCenter();
-	getPoints();
+	// transformImage();
+	// getCenter();
+	// getPoints();
 #endif
 }
 
@@ -99,7 +99,7 @@ void Detector::getCenter()
 
 	std::vector<std::vector<cv::Point>> contours;
 	cv::Canny(m_image, edge, 300, 500);
-	cv::imshow("edge contours", edge);
+	// cv::imshow("edge contours", edge);
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
 	for (size_t i = 0; i < contours.size(); i++)
@@ -146,8 +146,8 @@ void Detector::getCenter()
 		}
 	}
 #ifdef VISION_TEST
-	cv::imshow("Center detection", m_image);
-	cv::waitKey();
+	// cv::imshow("Center detection", m_image);
+	// cv::waitKey();
 #endif
 }
 
@@ -341,6 +341,7 @@ void Detector::getPoints()
 
 				std::cout << "[Sending data...]" << std::endl;
 #ifdef ESP_COMS
+#warning "ESP"
 				boost::asio::write(socket, boost::asio::buffer("Move\n"));
 #endif
 				std::cout << "ESP should move " << move_ESP*170/m_image.cols << " mm\n";
