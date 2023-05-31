@@ -4,7 +4,7 @@
 # eigen
 # boost
 
-# postgre sql for central
+# postgre sql for central 
 
 # go to home/user directory
 cd /home/saca
@@ -31,6 +31,30 @@ mkdir -p build && cd build
 cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.x/modules ../opencv-4.x
 cmake --build .
 
-sudo make install
+sudo make install -j
 
-return 0
+
+# Eigen
+
+sudo apt install -y libeigen3-dev
+
+
+# boost 
+
+sudo apt-get install -y libboost-all-dev
+
+# postgre 
+
+sudo apt-get install postgresql
+sudo apt-get install libpqxx-dev
+
+
+# Qt
+# for deployment https://github.com/probonopd/linuxdeployqt
+
+sudo apt-get -y install build-essential openssl libssl-dev libssl1.0 libgl1-mesa-dev libqt5x11extras5
+
+# for help https://web.stanford.edu/dept/cs_edu/resources/qt/install-linux
+# go to  https://www.qt.io/download-qt-installer
+# chmod +x qt*.run  
+# ./qt*.run
