@@ -7,6 +7,8 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace Ui {
 class PistolWindow;
@@ -43,7 +45,7 @@ private slots:
     void alerta();
     void resetTimer();
     void blockDecideMode();
-    void tabelalugar();
+    void tabelalugar(float pontuação, std::string nome);
 
 private:
     Ui::PistolWindow *ui;
@@ -63,6 +65,13 @@ private:
     short int lug_9;
     short int lug_10;
     short int lug_igual;
+
+    short int z;
+    short int i;
+    short int d;
+    QString lug;
+    std::vector<std::string> jogadores;
+    std::vector<float> pontuações;
     
     QTimer reloj;
     QTimer alert;
