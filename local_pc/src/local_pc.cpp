@@ -7,22 +7,37 @@
 #include <chrono>
 #include <random>
 #include <boost/asio.hpp>
-
 #include <opencv2/opencv.hpp>
 #include "../vision_analysis/src/Detector.hpp"
 #include <fstream>
 
+// connection to server in central_pc
 using boost::asio::ip::tcp;
 boost::asio::io_context io_context;
 
+// connection to ESP
+int port = 80;
+const char* addr = "192.168.4.1";
+
+// handle decisions in client_thread
 bool initial = true, decideType = false, decideMode = false, canStart = false, readSignal = false;
 bool matchORfinal = false;
 bool entry = true;
-bool finish = false;
 bool isPistol = false, isRifle = false;
 
-void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow);
-void handle_ESP_communication();
+// finish threads
+bool finishClientThread = false;
+bool finishESPThread = false;
+
+// detect the shot and pass the values to client_thread
+bool continueReading = false;
+int coordinateX, coordinateY;
+double score;
+bool shot = false;
+
+void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow, Detector *detector);
+void handle_new_score(int x, int y, double radius, double score);
+void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& continueRunning);
 
 int main(int argc, char *argv[]){
     //gui code
@@ -31,22 +46,44 @@ int main(int argc, char *argv[]){
     w.show();
     PistolWindow *ptl = w.getPistolWindow();
     RifleWindow *rfl = w.getRifleWindow();
+    Detector *detector = new Detector(0, port, addr);
     
     //start threads
-    std::thread client(client_thread, &w, ptl, rfl);
-    // std::thread ESP(handle_ESP_communication);
+    std::thread client(client_thread, &w, ptl, rfl, detector);
+    std::thread ESP(handle_ESP_communication, detector, std::ref(finishESPThread), std::ref(continueReading));
 
     //connect signals
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
         io_context.stop();
-        finish = true;
+        finishClientThread = true;
+        finishESPThread = true;
+        ESP.join();
         client.join();
+    });
+
+    // Connect the signal to a slot (a member function or a lambda)
+    QObject::connect(detector, &Detector::new_score, [](int x, int y, double radius, double score) {
+        handle_new_score(x, y, radius, score);
     });
 
     return a.exec();;
 }
 
-void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow){
+void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& continueReading){
+    detector->onMain(finishESPThread, continueReading);
+}
+
+void handle_new_score(int x, int y, double radius, double score){
+    shot = true;
+    coordinateX = x;
+    coordinateY = y;
+    score = score;
+
+    std::cout << "Shot detected in local_pc!" << std::endl;
+    std::cout << "x: " << x << " y: " << y << " radius: " << radius << " score: " << score << std::endl;
+}
+
+void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow, Detector *detector){
     try{
         long long initial_millis;
         int delay_ms;
@@ -54,7 +91,6 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         tcp::resolver resolver(io_context);
         //tcp::resolver::results_type endpoints = resolver.resolve("192.168.0.1", "8080");
         tcp::resolver::results_type endpoints = resolver.resolve("10.0.2.15", "8080");
-
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);
 
@@ -66,7 +102,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         for(;;){
             char init[1024], athlete[1024], type[1024], mode[1024], backToType[1024], backToMode[1024];
 
-            if(finish)
+            if(finishClientThread)
                 break;
             
             if(initial){
@@ -108,6 +144,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     ptlwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
                     ptlwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
 
+                    detector->changeMode(0); //set the detector type to pistol
                     isPistol = true;
                     isRifle = false;
                     decideMode = true;
@@ -118,6 +155,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     rflwindow->findChild<QLabel*>("name")->setText(QString::fromStdString(name));
                     rflwindow->findChild<QLabel*>("ID")->setText(QString::number(ID));
                     
+                    detector->changeMode(1); //set the detector type to rifle
                     isRifle = true;
                     isPistol = false;
                     decideMode = true;
@@ -160,6 +198,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
                         emit ptlwindow->startButtonClickedSignal();
+                        continueReading = true;
 
                         if(matchORfinal){
                             canStart = false;
@@ -174,6 +213,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         
                         matchORfinal = false;
                         decideMode = true;
+                        continueReading = false;
                     }
                 }
                 else if(isRifle){
@@ -205,6 +245,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     if(canStart && std::strncmp(mode, "start", std::strlen("start")) == 0){
                         emit rflwindow->startButtonClickedSignal();
+                        continueReading = true;
                         
                         if(matchORfinal){
                             canStart = false;
@@ -218,6 +259,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         
                         matchORfinal = false;
                         decideMode = true;
+                        continueReading = false;
                     }
                 }
             }
@@ -240,18 +282,29 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
                 long long now_millis = now_ms.time_since_epoch().count();
 
-                if((now_millis - initial_millis > delay_ms) and !ptlwindow->electretSignal){ // timeout
+                if((now_millis - initial_millis > delay_ms) and !shot){ // timeout
                     // Send message to server
                     boost::asio::write(socket, boost::asio::buffer("timeout"));
 
                     entry = true;
                     readSignal = true;
                 }
-                else if(ptlwindow->electretSignal){ // process vision_analysis
+                else if(shot){ // process vision_analysis
                     std::cout << "ElectretSignal Activated" << std::endl;
 
-                    ptlwindow->electretSignal = false;
+                    // Send message to server
+                    boost::asio::write(socket, boost::asio::buffer("shot"));
+
+                    if(isPistol){
+                        emit ptlwindow->new_score(coordinateX, coordinateY, score);
+                    }
+                    else if(isRifle){
+                        emit rflwindow->new_score(coordinateX, coordinateY, score);
+                    }
+
                     readSignal = true;
+                    shot = false;
+                    continueReading = false;
                 }
 
                 if(readSignal){
@@ -271,9 +324,11 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         
                         decideMode = true;
                         readSignal = false;
+                        continueReading = false;
                     }
                     else if(std::strncmp(backToMode, "proceed", std::strlen("proceed")) == 0){
                         readSignal = false;
+                        continueReading = true;
                     }
                 }
             }
@@ -291,6 +346,3 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
     return;
 }
 
-void handle_ESP_communication(){
-    return;
-}

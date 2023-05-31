@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 
-	Detector det;
+	Detector det(0, 8888, "127.0.0.1");
 
 	return 0;
 }
