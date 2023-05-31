@@ -43,6 +43,7 @@ private slots:
     void alerta();
     void resetTimer();
     void blockDecideMode();
+    void tabelalugar();
 
 private:
     Ui::PistolWindow *ui;

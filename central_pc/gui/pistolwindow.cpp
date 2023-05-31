@@ -182,177 +182,6 @@ void PistolWindow::processar()
     if(procss==1 && segundos%2==1){
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
     }
-
-    //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
-    int z;
-    int i;
-    int d;
-
-    // while(procss==1){                   //por a funçaõ a correr enquanto o processo estiver ativo
-    //     for(z=1; z<=10; z++){
-    //         QString lug;
-    //         /* lug="1º";
-    //         QString atl = "Altair";
-    //         ui->tableWidget->setItem(1-1,Lugar,new QTableWidgetItem(lug));
-    //         ui->tableWidget->setItem(1-1,Atleta,new QTableWidgetItem(atl));
-    //         ui->tableWidget->setItem(1-1,Inte,new QTableWidgetItem(QString::number(40)));
-    //         ui->tableWidget->setItem(1-1,Dec,new QTableWidgetItem(QString::number(40.7))); */
-
-    //         while(i=1;i<=tt;i++){                            //percorrer todos os atletas, tt=total de atletas.
-    //             if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9 || i==lug_10){
-    //                 continue;                   //passa para o seguinte i;
-    //             }
-
-    //             //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
-    //             if(z==2 && /*se pontuação de i é igual à de lug_1*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==3 && /*se pontuação de i é igual à de lug_2*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==4 && /*se pontuação de i é igual à de lug_3*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==5 && /*se pontuação de i é igual à de lug_4*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==6 && /*se pontuação de i é igual à de lug_5*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==7 && /*se pontuação de i é igual à de lug_6*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==8 && /*se pontuação de i é igual à de lug_7*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==9 && /*se pontuação de i é igual à de lug_8*/){
-    //                 lug_igual==1;
-    //             }
-    //             if(z==10 && /*se pontuação de i é igual à de lug_9*/){
-    //                 lug_igual==1;
-    //             }
-
-    //             if(lug_igual==0){
-    //                 for(d=1; d<=tt; d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
-    //                     if(i!=d){
-    //                         if(/*se pontuação de i é menor que de d*/){
-    //                             i=d-1;
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-
-    //             if(d==tt){
-    //                 if(z==1){
-    //                     lug_1=i;
-    //                     break;
-    //                 }
-    //                 if(z==2){
-    //                     lug_2=i;
-    //                     break;
-    //                 }
-    //                 if(z==3){
-    //                     lug_3=i;
-    //                     break;
-    //                 }
-    //                 if(z==4){
-    //                     lug_4=i;
-    //                     break;
-    //                 }
-    //                 if(z==5){
-    //                     lug_5=i;
-    //                     break;
-    //                 }
-    //                 if(z==6){
-    //                     lug_6=i;
-    //                     break;
-    //                 }
-    //                 if(z==7){
-    //                     lug_7=i;
-    //                     break;
-    //                 }
-    //                 if(z==8){
-    //                     lug_8=i;
-    //                     break;
-    //                 }
-    //                 if(z==9){
-    //                     lug_9=i;
-    //                     break;
-    //                 }
-    //                 if(z==10){
-    //                     lug_10=i;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-
-    //         if(z==1){
-    //             lug="1º";
-    //         }
-    //         if(z==2){
-    //             if(lug_igual!=1){
-    //                 lug="2º";
-    //             }
-    //         }
-    //         if(z==3){
-    //             if(lug_igual!=1){
-    //                 lug="3º";
-    //             }
-    //         }
-    //         if(z==4){
-    //         if(lug_igual!=1){
-    //                 lug="4º";
-    //             } 
-    //         }
-    //         if(z==5){
-    //             if(lug_igual!=1){
-    //                 lug="5º";
-    //             }
-    //         }
-    //         if(z==6){
-    //             if(lug_igual!=1){
-    //                 lug="6º";
-    //             }
-    //         }
-    //         if(z==7){
-    //             if(lug_igual!=1){
-    //                 lug="7º";
-    //             }
-    //         }
-    //         if(z==8){
-    //             if(lug_igual!=1){
-    //                 lug="8º";
-    //             }
-    //         }
-    //         if(z==9){
-    //             if(lug_igual!=1){
-    //                 lug="9º";
-    //             }
-    //         }
-    //         if(z==10){
-    //             if(lug_igual!=1){
-    //                 lug="10º";
-    //             }
-    //         }
-    //         ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
-    //         ui->tableWidget->setItem(z-1,Atleta,/*nome ou numero do atleta*/);
-    //         ui->tableWidget->setItem(z-1,Inte,/*pontuação atual só com números inteiros*/);
-    //         ui->tableWidget->setItem(z-1,Dec,/*pontuação atual*/);
-
-    //         lug_igual=0;
-    //     }
-    //     lug_1=0;
-    //     lug_2=0;
-    //     lug_3=0;
-    //     lug_4=0;
-    //     lug_5=0;
-    //     lug_6=0;
-    //     lug_7=0;
-    //     lug_8=0;
-    //     lug_9=0;
-    //     lug_10=0;
-    // }
 }
 
 void PistolWindow::alerta()
@@ -414,4 +243,169 @@ void PistolWindow::blockDecideMode(){
     ui->PracticeButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->MatchButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
     ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
+}
+
+void PistolWindow::tabelalugar(){
+    //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
+    int z;
+    int i;
+    int d;
+    QString lug;
+
+    while(procss==1){                                           //por a funçaõ a correr enquanto o processo estiver ativo
+        for(z=1; z<=10; z++){
+            for(i=1; i<=tt; i++){                               //percorrer todos os atletas, tt=total de atletas.
+                if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9 || i==lug_10){
+                    continue;                                   //passa para o seguinte i;
+                }
+                //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
+                // if(z==2 && /*se pontuação de i é igual à de lug_1*/){
+                //     lug_igual==1;
+                // }
+                // if(z==3 && /*se pontuação de i é igual à de lug_2*/){
+                //     lug_igual==1;
+                // }
+                // if(z==4 && /*se pontuação de i é igual à de lug_3*/){
+                //     lug_igual==1;
+                // }
+                // if(z==5 && /*se pontuação de i é igual à de lug_4*/){
+                //     lug_igual==1;
+                // }
+                // if(z==6 && /*se pontuação de i é igual à de lug_5*/){
+                //     lug_igual==1;
+                // }
+                // if(z==7 && /*se pontuação de i é igual à de lug_6*/){
+                //     lug_igual==1;
+                // }
+                // if(z==8 && /*se pontuação de i é igual à de lug_7*/){
+                //     lug_igual==1;
+                // }
+                // if(z==9 && /*se pontuação de i é igual à de lug_8*/){
+                //     lug_igual==1;
+                // }
+                // if(z==10 && /*se pontuação de i é igual à de lug_9*/){
+                //     lug_igual==1;
+                // }
+
+                // if(lug_igual==0){
+                //     for(d=1; d<=tt; d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
+                //         if(i!=d){
+                //             if(/*se pontuação de i é menor que de d*/){
+                //                 i=d-1;
+                //                 break;
+                //             }
+                //         }
+                //     }
+                // }
+
+                if(d==tt){
+                    if(z==1){
+                        lug_1=i;
+                        break;
+                    }
+                    if(z==2){
+                        lug_2=i;
+                        break;
+                    }
+                    if(z==3){
+                        lug_3=i;
+                        break;
+                    }
+                    if(z==4){
+                        lug_4=i;
+                        break;
+                    }
+                    if(z==5){
+                        lug_5=i;
+                        break;
+                    }
+                    if(z==6){
+                        lug_6=i;
+                        break;
+                    }
+                    if(z==7){
+                        lug_7=i;
+                        break;
+                    }
+                    if(z==8){
+                        lug_8=i;
+                        break;
+                    }
+                    if(z==9){
+                        lug_9=i;
+                        break;
+                    }
+                    if(z==10){
+                        lug_10=i;
+                        break;
+                    }
+                }
+            }
+
+            if(z==1){
+                lug="1º";
+            }
+            if(z==2){
+                if(lug_igual!=1){
+                    lug="2º";
+                }
+            }
+            if(z==3){
+                if(lug_igual!=1){
+                    lug="3º";
+                }
+            }
+            if(z==4){
+            if(lug_igual!=1){
+                    lug="4º";
+                } 
+            }
+            if(z==5){
+                if(lug_igual!=1){
+                    lug="5º";
+                }
+            }
+            if(z==6){
+                if(lug_igual!=1){
+                    lug="6º";
+                }
+            }
+            if(z==7){
+                if(lug_igual!=1){
+                    lug="7º";
+                }
+            }
+            if(z==8){
+                if(lug_igual!=1){
+                    lug="8º";
+                }
+            }
+            if(z==9){
+                if(lug_igual!=1){
+                    lug="9º";
+                }
+            }
+            if(z==10){
+                if(lug_igual!=1){
+                    lug="10º";
+                }
+            }
+            ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
+            ui->tableWidget->setItem(z-1,Atleta,/*nome ou numero do atleta*/);
+            ui->tableWidget->setItem(z-1,Inte,/*pontuação atual só com números inteiros*/);
+            ui->tableWidget->setItem(z-1,Dec,/*pontuação atual*/);
+
+            lug_igual=0;
+        }
+        lug_1=0;
+        lug_2=0;
+        lug_3=0;
+        lug_4=0;
+        lug_5=0;
+        lug_6=0;
+        lug_7=0;
+        lug_8=0;
+        lug_9=0;
+        lug_10=0;
+    }
 }

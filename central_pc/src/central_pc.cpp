@@ -33,19 +33,19 @@ bool wasClicked = false;
 bool newPractice = false, newMatch = false, newFinal = false;
 bool oldPractice = false, oldFinal = false, oldMatch = false;
 bool oldStart = false;
-bool isPistol = false, isRifle = false;
-bool matchORfinal = false;
 
 int aux = 0;
 
 std::atomic<bool> finish(false);
+
+Database* database;
 
 int main(int argc, char *argv[]){
     //gui code
     QApplication a(argc, argv);
 
     //create database
-    Database* database = new Database();
+    database = new Database();
     
     //create windows
     InitWindow i = InitWindow(nullptr, database);  
@@ -55,79 +55,87 @@ int main(int argc, char *argv[]){
     RifleWindow* rfl = w2->getRifleWindow();
     PistolWindow* ptl = w2->getPistolWindow();
 
-    //start threads
-    std::thread server(server_thread, w, w2, ptl, rfl, database);
+    //start server thread
+    std::thread server(server_thread, w, w2, ptl, rfl);
 
-    //connect signals
+    //conectar sinal para fechar threads e sockets
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
         io_context.stop();
         finish = true;
-        server.join();
+        //server.join();
     });
 
     return a.exec();
 }
 
-void start_accept(tcp::acceptor& acceptor, MainWindow* window, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
-    acceptor.async_accept(
-        [window, window2, ptlwindow, rflwindow, database, &acceptor](boost::system::error_code ec, tcp::socket socket) {
-            if (!ec) {
-                std::string client_ip = socket.remote_endpoint().address().to_string();
+void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
+    // std::vector<boost::asio::ip::tcp::socket*> open_sockets; // vetor para armazenar os sockets abertos
 
-                /*****************************************/
-                aux++;
-                boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
-                uint32_t ip_num = ip.to_ulong();
-                ip_num += aux;
-                boost::asio::ip::address_v4 new_ip(ip_num);
-                client_ip = new_ip.to_string();
-                /*****************************************/
-
-                std::cout << "Client connected: " << client_ip << std::endl;
-
-                {
-                    std::lock_guard<std::mutex> lock(connected_clients_mutex);
-                    connected_clients.push_back(client_ip);
-                }
-
-                // update GUI with new list of connected clients
-                std::vector<std::string> clients;
-                {
-                    std::lock_guard<std::mutex> lock(connected_clients_mutex);
-                    clients = connected_clients;
-                }
-                window->updateClientList(clients);
-
-                // handle the client in a separate thread
-                std::thread client_thread(handle_client, std::move(socket), window, window2, ptlwindow, rflwindow, database);
-                client_thread.detach();
-            }
-
-            // call start_accept again to wait for the next connection
-            start_accept(acceptor, window, window2, ptlwindow, rflwindow, database);
-        });
-}
-
-void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
-    try {
+    try{
         tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
-        //tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("192.168.0.1"), 8080));
-
         std::cout << "Server started. Listening on port 8080..." << std::endl;
 
-        // start accepting connections
-        start_accept(acceptor, window, window2, ptlwindow, rflwindow, database);
+        for(;;){
+            if(finish){
 
-        // run the I/O service event loop to handle async_accept operation
-        io_context.run();
+                break;
+            }
+
+            tcp::socket socket(io_context);
+
+            boost::system::error_code ec;
+            acceptor.accept(socket, ec);
+
+            // verificar se houve erro ou se a condição de término foi atingida
+            if (ec == boost::asio::error::operation_aborted || finish) {
+                break; // sair do loop
+            }
+            else if (ec) {
+                // tratar o erro, caso ocorra
+                std::cerr << "Erro ao aceitar conexão: " << ec.message() << std::endl;
+                continue;
+            }
+
+            std::string client_ip = socket.remote_endpoint().address().to_string();
+
+            /*****************************************/
+            aux++;
+            boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
+            uint32_t ip_num = ip.to_ulong();
+            ip_num += aux;
+            boost::asio::ip::address_v4 new_ip(ip_num);
+            client_ip = new_ip.to_string();
+            /*****************************************/
+
+
+            std::cout << "Client connected: " << client_ip << std::endl;
+
+            {
+                std::lock_guard<std::mutex> lock(connected_clients_mutex);
+                connected_clients.push_back(client_ip);
+            }
+
+            // update GUI with new list of connected clients
+            std::vector<std::string> clients;
+            {
+                std::lock_guard<std::mutex> lock(connected_clients_mutex);
+                clients = connected_clients;
+            }
+            window->updateClientList(clients);
+
+            // handle the client in a separate thread
+            std::thread client_thread(handle_client, std::move(socket), window, window2, ptlwindow, rflwindow);
+            client_thread.detach();
+        }
     }
-    catch (std::exception& e) {
+    catch (std::exception& e){
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 
-void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database){
+void handle_client(tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow){
     try{
+        boost::system::error_code error;
         std::string client_ip = socket.remote_endpoint().address().to_string();
         int old_clientID = 0;
 
@@ -194,11 +202,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                     boost::asio::write(socket, boost::asio::buffer("pistol"));
 
-                    isPistol = true;
-                    isRifle = false;
                     decideMode = true;
                     decideType = false;
-                    window2->pistol = false;
                 } 
                 else if(window2->rifle){
                     waitForOthers();
@@ -209,14 +214,14 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     isPistol = false;
                     decideMode = true;
                     decideType = false;
-                    window2->rifle = false;
                 } 
             }
             else if(decideMode){
-                if(isPistol){
+                if(window2->pistol){
                     newPractice = ptlwindow->practiceSignal;
                     newMatch = ptlwindow->matchSignal;
                     newFinal = ptlwindow->finalSignal;
+                    //std::cout << "practice: " << ptlwindow->practiceSignal << " | match: " << ptlwindow->matchSignal << " | final: " << ptlwindow->finalSignal << std::endl;
 
                     if(ptlwindow->backSignal){
                         waitForOthers();
@@ -233,8 +238,6 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
-                        matchORfinal = false;
-                        ptlwindow->practiceSignal = false;
                         canStart = true;
                     }
                     else if(newMatch && !oldMatch){
@@ -242,8 +245,6 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
-                        matchORfinal = true;
-                        ptlwindow->matchSignal = false;
                         canStart = true;
                     }
                     else if(newFinal && !oldFinal){
@@ -251,14 +252,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
-                        matchORfinal = true;
-                        ptlwindow->finalSignal = false;
                         canStart = true;
                     }
-
-                    oldPractice = newPractice;
-                    oldFinal = newFinal;
-                    oldMatch = newMatch;
 
                     if(canStart && ptlwindow->startSignal){
                         waitForOthers();
@@ -268,14 +263,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         ptlwindow->startSignal = false; 
                         ptlwindow->canBack = false;
 
-                        if(matchORfinal){
+                        if(newMatch || newFinal)
                             decideMode = false;
-                            canStart = false;
-                            oldPractice = false;
-                            oldFinal = false;
-                            oldMatch = false;
-                            matchORfinal = false;
-                        }
                     }
 
                     if(canStart && ptlwindow->switchModeSignal){
@@ -295,7 +284,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         ptlwindow->canBack = true;
                     }
                 }
-                else if(isRifle){
+                else if(window2->rifle){
                     newPractice = rflwindow->practiceSignal;
                     newMatch = rflwindow->matchSignal;
                     newFinal = rflwindow->finalSignal;
@@ -315,8 +304,6 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("practice"));
                         
-                        matchORfinal = false;
-                        rflwindow->practiceSignal = false;
                         canStart = true;
                     }
                     else if(newMatch && !oldMatch){
@@ -324,8 +311,6 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("match"));
                         
-                        matchORfinal = true;
-                        rflwindow->matchSignal = false;
                         canStart = true;
                     }
                     else if(newFinal && !oldFinal){
@@ -333,31 +318,20 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         boost::asio::write(socket, boost::asio::buffer("final"));
                         
-                        matchORfinal = true;
-                        rflwindow->finalSignal = false;
                         canStart = true;
                     }
-
-                    oldPractice = newPractice;
-                    oldFinal = newFinal;
-                    oldMatch = newMatch;
 
                     if(canStart && rflwindow->startSignal){
                         waitForOthers();
 
                         boost::asio::write(socket, boost::asio::buffer("start"));
-   
+                            
+                        canStart = false;    
                         rflwindow->startSignal = false;
                         rflwindow->canBack = false;
 
-                        if(matchORfinal){
+                        if(newMatch || newFinal)
                             decideMode = false;
-                            canStart = false;
-                            oldPractice = false;
-                            oldFinal = false;
-                            oldMatch = false;
-                            matchORfinal = false;
-                        }
                     }
 
                     if(canStart && rflwindow->switchModeSignal){
@@ -376,13 +350,31 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         rflwindow->canBack = true;
                     }
                 }
+
+                // if(canStart){
+                //     if(window2->pistol){
+                //         if(ptlwindow->startSignal){
+                //             boost::asio::write(socket, boost::asio::buffer("start"));
+
+                //             if(ptlwindow->matchSignal)
+                //                 decideMode = false;
+                //         }
+                //     }
+                //     else if(window2->rifle){
+                //         if(rflwindow->startSignal){
+                //             boost::asio::write(socket, boost::asio::buffer("start"));
+                            
+                //             if(rflwindow->matchSignal)
+                //                 decideMode = false;
+                //         }
+                //     }
+                // }
             }
             else{
-                boost::system::error_code ec;
                 char data[1024];
-                size_t length = socket.read_some(boost::asio::buffer(data), ec);
+                size_t length = socket.read_some(boost::asio::buffer(data), error);
 
-                if (ec == boost::asio::error::eof){
+                if (error == boost::asio::error::eof){
                     std::cout << "Client disconnected: " << client_ip << std::endl;
 
                     {
@@ -400,17 +392,12 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                     break;
                 }
-                else if (ec){
-                    throw boost::system::system_error(ec);
+                else if (error){
+                    throw boost::system::system_error(error);
                 }
 
                 std::string message(data, length);
-                std::cout << "Received message from client " << client_ip << ": " << message << std::endl;
-                
-                // analyse the received message
-                if(std::strncmp(data, "timeout", std::strlen("timeout")) != 0){ // if the message has the total shots
-                    //database->db_INSERT_Coordinates;
-                }
+                std::cout << "Received message from client " << socket.remote_endpoint().address().to_string() << ": " << message << std::endl;
 
                 //boost::asio::write(socket, boost::asio::buffer("Received message."));
                 if(rflwindow->switchModeSignal || ptlwindow->switchModeSignal){

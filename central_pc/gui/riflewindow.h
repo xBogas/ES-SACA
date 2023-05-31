@@ -43,6 +43,7 @@ private slots:
     void alerta();
     void resetTimer();
     void blockDecideMode();
+    void tabelalugar(int totaljogadores, float *pontuações, string *names);
 
 private:
     Ui::RifleWindow *ui;
