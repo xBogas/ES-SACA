@@ -48,7 +48,7 @@ private:
 	/// @brief Calculate mean of circles data where each element has (x,y,radius)
 	/// @param data Vector with 3 channels per element
 	/// @return Average values of first 2 channels (x,y)
-	std::tuple<double, double>
+	std::tuple<double, double> //! not used
 	mean(const std::vector<cv::Vec3f> &data);
 
 	/// @brief Calculates standard deviation of circle data
@@ -56,20 +56,20 @@ private:
 	/// @param mean_x Average value of x circle
 	/// @param mean_y Average value of y circle
 	/// @return Deviation of x and y of data
-	std::tuple<double, double>
+	std::tuple<double, double> //! not used
 	standardDeviation(const std::vector<cv::Vec3f> &data, double mean_x = 0, double mean_y = 0);
 
 	/// @brief Reject circle data outliers
 	/// @param data Circle data vector
 	/// @param threshold Above this threshold all data is considered an outlier
 	/// @return Average value of circle center
-	std::tuple<int, int>
+	std::tuple<int, int> //! not used
 	rejectOutliers(const std::vector<cv::Vec3f> &data, int threshold);
 
 	/// @brief Calculate mean of circles data where each element has (x,y,radius)
 	/// @param data Vector with 3 channels per element
 	/// @return Average circle center
-	cv::Point
+	cv::Point //! not used
 	mean(const std::vector<cv::Point> &data);
 
 	/// @brief Calculates standard deviation of data points
@@ -77,27 +77,31 @@ private:
 	/// @param mean_x Average value of x
 	/// @param mean_y Average value of y
 	/// @return Deviation of x and y of data
-	std::tuple<double, double>
+	std::tuple<double, double> //! not used
 	standardDeviation(const std::vector<cv::Point> &data, double mean_x, double mean_y);
 
 	/// @brief Reject data points outliers
 	/// @param data Points vector
 	/// @param threshold Above this threshold all points are considered outliers
 	/// @param output Points vector without outliers
-	void
+	void //! not used
 	rejectOutliers(const std::vector<cv::Point> &data, int threshold, std::vector<cv::Point> &output);
 
 	/// @brief Shot detection algorithm
 	void
 	getPoints();
 
+	/// @brief Score calculation
 	double
 	getScore(double distance, double radius);
 
-	void transformImage();
+	/// @brief Correct image perspective
+	void
+	transformImage();
 
+	/// @brief Io handle
 	boost::asio::io_context io_context;
-
+	/// @brief Tcp socket
 	tcp::socket socket;
 	/// @brief Camera object
 	cv::VideoCapture m_camera;
@@ -114,7 +118,7 @@ private:
 	/// @brief Target black circle radius
 	double m_center_radius;
 	/// @brief Approximation algorithm
-	Approx<double> m_approx;
+	Approx m_approx;
 	/// @brief Target type
 	Target m_target;
 

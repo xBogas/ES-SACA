@@ -4,7 +4,7 @@
 // TODO: clean getCenter and getPoints 
 
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
-	: QObject(parent), m_approx(525, 525, 14), socket(io_context)
+	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
 	switch (type)
 	{
@@ -24,11 +24,20 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	} 
 
 	// Connect to ESP8266
+#ifdef ESP_COMS
+#warning "no"
 	tcp::resolver resolver(io_context);
   	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
 	boost::asio::write(socket, boost::asio::buffer(""));
+#endif
 
+#ifdef VISION_TEST
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
+
+	transformImage();
+	getCenter();
+	getPoints();
+#endif
 }
 
 void Detector::onMain(bool& finish, bool& continueReading)
@@ -106,10 +115,11 @@ void Detector::getCenter()
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
-			m_approx.setInitialPoint(x_init, y_init, new_r);
+			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setRadius(new_r);
 
 			m_approx.insertPoints(contours[i]);
-					
+
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
@@ -130,11 +140,15 @@ void Detector::getCenter()
 			}
 
 			m_approx.print();
-			auto [x,y,r] = m_approx.getCenter();
+			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
-			std::cout << "Center " << m_center << " and radius " << r << "\n";
+			std::cout << "Center " << m_center << " and radius " << new_r << "\n";
 		}
 	}
+#ifdef VISION_TEST
+	cv::imshow("Center detection", m_image);
+	cv::waitKey();
+#endif
 }
 
 
@@ -276,7 +290,8 @@ void Detector::getPoints()
 #ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
-			m_approx.setInitialPoint(x_init, y_init, new_r);
+			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setRadius(new_r);
 			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
@@ -297,39 +312,38 @@ void Detector::getPoints()
 #endif
 
 			}
-			auto [x,y,r] = m_approx.getCenter();
-			double radius = r; // TODO: to be return by m_approx
+			auto [x,y] = m_approx.getCenter();
 
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
-			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
+			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
 			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
 
 			cv::Point2d shot(x,y);
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
-			double score = getScore(result, r);
+			double score = getScore(result, new_r);
 
-			emit new_score(x, y, radius, score);
-			if (result > m_center_radius+15) // 185 -> center circle
+			emit new_score(x, y, new_r, score);
+			if (result > m_center_radius+new_r) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
 			}
-			else if (result < m_center_radius-15)
+			else if (result < m_center_radius-new_r)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				move_ESP *= 170/1050;
+				move_ESP *= 170/m_image.cols;
 
 				char msg[64] = "Move ";
 				memcpy(&msg[5], &move_ESP, 8);
 
 				std::cout << "[Sending data...]" << std::endl;
-				//m_sock->write(msg, 5+8);
+#ifdef ESP_COMS
 				boost::asio::write(socket, boost::asio::buffer("Move\n"));
-
-				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
+#endif
+				std::cout << "ESP should move " << move_ESP*170/m_image.cols << " mm\n";
 			}
 			else
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
@@ -346,7 +360,7 @@ double Detector::getScore(double distance, double radius)
 	if (m_target == Target::Pistol)
 	{
 		
-		distance = abs((distance-radius)*170/1050);
+		distance = abs((distance-radius)*170/m_image.cols);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
 		if(distance <= 5.75)
@@ -368,7 +382,7 @@ double Detector::getScore(double distance, double radius)
 	}
 	else
 	{
-		distance = abs((distance-radius)*170/1050);
+		distance = abs((distance-radius)*170/m_image.cols);
 		std::cout << "Distance " << distance << " mm\n";
 		std::cout << "Score is ";
 

@@ -9,8 +9,6 @@
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
 
-// TODO: check for div error if Type = int
-template<typename Type = double>
 class Approx
 {
 private:
@@ -27,7 +25,7 @@ private:
 		{}
 
 		void
-		append(const Type t)
+		append(const double t)
 		{
 			if (i_col == m_ref.cols())
 			{
@@ -47,20 +45,20 @@ public:
 	Approx()
 		: m_iter(m_points)
 	{
-		u << 550, 550, 185; //starting point
+		u << 525, 525; //starting point
 	}
 
-	Approx(Type x_init, Type y_init, Type radius)
+	Approx(double x_init, double y_init)
 		: m_iter(m_points)
 	{
-		u << x_init, y_init, radius;
+		u << x_init, y_init;
 	}
 
 	~Approx(){};
 
 	// Operator for insertion into m_points matrix
 	Approx&
-	operator<<(Type t)
+	operator<<(double t)
 	{
 		m_iter.append(t);
 		return *this;
@@ -68,7 +66,7 @@ public:
 
 	// Operator for insertion into m_points matrix
 	Approx&
-	operator,(Type t)
+	operator,(double t)
 	{
 		m_iter.append(t);
 		return *this;
@@ -88,34 +86,32 @@ public:
 	void
 	updateJac()
 	{
-		Type u1 = u.coeff(0);
-		Type u2 = u.coeff(1);
+		double u1 = u.coeff(0);
+		double u2 = u.coeff(1);
 
 		for (size_t i = 0; i < size(); i++)
 		{
-			Type x1 = m_points.coeff(i,0);
-			Type x2 = m_points.coeff(i,1);
+			double x1 = m_points.coeff(i,0);
+			double x2 = m_points.coeff(i,1);
 			
-			Type dis = norm(u1, u2, x1, x2);
+			double dis = norm(u1, u2, x1, x2);
 			jac.coeffRef(i,0) = (u1 - x1)/dis;
 			jac.coeffRef(i,1) = (u2 - x2)/dis;
-			jac.coeffRef(i,2) = -1;
 		}
 	}
 
 	void
 	updateF()
 	{
-		Type u1 = u.coeff(0);
-		Type u2 = u.coeff(1);
-		Type radius = u.coeff(2);
+		double u1 = u.coeff(0);
+		double u2 = u.coeff(1);
 		
 		for (size_t i = 0; i < size(); i++)
 		{
-			Type x1 = m_points.coeff(i,0);
-			Type x2 = m_points.coeff(i,1);
+			double x1 = m_points.coeff(i,0);
+			double x2 = m_points.coeff(i,1);
 			
-			f.coeffRef(i) = -1 *(norm(u1, u2, x1, x2) - radius);
+			f.coeffRef(i) = -1 *(norm(u1, u2, x1, x2) - m_radius);
 		}
 	}
 
@@ -141,18 +137,23 @@ public:
 	{ return m_points.rows(); }
 
 	void
-	setInitialPoint(Type x, Type y, Type r)
+	setInitialPoint(double x, double y)
 	{
 		u.coeffRef(0) = x;
 		u.coeffRef(1) = y;
-		u.coeffRef(2) = r;
+	}
+
+	void
+	setRadius(double r)
+	{
+		m_radius = r;
 	}
 
 	void
 	insertPoints(const std::vector<cv::Point>& data)
 	{
 		m_points.resize(data.size(), 2);
-		jac.resize(data.size(), 3);
+		jac.resize(data.size(), 2);
 		f.resize(data.size(),1);
 
 		for (size_t i = 0; i < data.size(); i++)
@@ -162,29 +163,26 @@ public:
 		}
 	}
 
-	std::tuple<Type,Type,Type>
+	std::tuple<double,double>
 	getCenter()
 	{
-		return std::make_tuple(u.coeff(0), u.coeff(1), u.coeff(2));
+		return std::make_tuple(u.coeff(0), u.coeff(1));
 	}
-
-	Type
-	getRadius()
-	{ return u.coeff(2);}
 
 private:
 
 	inline double
-	norm(Type u1, Type u2, Type x1, Type x2)
+	norm(double u1, double u2, double x1, double x2)
 	{ return sqrt(pow(u1-x1,2)+pow(u2-x2,2)); }
 
-	typedef Eigen::Matrix<Type,Eigen::Dynamic,2> matrixPoints_t;
-	InsertIter<matrixPoints_t> m_iter;
-	Eigen::Matrix<Type,Eigen::Dynamic,2> m_points;
-	Eigen::Matrix<Type,Eigen::Dynamic,3> jac;
-	Eigen::Matrix<Type,Eigen::Dynamic,1> f;
-	Eigen::Matrix<Type,3,1> u; 
-	Eigen::Matrix<Type,3,1> h;
+	typedef Eigen::Matrix<double,Eigen::Dynamic,2> matrixD_t;
+	InsertIter<matrixD_t> m_iter;
+	Eigen::Matrix<double,Eigen::Dynamic,2> m_points;
+	Eigen::Matrix<double,Eigen::Dynamic,2> jac;
+	Eigen::Matrix<double,Eigen::Dynamic,1> f;
+	Eigen::Matrix<double,2,1> u; 
+	Eigen::Matrix<double,2,1> h;
+	double m_radius;
 };
 
 
