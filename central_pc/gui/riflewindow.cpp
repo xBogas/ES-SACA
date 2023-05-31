@@ -1,7 +1,7 @@
 #include "riflewindow.h"
 #include "ui_riflewindow.h"
 #include <QGraphicsPixmapItem>
-#include <string>;
+#include <string>
 
 
 RifleWindow::RifleWindow(QWidget *parent) :
@@ -250,7 +250,7 @@ void RifleWindow::blockDecideMode(){
 
 
 
-void RifleWindow::tabelalugar(float pontuação, std::string nome){
+void RifleWindow::tabelalugar(float pontuação, QString nome){
     //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
     
     if(jogadores.size()==0){
@@ -407,10 +407,12 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome){
                     lug="10º";
                 }
             }
-            ui->tableWidget->setItem(z-1,Lugar,QTableWidgetItem(lug));
-            ui->tableWidget->setItem(z-1,Atleta,QTableWidgetItem(jogadores[i]));
-            ui->tableWidget->setItem(z-1,Inte,QTableWidgetItem(QString::number(static_cast<int>(pontuações[i]))));
-            ui->tableWidget->setItem(z-1,Dec,QTableWidgetItem(QString::number(pontuações[i])));
+
+            
+            ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
+            ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[i]));
+            ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[i]))));
+            ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[i])));
 
             lug_igual=0;
         }
