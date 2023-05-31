@@ -34,9 +34,9 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #ifdef VISION_TEST
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
 
-	// transformImage();
-	// getCenter();
-	// getPoints();
+	transformImage();
+	getCenter();
+	getPoints();
 #endif
 }
 
@@ -98,9 +98,14 @@ void Detector::getCenter()
 	std::vector<cv::Vec3f> circles;
 
 	std::vector<std::vector<cv::Point>> contours;
-	cv::Canny(m_image, edge, 300, 500);
-	// cv::imshow("edge contours", edge);
+	//cv::cvtColor(alt, alt, cv::COLOR_BGR2GRAY);
+	//cv::blur(alt, alt, cv::Size(5,5));
+	cv::Canny(m_image, edge, 300, 500);	
+#ifdef VISION_TEST
+	cv::imshow("edge contours", edge);
+#endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
@@ -142,12 +147,23 @@ void Detector::getCenter()
 			m_approx.print();
 			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
-			std::cout << "Center " << m_center << " and radius " << new_r << "\n";
+			centers.emplace_back(x, y);
+			std::cout << "Center " << m_center << " and radius " << new_r << " " << contours[i].size() << "\n";
+#ifdef VISION_TEST
+			
+			cv::circle(alt, m_center, 0, cv::Scalar(0, 0, 255));
+			cv::drawContours(alt, contours, i, cv::Scalar(0, 255, 0));
+			cv::imshow("Center detection", alt);
+			cv::waitKey();
+			alt = m_image.clone();
+#endif
 		}
 	}
 #ifdef VISION_TEST
-	// cv::imshow("Center detection", m_image);
-	// cv::waitKey();
+	m_center = mean(centers);
+	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
+	cv::imshow("Center detection", alt);
+	cv::waitKey();
 #endif
 }
 
@@ -166,7 +182,7 @@ Detector::mean(const std::vector<cv::Vec3f> &data)
 }
 
 
-cv::Point
+/* cv::Point
 Detector::mean(const std::vector<cv::Point> &data)
 {
 	double sum_x = 0, sum_y = 0;
@@ -177,7 +193,7 @@ Detector::mean(const std::vector<cv::Point> &data)
 	}
 	
 	return cv::Point(sum_x/data.size(), sum_y/data.size());
-}
+} */
 
 
 std::tuple<double,double>
@@ -317,7 +333,7 @@ void Detector::getPoints()
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
-			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
+			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
 
 			cv::Point2d shot(x,y);
 
@@ -334,24 +350,38 @@ void Detector::getPoints()
 			else if (result < m_center_radius-new_r)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				move_ESP *= 170/m_image.cols;
+				move_ESP *= 170/(double)m_image.cols;
 
-				char msg[64] = "Move ";
-				memcpy(&msg[5], &move_ESP, 8);
-
+				char msg[64] = "@";
+				memcpy(&msg[1], &move_ESP, 8);
+				memcpy(&msg[9], "*", 1);
 				std::cout << "[Sending data...]" << std::endl;
 #ifdef ESP_COMS
-#warning "ESP"
-				boost::asio::write(socket, boost::asio::buffer("Move\n"));
+				boost::asio::write(socket, boost::asio::buffer(msg));
 #endif
-				std::cout << "ESP should move " << move_ESP*170/m_image.cols << " mm\n";
+				std::cout << "ESP should move " << move_ESP << " mm\n";
 			}
 			else
+			{
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
+
+				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				move_ESP *= 170/(double)m_image.cols;
+
+				char msg[64] = "@";
+				memcpy(&msg[1], &move_ESP, 8);
+				memcpy(&msg[9], "*", 1);
+				std::cout << "ESP should move " << move_ESP << " mm\n";
+#ifdef ESP_COMS
+				boost::asio::write(socket, boost::asio::buffer(msg));
+#endif
+			}
 		}
 	}
-	// cv::imshow("Shot detection", m_image);
-	// cv::waitKey();
+#ifdef VISION_TEST
+	cv::imshow("Shot detection", m_image);
+	cv::waitKey();
+#endif
 }
 
 double Detector::getScore(double distance, double radius)

@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 option(ESP_COMS	"Esp communication"	ON)
-option(TESTING	"Testing"			ON)
+option(TESTING	"Display images"	OFF)
 
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )

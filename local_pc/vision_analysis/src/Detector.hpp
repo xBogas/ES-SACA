@@ -69,8 +69,19 @@ private:
 	/// @brief Calculate mean of circles data where each element has (x,y,radius)
 	/// @param data Vector with 3 channels per element
 	/// @return Average circle center
-	cv::Point //! not used
-	mean(const std::vector<cv::Point> &data);
+	template<typename T>
+	T
+	mean(const std::vector<T> &data)
+	{
+		double sum_x = 0, sum_y = 0;
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			sum_x += data[i].x;
+			sum_y += data[i].y;
+		}
+		
+		return T(sum_x/data.size(), sum_y/data.size());
+	}
 
 	/// @brief Calculates standard deviation of data points
 	/// @param data Points vector
