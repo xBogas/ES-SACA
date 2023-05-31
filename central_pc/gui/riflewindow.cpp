@@ -262,6 +262,10 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome){
             if(nome.compare(jogadores[idx])==0){
                 pontuações[idx]=pontuação;
             }
+            else{
+                jogadores.push_back(nome);
+                pontuações.push_back(pontuação);
+            }
         }
     }
 
