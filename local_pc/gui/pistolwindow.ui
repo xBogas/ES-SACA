@@ -228,6 +228,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox">
+          <property name="decimals">
+           <number>3</number>
+          </property>
           <property name="minimum">
            <double>-800.000000000000000</double>
           </property>
@@ -241,6 +244,9 @@
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+          <property name="decimals">
+           <number>3</number>
+          </property>
           <property name="minimum">
            <double>-800.000000000000000</double>
           </property>

@@ -249,8 +249,8 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.04);
+        item->setPos(x*(455*2)/1050,y*(450*2)/1050);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -270,7 +270,7 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(3,3));
-            ui->Target->centerOn(QPointF(465+x,465+y));
+            ui->Target->centerOn(QPointF(x*(455*2)/1050,y*(450*2)/1050));
         }
 
         nim=nim+1;
@@ -293,8 +293,8 @@ void PistolWindow::on_ShootButton_clicked(){
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.035);
+        item->setPos(x*(455*2)/1050,y*(450*2)/1050);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
         
 
@@ -665,7 +665,7 @@ void PistolWindow::on_ShootButton_clicked(){
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(3,3));
-            ui->Target->centerOn(QPointF(465+x,465+y));
+            ui->Target->centerOn(QPointF(x*(455*2)/1050,y*(450*2)/1050));
         }
 
         nim=nim+1;
@@ -688,8 +688,7 @@ void PistolWindow::shootzoom()
     if(timezoom==8){
         timedzoom.stop();
         if (zoom==0){
-            ui->Target->setTransform(QTransform::fromScale(0.88,0.88));
-            //ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
+            ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
         }
         timezoom=0;
     }
