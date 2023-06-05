@@ -10,8 +10,8 @@ int main() {
   tcp::resolver resolver(io_context);
   boost::asio::connect(socket, resolver.resolve("192.168.4.1", "80")); // ESP8266 IP address and port
 
-  boost::asio::write(socket, boost::asio::buffer(""));
-
+  boost::asio::write(socket, boost::asio::buffer("\n"));
+  bool flag = true;
   while (true) {
     char buffer[1024];
     boost::system::error_code error;
@@ -40,12 +40,30 @@ int main() {
         auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
         long long now_millis = now_ms.time_since_epoch().count();
 
-        if(now_millis - initial_millis > 10000) break;
+        if(now_millis - initial_millis > 1000) break;
       }
 
-      std::cout << "Atua motoooor" << std::endl;
+      if(flag){
 
-      boost::asio::write(socket, boost::asio::buffer("anda"));
+      }
+    
+      std::string msg; 
+      if(flag){
+        std::cout << "Atua motoooor" << std::endl;
+        double move_ESP = 122.3444;
+        msg = "Move " + std::to_string((int) move_ESP) + "\n";
+
+        flag = false;
+      }
+      else{
+        std::cout << "Para motoooor" << std::endl;
+        msg = "DontMove\n";
+
+        flag = true;
+      }
+
+      std::cout << msg << std::endl;
+      boost::asio::write(socket, boost::asio::buffer(msg));
     }
   }
 

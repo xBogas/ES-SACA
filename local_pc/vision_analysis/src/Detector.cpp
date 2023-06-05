@@ -34,11 +34,11 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #ifdef VISION_TEST
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
 
-	transformImage();
-	getCenter();
-	getPoints();
-	std::cout << "getPOints 2\n";
-	getPoints();
+	// transformImage();
+	// getCenter();
+	// getPoints();
+	// std::cout << "getPOints 2\n";
+	// getPoints();
 #endif
 }
 
@@ -46,6 +46,7 @@ void Detector::onMain(bool& finish, bool& continueReading)
 {
 	char buffer[1024];
     boost::system::error_code error;
+	bool newRead = false, oldRead = false;
 	while (!finish)
 	{
 		std::cout << "[Waiting for data...]" << std::endl;
@@ -60,16 +61,18 @@ void Detector::onMain(bool& finish, bool& continueReading)
 		if(continueReading){
 			std::string message(buffer, length);
 			std::cout << "Response: " << message << std::endl;
-
-			if (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0)
+			
+			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			if (newRead && !oldRead)
 			{
 				transformImage();
 				getCenter();
 				getPoints();
 			}
+			oldRead = newRead;
 		}
 		else{
-			boost::asio::write(socket, boost::asio::buffer("\n"));
+			boost::asio::write(socket, boost::asio::buffer("DONT\n"));
 		}
 	}
 }
@@ -104,7 +107,7 @@ void Detector::getCenter()
 	//cv::blur(alt, alt, cv::Size(5,5));
 	cv::Canny(m_image, edge, 300, 500);	
 #ifdef VISION_TEST
-	cv::imshow("edge contours", edge);
+	// cv::imshow("edge contours", edge);
 #endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 	std::vector<cv::Point2d> centers;
@@ -155,8 +158,8 @@ void Detector::getCenter()
 			
 			cv::circle(alt, m_center, 0, cv::Scalar(0, 0, 255));
 			cv::drawContours(alt, contours, i, cv::Scalar(0, 255, 0));
-			cv::imshow("Center detection", alt);
-			cv::waitKey();
+			// cv::imshow("Center detection", alt);
+			// cv::waitKey();
 			alt = m_image.clone();
 #endif
 		}
@@ -164,8 +167,8 @@ void Detector::getCenter()
 #ifdef VISION_TEST
 	m_center = mean(centers);
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
-	cv::imshow("Center detection", alt);
-	cv::waitKey();
+	// cv::imshow("Center detection", alt);
+	// cv::waitKey();
 #endif
 }
 
@@ -355,15 +358,22 @@ void Detector::getPoints()
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
+#ifdef ESP_COMS
+				boost::asio::write(socket, boost::asio::buffer("DONT\n"));
+#endif
 			}
 			else if (result < m_center_radius-new_r)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
 				move_ESP *= 170/(double)m_image.cols;
 
-				char msg[64] = "@";
-				memcpy(&msg[1], &move_ESP, 8);
-				memcpy(&msg[9], "*", 1);
+				// char msg[64] = "@";
+				// memcpy(&msg[1], &move_ESP, 8);
+				// memcpy(&msg[9], "*", 1);
+
+				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
+
+				std::cout << msg << std::endl;
 				std::cout << "[Sending data...]" << std::endl;
 #ifdef ESP_COMS
 				boost::asio::write(socket, boost::asio::buffer(msg));
@@ -377,10 +387,13 @@ void Detector::getPoints()
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
 				move_ESP *= 170/(double)m_image.cols;
 
-				char msg[64] = "@";
-				memcpy(&msg[1], &move_ESP, 8);
-				memcpy(&msg[9], "*", 1);
+				// char msg[64] = "@";
+				// memcpy(&msg[1], &move_ESP, 8);
+				// memcpy(&msg[9], "*", 1);
+
+				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 				
+				std::cout << msg << std::endl;
 				std::cout << "[Sending data...]" << std::endl;
 				std::cout << "ESP should move " << move_ESP << " mm\n";
 #ifdef ESP_COMS
@@ -391,8 +404,8 @@ void Detector::getPoints()
 		}
 	}
 #ifdef VISION_TEST
-	cv::imshow("Shot detection", m_image);
-	cv::waitKey();
+	// cv::imshow("Shot detection", m_image);
+	// cv::waitKey();
 #endif
 }
 
