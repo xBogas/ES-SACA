@@ -9,7 +9,7 @@ const int port = 80;
 
 int base = 16;   
 int state = 0;    
-int sensorValue; 
+int sensorValue, newSensorValue = false, oldSensorValue = false; 
 
 
 typedef struct {
@@ -22,7 +22,9 @@ typedef struct {
 
 fsm_t fsm0;
 
-String message = "";
+unsigned long timeToRotate;
+
+String message, subMessage;
 
 // Set new state
 void set_state(fsm_t& fsm, int new_state)
@@ -37,6 +39,8 @@ void set_state(fsm_t& fsm, int new_state)
 
 WiFiServer server(port);
 WiFiClient client;
+
+double getDistance(String message);
 
 void setup() {
   Serial.begin(115200);
@@ -59,64 +63,83 @@ void loop() {
     client = server.available();
   }
 
-   // Update tis for all state machines
-  unsigned long cur_time = millis();   // Just one call to millis()
-  fsm0.tis = cur_time - fsm0.tes;
-
-
   if (client.connected()) {
-    
-    while (client.available()) {
-    Serial.println("available");
-      //String message = client.readStringUntil('\n');
-      //Serial.println("Received message: " + message);
-  
-      if(sensorValue && fsm0.state == 0){
-        fsm0.new_state = 1;
-        #ifdef __DEBUG__
-          Serial.println("disparo");
-        #endif  
+
+    if(client.available()) 
+      Serial.println("available");
+
+    message = "";
+
+    while (1) {
+      // Update tis for all state machines
+      unsigned long cur_time = millis();   // Just one call to millis()
+      fsm0.tis = cur_time - fsm0.tes;
+
+      // read sensor
+      newSensorValue = digitalRead(13); 
+      sensorValue = newSensorValue && !oldSensorValue;
+
+      if(fsm0.state == 0 && sensorValue){
+        set_state(fsm0, 1); 
+
+        Serial.println("disparo");
       }
-      else if(fsm0.state == 1 && message == "anda"){
-        fsm0.new_state = 2;
+      else if(fsm0.state == 1 && (message.length() <= 4)){
+        set_state(fsm0, 0); 
+
         message = "";
       }
-      else if(fsm0.state == 2 && fsm0.tis > 2000){
-        fsm0.new_state = 3;
-        #ifdef __DEBUG__
-          Serial.println("Para motor");
-        #endif
-      }
-      else if(fsm0.state == 3 && message == "parou"){
-        fsm0.new_state = 0;
+      else if(fsm0.state == 1 && (message.length() >= 5)){
+        set_state(fsm0, 2); 
+
+        double distance = getDistance(message);
+
+        Serial.print("A distancia obtida é de: "); Serial.println(distance, 2);
+
+        timeToRotate = 6000;
+      
         message = "";
+      }
+      else if(fsm0.state == 2 && fsm0.tis > timeToRotate){
+        set_state(fsm0, 0); 
+
+        //Serial.println("Para motor");
       }
 
+      // update outputs
       if(fsm0.state == 0){
-        sensorValue = digitalRead(13);
-        digitalWrite(base, LOW);
+        //digitalWrite(base, LOW);
+
+        //Serial.println("actual state -> 0");
       }
       else if(fsm0.state == 1){
+        //Serial.println("actual state -> 1");
+
         client.println("disparo");
         message = client.readStringUntil('\n');
+        Serial.println("Received message: " + message);
       }
       else if(fsm0.state == 2){
-        digitalWrite(base, HIGH);
+        //digitalWrite(base, HIGH);
+
+        //Serial.println("actual state -> 2");
       }
-      else if(fsm0.state == 3){
-        digitalWrite(base, LOW);
-        client.println("para");
-        message = client.readStringUntil('\n');
-      }
-  
-      // Update the states
-      set_state(fsm0, fsm0.new_state); 
+
+      //update old values
+      oldSensorValue = newSensorValue;
       
-      client.println("Message received"); // Send a response back to the client
-      delay(10);
+      delay(100);
     }
-  }
+  }  
 }
 
-
+double getDistance(String message){
+    double distance_1 = message.substring(5).toDouble();
+    double distance_2 = message.substring(6).toDouble();
+     
+    if(distance_1 < distance_2)
+      return distance_2;
+    else
+      return distance_1;
+  }
 
