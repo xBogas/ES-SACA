@@ -4,83 +4,95 @@
 // TODO: clean getCenter and getPoints 
 
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
-	: QObject(parent), m_approx(525, 525, 14), socket(io_context)
+	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
-	/* switch (type)
+	switch (type)
 	{
 	case 0:
 		m_target = Target::Pistol;
-		m_img_ref = cv::imread("/home/joao/FEUP/ES/ES-SACA/local_pc/vision_analysis/images/pistol_ref.jpg");
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
 		break;
 	
 	case 1:
 		m_target = Target::Rifle;
-		m_img_ref = cv::imread("rifle_ref.jpg");
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
 		break;
 
 	default:
 		throw std::runtime_error("Invalid target type");
 		break;
-	} */
+	} 
 
+	// Connect to ESP8266
+#ifdef ESP_COMS
+#warning "connection"
 	tcp::resolver resolver(io_context);
   	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+	boost::asio::write(socket, boost::asio::buffer(""));
+#endif
 
-	boost::asio::write(socket, boost::asio::buffer("oi"));
+#ifdef VISION_TEST
+	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
 
-	//m_sock = new Network::TCPsocket();
-	//m_sock->connect(port, addr);
-
-	m_target = Target::Pistol;
-	m_image = cv::imread("../images/sample1-align.jpg", cv::IMREAD_COLOR);
+	transformImage();
 	getCenter();
 	getPoints();
+	std::cout << "getPOints 2\n";
+	getPoints();
+#endif
 }
 
-void Detector::onMain()
+void Detector::onMain(bool& finish, bool& continueReading)
 {
-	// bool stop = false;
-	// bool doCapture = true;
-	// while (!stop)
-	// {
-	// 	if (doCapture)
-	// 	{
-	// 		transformImage();
-	// 		getCenter();
-	// 		getPoints();
-	// 		doCapture = false;
-	// 	}
-	// }
-	while (true) {
-    std::string message;
-    std::cout << "Enter message to send (or 'quit' to exit): ";
-    std::getline(std::cin, message);
-
-    if (message == "quit") {
-      break;
-    }
-
-    message += "\n";
-    boost::asio::write(socket, boost::asio::buffer(message));
-
-    std::array<char, 128> buffer;
+	char buffer[1024];
     boost::system::error_code error;
-    size_t length = socket.read_some(boost::asio::buffer(buffer), error);
+	while (!finish)
+	{
+		std::cout << "[Waiting for data...]" << std::endl;
+		size_t length = socket.read_some(boost::asio::buffer(buffer), error);
+		if (error == boost::asio::error::eof) {
+			std::cout << "Connection closed by server." << std::endl;
+			break;
+		} else if (error) {
+			std::cout << "Error: " << error.message() << std::endl;
+			break;
+		}
+		if(continueReading){
+			std::string message(buffer, length);
+			std::cout << "Response: " << message << std::endl;
 
-    if (error == boost::asio::error::eof) {
-      std::cout << "Connection closed by server." << std::endl;
-      break;
-    } else if (error) {
-      std::cout << "Error: " << error.message() << std::endl;
-      break;
-    } else {
-      std::cout << "Response: ";
-      std::cout.write(buffer.data(), length);
-      std::cout << std::endl;
-    }
-  }
+			if (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0)
+			{
+				transformImage();
+				getCenter();
+				getPoints();
+			}
+		}
+		else{
+			boost::asio::write(socket, boost::asio::buffer("\n"));
+		}
+	}
 }
 
+void Detector::changeMode(int type)
+{
+	switch (type)
+	{
+	case 0:
+		m_target = Target::Pistol;
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		break;
+	
+	case 1:
+		m_target = Target::Rifle;
+		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		break;
+
+	default:
+		throw std::runtime_error("Invalid target type");
+		break;
+	}
+}
 
 void Detector::getCenter()
 {
@@ -88,9 +100,14 @@ void Detector::getCenter()
 	std::vector<cv::Vec3f> circles;
 
 	std::vector<std::vector<cv::Point>> contours;
-	cv::Canny(m_image, edge, 300, 500);
+	//cv::cvtColor(alt, alt, cv::COLOR_BGR2GRAY);
+	//cv::blur(alt, alt, cv::Size(5,5));
+	cv::Canny(m_image, edge, 300, 500);	
+#ifdef VISION_TEST
 	cv::imshow("edge contours", edge);
+#endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
@@ -105,10 +122,11 @@ void Detector::getCenter()
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
-			m_approx.setInitialPoint(x_init, y_init, new_r);
+			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setRadius(new_r);
 
 			m_approx.insertPoints(contours[i]);
-					
+
 #ifdef DEBUG
 			std::cout << "Set radius " << new_r << "\n";
 #endif
@@ -129,11 +147,26 @@ void Detector::getCenter()
 			}
 
 			m_approx.print();
-			auto [x,y,r] = m_approx.getCenter();
+			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
-			std::cout << "Center " << m_center << " and radius " << r << "\n";
+			centers.emplace_back(x, y);
+			std::cout << "Center " << m_center << " and radius " << new_r << " " << contours[i].size() << "\n";
+#ifdef VISION_TEST
+			
+			cv::circle(alt, m_center, 0, cv::Scalar(0, 0, 255));
+			cv::drawContours(alt, contours, i, cv::Scalar(0, 255, 0));
+			cv::imshow("Center detection", alt);
+			cv::waitKey();
+			alt = m_image.clone();
+#endif
 		}
 	}
+#ifdef VISION_TEST
+	m_center = mean(centers);
+	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
+	cv::imshow("Center detection", alt);
+	cv::waitKey();
+#endif
 }
 
 
@@ -151,7 +184,7 @@ Detector::mean(const std::vector<cv::Vec3f> &data)
 }
 
 
-cv::Point
+/* cv::Point
 Detector::mean(const std::vector<cv::Point> &data)
 {
 	double sum_x = 0, sum_y = 0;
@@ -162,7 +195,7 @@ Detector::mean(const std::vector<cv::Point> &data)
 	}
 	
 	return cv::Point(sum_x/data.size(), sum_y/data.size());
-}
+} */
 
 
 std::tuple<double,double>
@@ -275,7 +308,8 @@ void Detector::getPoints()
 #ifdef DEBUG
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
-			m_approx.setInitialPoint(x_init, y_init, new_r);
+			m_approx.setInitialPoint(x_init, y_init);
+			m_approx.setRadius(new_r);
 			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
@@ -296,55 +330,80 @@ void Detector::getPoints()
 #endif
 
 			}
-			auto [x,y,r] = m_approx.getCenter();
-			double radius = r; // TODO: to be return by m_approx
+			auto [x,y] = m_approx.getCenter();
 
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
-			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
-			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(255,0,0));
+			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
+			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
 
 			cv::Point2d shot(x,y);
 
 			double result = cv::norm(m_center-shot);
 			std::cout << "Shot distance " << result << "\n";
-			double score = getScore(result, r);
+			double score = getScore(result, new_r);
+			if (score == m_lastScore)
+			{
+				std::cout << "Same as before not sending\n";
+				continue;
+			}
+			else
+				m_lastScore = score;
 
-			emit new_score(x, y, radius, score);
-			if (result > m_center_radius+15) // 185 -> center circle
+			emit new_score(x, y, new_r, score);
+			if (result > m_center_radius+new_r) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
 			}
-			else if (result < m_center_radius-15)
+			else if (result < m_center_radius-new_r)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				move_ESP *= 170/1050;
+				move_ESP *= 170/(double)m_image.cols;
 
-				char msg[64] = "Move ";
-				memcpy(&msg[5], &move_ESP, 8);
-				//m_sock->write(msg, 5+8);
-
-				std::cout << "ESP should move " << move_ESP*170/1050 << " mm\n";
+				char msg[64] = "@";
+				memcpy(&msg[1], &move_ESP, 8);
+				memcpy(&msg[9], "*", 1);
+				std::cout << "[Sending data...]" << std::endl;
+#ifdef ESP_COMS
+				boost::asio::write(socket, boost::asio::buffer(msg));
+#endif
+				std::cout << "ESP should move " << move_ESP << " mm\n";
 			}
 			else
+			{
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
+
+				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				move_ESP *= 170/(double)m_image.cols;
+
+				char msg[64] = "@";
+				memcpy(&msg[1], &move_ESP, 8);
+				memcpy(&msg[9], "*", 1);
+				
+				std::cout << "[Sending data...]" << std::endl;
+				std::cout << "ESP should move " << move_ESP << " mm\n";
+#ifdef ESP_COMS
+				boost::asio::write(socket, boost::asio::buffer(msg));
+#endif
+			}
+			return;
 		}
 	}
+#ifdef VISION_TEST
 	cv::imshow("Shot detection", m_image);
 	cv::waitKey();
+#endif
 }
 
 double Detector::getScore(double distance, double radius)
 {
 	double score = 0;
-
+	distance = abs((distance-radius)*170/m_image.cols);
+	std::cout << "Distance " << distance << " mm\n";
+	std::cout << "Score is ";
 	if (m_target == Target::Pistol)
 	{
-		
-		distance = abs((distance-radius)*170/1050);
-		std::cout << "Distance " << distance << " mm\n";
-		std::cout << "Score is ";
 		if(distance <= 5.75)
 		{
 			score += 10;
@@ -358,16 +417,11 @@ double Detector::getScore(double distance, double radius)
 			distance = 72-(distance-5.75);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
-			std::cout << score << "\n";
+			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
-
 	}
 	else
 	{
-		distance = abs((distance-radius)*170/1050);
-		std::cout << "Distance " << distance << " mm\n";
-		std::cout << "Score is ";
-
 		if(distance <= 0.25)
 		{
 			score += 10;
@@ -378,8 +432,9 @@ double Detector::getScore(double distance, double radius)
 		{
 			double delta = 0.8;
 			distance = 22.5-(distance-0.25);
-			int score = distance/delta +10;
-			std::cout << (float)score/(10.0f) << "\n";
+			int sc = distance/delta +10;
+			score = (float)sc/(10.0f);
+			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
 	}
 	return score;

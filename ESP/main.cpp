@@ -29,11 +29,23 @@ int main() {
     }
 
     if(std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0){
+      auto initial = std::chrono::system_clock::now();
+      auto initial_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(initial);
+      long long initial_millis = initial_ms.time_since_epoch().count();
+
+      while(1){
+
+        std::cout << "Aqui no while" << std::endl;
+        auto now = std::chrono::system_clock::now();
+        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+        long long now_millis = now_ms.time_since_epoch().count();
+
+        if(now_millis - initial_millis > 10000) break;
+      }
+
+      std::cout << "Atua motoooor" << std::endl;
 
       boost::asio::write(socket, boost::asio::buffer("anda"));
-    }
-    else{
-      boost::asio::write(socket, boost::asio::buffer("erro"));
     }
   }
 

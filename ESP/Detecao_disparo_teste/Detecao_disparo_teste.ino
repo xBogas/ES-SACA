@@ -43,7 +43,7 @@ WiFiClient client;
 double getDistance(String message);
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(base,OUTPUT); 
   
   // Initialize state machines
@@ -106,6 +106,7 @@ void loop() {
         //Serial.println("Para motor");
       }
 
+      // update outputs
       // update outputs
       if(fsm0.state == 0){
         //digitalWrite(base, LOW);

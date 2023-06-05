@@ -10,8 +10,19 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+option(ESP_COMS	"Esp communication"	ON)
+option(TESTING	"Display images"	OFF)
+
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+if(ESP_COMS)
+	add_definitions(-DESP_COMS)
+endif(ESP_COMS)
+
+if(TESTING)
+	add_definitions(-DVISION_TEST)
+endif(TESTING)
 
 find_package(Boost REQUIRED COMPONENTS system thread)
 include_directories(${Boost_INCLUDE_DIRS})

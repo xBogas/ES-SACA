@@ -19,7 +19,6 @@ class PistolWindow : public QMainWindow
 public:
     explicit PistolWindow(QWidget *parent = nullptr);
     ~PistolWindow();
-    bool electretSignal;
 
 signals:    
     void finalButtonClickedSignal();
@@ -29,6 +28,7 @@ signals:
     void backToDecideModeSignal();
     void backToDecideTypeSignal();
     void backButtonClickedSignal();
+    void new_score(int coordenada_x, int coordenada_y, float pontuação);
 
 private slots:
     void on_ExitButton_clicked();

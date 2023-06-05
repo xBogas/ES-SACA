@@ -36,7 +36,6 @@ PistolWindow::PistolWindow(QWidget *parent) :
     totalintshot=0;
     decshot=0;
     totaldecshot=0;
-    electretSignal = false;
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
@@ -48,6 +47,7 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QObject::connect(this, &PistolWindow::startButtonClickedSignal, this, &PistolWindow::startButtonClicked);
     QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::backToDecideMode);
     QObject::connect(this, &PistolWindow::backToDecideTypeSignal, this, &PistolWindow::backToDecideType);
+    QObject::connect(this, &PistolWindow::new_score, this, &PistolWindow::Disparo);
 }
 
 PistolWindow::~PistolWindow()
@@ -236,8 +236,6 @@ void PistolWindow::backToDecideType(){
 
 
 void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
-    electretSignal = true;
-
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
@@ -249,8 +247,8 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.04);
+        item->setPos(x*(455*2)/1050,y*(450*2)/1050);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -270,7 +268,7 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(3,3));
-            ui->Target->centerOn(QPointF(465+x,465+y));
+            ui->Target->centerOn(QPointF(x*(455*2)/1050,y*(450*2)/1050));
         }
 
         nim=nim+1;
@@ -280,8 +278,6 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação
 
 //Botão temorário para simular disparo. Pôr o código que está dentro, com as devidas alterações, no PistolWindow::processar(), quando eliminar-se o botão.
 void PistolWindow::on_ShootButton_clicked(){
-    electretSignal = true;
-
     x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=ui->doubleSpinBox_2->value();             //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     //intshot=                                  //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
@@ -293,8 +289,8 @@ void PistolWindow::on_ShootButton_clicked(){
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(463+x,463+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.035);
+        item->setPos(x*(455*2)/1050,y*(450*2)/1050);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
         
 
@@ -665,7 +661,7 @@ void PistolWindow::on_ShootButton_clicked(){
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(3,3));
-            ui->Target->centerOn(QPointF(465+x,465+y));
+            ui->Target->centerOn(QPointF(x*(455*2)/1050,y*(450*2)/1050));
         }
 
         nim=nim+1;
@@ -688,8 +684,7 @@ void PistolWindow::shootzoom()
     if(timezoom==8){
         timedzoom.stop();
         if (zoom==0){
-            ui->Target->setTransform(QTransform::fromScale(0.88,0.88));
-            //ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
+            ui->Target->fitInView(scene->sceneRect(),Qt::KeepAspectRatio); 
         }
         timezoom=0;
     }
