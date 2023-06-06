@@ -31,8 +31,11 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	boost::asio::write(socket, boost::asio::buffer(""));
 #endif
 
-#ifdef VISION_TEST
+#ifndef CAMERA
 	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
+#endif
+
+#ifdef VISION_TEST
 
 	// transformImage();
 	// getCenter();
@@ -338,7 +341,9 @@ void Detector::getPoints()
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
+#ifdef VISION_TEST
 			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
+#endif
 
 			cv::Point2d shot(x,y);
 
@@ -455,8 +460,9 @@ double Detector::getScore(double distance, double radius)
 
 void Detector::transformImage()
 {
-
+#ifdef CAMERA
 	m_camera.retrieve(m_image);
+#endif
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
