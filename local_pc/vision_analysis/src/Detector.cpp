@@ -389,7 +389,7 @@ void Detector::getPoints()
 			{
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
 
-				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
+				int move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
 				move_ESP *= 170/(double)m_image.cols;
 
 				// char msg[64] = "@";
