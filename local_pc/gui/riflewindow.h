@@ -29,7 +29,7 @@ signals:
     void backToDecideModeSignal();
     void backToDecideTypeSignal();
     void backButtonClickedSignal();
-    void new_score(int coordenada_x, int coordenada_y, float pontuação);
+    void new_score(int coordenada_x, int coordenada_y, double pontuação);
 
 private slots:
     void on_ExitButton_clicked();
@@ -38,7 +38,7 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
     void processar();
     void alerta();
-    void Disparo(int coordenada_x, int coordenada_y, float pontuação);
+    void Disparo(int coordenada_x, int coordenada_y, double pontuação);
     void shootzoom();
     void finalButtonClicked();
     void matchButtonClicked();
@@ -63,7 +63,7 @@ private:
     short int zoom;
     short int intshot;
     short int totalintshot;
-    float decshot;
+    double decshot;
     float totaldecshot;
     float x;
     float y;

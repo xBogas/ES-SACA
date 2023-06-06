@@ -235,13 +235,13 @@ void PistolWindow::backToDecideType(){
 }
 
 
-void PistolWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
+void PistolWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação){
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
     decshot=pontuação;                                      //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
     QPixmap RedDot(":/resources/img/Red Dot.png");
-
+    
     if(procss==1){
         timedzoom.start(400); 
         

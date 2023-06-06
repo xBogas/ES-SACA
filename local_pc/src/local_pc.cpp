@@ -62,8 +62,8 @@ int main(int argc, char *argv[]){
     });
 
     // Connect the signal to a slot (a member function or a lambda)
-    QObject::connect(detector, &Detector::new_score, [](int x, int y, double radius, double score) {
-        handle_new_score(x, y, radius, score);
+    QObject::connect(detector, &Detector::new_score, [](int x, int y, double radius, double shotScore) {
+        handle_new_score(x, y, radius, shotScore);
     });
 
     return a.exec();;
@@ -73,11 +73,11 @@ void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& c
     detector->onMain(finishESPThread, continueReading);
 }
 
-void handle_new_score(int x, int y, double radius, double score){
-    shot = true;
+void handle_new_score(int x, int y, double radius, double shotScore){
     coordinateX = x;
     coordinateY = y;
-    score = score;
+    score = shotScore;
+    shot = true;
 
     std::cout << "Shot detected in local_pc!" << std::endl;
     std::cout << "x: " << x << " y: " << y << " radius: " << radius << " score: " << score << std::endl;
@@ -290,10 +290,12 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     readSignal = true;
                 }
                 else if(shot){ // process vision_analysis
-                    std::cout << "ElectretSignal Activated" << std::endl;
+                    std::cout << "Shot detected" << std::endl;
 
                     // Send message to server
                     boost::asio::write(socket, boost::asio::buffer("shot"));
+
+                    std::cout << "SCORE ISSSSS:  " << score << std::endl;
 
                     if(isPistol){
                         emit ptlwindow->new_score(coordinateX, coordinateY, score);

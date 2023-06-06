@@ -238,7 +238,7 @@ void RifleWindow::backToDecideType(){
 }
 
 
-void RifleWindow::Disparo(int coordenada_x, int coordenada_y, float pontuação){
+void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação){
     electretSignal = true;
 
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.

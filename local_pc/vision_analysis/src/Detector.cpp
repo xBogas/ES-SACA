@@ -72,7 +72,7 @@ void Detector::onMain(bool& finish, bool& continueReading)
 			oldRead = newRead;
 		}
 		else{
-			boost::asio::write(socket, boost::asio::buffer("DONT\n"));
+			boost::asio::write(socket, boost::asio::buffer("NO\n"));
 		}
 	}
 }
@@ -359,7 +359,7 @@ void Detector::getPoints()
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
 #ifdef ESP_COMS
-				boost::asio::write(socket, boost::asio::buffer("DONT\n"));
+				boost::asio::write(socket, boost::asio::buffer("NO\n"));
 #endif
 			}
 			else if (result < m_center_radius-new_r)
