@@ -20,6 +20,7 @@ class RifleWindow : public QMainWindow
 signals:
     void backButtonClicked();
     void backToDecideModeSignal();
+    void tabelaLugarSignal(float pontuação, std::string nome);
 
 public:
     explicit RifleWindow(QWidget *parent = nullptr);
@@ -44,7 +45,7 @@ private slots:
     void alerta();
     void resetTimer();
     void blockDecideMode();
-    void tabelalugar(float pontuação, QString nome);
+    void tabelalugar(float pontuação, std::string nome);
 
 private:
     Ui::RifleWindow *ui;
@@ -68,6 +69,7 @@ private:
     short int z;
     short int i;
     short int d;
+    QString nm;
     QString lug;
     QVector<QString> jogadores;
     QVector<float> pontuações;
