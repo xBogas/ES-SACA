@@ -76,6 +76,9 @@ void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& c
 }
 
 void handle_new_score(int x, int y, double radius, double shotScore){
+    if(!continueReading)
+        return;
+        
     coordinateX = x;
     coordinateY = y;
     score = shotScore; 
