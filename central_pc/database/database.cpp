@@ -48,7 +48,7 @@ vector<vector<string>> Database::execute(const string& query, bool is_select) {
 
 }
 
-bool Database::update_score(int licenseid, string competitionid, int coordinatesid, float coordinatex, float coordinatey, float score){
+bool Database::update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float score){
     string seriesid = create_seriesid(licenseid, competitionid);
 
     if(db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid)) return true;
@@ -142,9 +142,7 @@ bool Database::db_INSERT_Athlete(int licenseid, string nome, string clube, strin
     }
 }
 
-bool Database::db_INSERT_Competition(string name, string location, string date, string category){
-
-    string competitionid = create_competitionid(location, date, category);
+bool Database::db_INSERT_Competition(string name, string location, string date, string category, string competitionid){
 
     if(verify_competitionid(competitionid)) return false;
 
