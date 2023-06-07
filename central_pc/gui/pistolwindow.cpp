@@ -35,21 +35,22 @@ PistolWindow::PistolWindow(QWidget *parent) :
     horas=0;
     procss=0;
     al=0;
-    lug_1=0;
-    lug_2=0;
-    lug_3=0;
-    lug_4=0;
-    lug_5=0;
-    lug_6=0;
-    lug_7=0;
-    lug_8=0;
-    lug_9=0;
-    lug_10=0;
+    lug_1=-1;
+    lug_2=-1;
+    lug_3=-1;
+    lug_4=-1;
+    lug_5=-1;
+    lug_6=-1;
+    lug_7=-1;
+    lug_8=-1;
+    lug_9=-1;
+    lug_10=-1;
     lug_igual=0;
 
     connect(&reloj,SIGNAL(timeout()),this,SLOT(processar()));
     connect(&alert,SIGNAL(timeout()),this,SLOT(alerta()));
     QObject::connect(this, &PistolWindow::backToDecideModeSignal, this, &PistolWindow::resetTimer);
+    QObject::connect(this, &PistolWindow::tabelaLugarSignal, this, &PistolWindow::tabelalugar);
 }
 
 PistolWindow::~PistolWindow()
@@ -184,6 +185,35 @@ void PistolWindow::processar()
     if(procss==1 && segundos%2==1){
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
     }
+
+    if(horas==1 && minutos==14 && segundos==58){
+        tabelalugar(13.5, "João");
+        tabelalugar(27.5, "Trevor");
+        tabelalugar(10.3, "Dan");
+    }
+    if(horas==1 && minutos==14 && segundos==55){
+        tabelalugar(10.3, "Tibérios");
+        tabelalugar(10.3, "Salazar");
+        tabelalugar(9, "Ricardo");
+    }
+    if(horas==1 && minutos==14 && segundos==52){
+        tabelalugar(30.9, "Luís");
+    }
+
+    if(horas==1 && minutos==14 && segundos==49){
+        tabelalugar(60.7, "João");
+        tabelalugar(30.9, "Kyle");
+    }
+
+    if(horas==1 && minutos==14 && segundos==45){
+        tabelalugar(5.8, "Tiago");
+        tabelalugar(9.8, "Mateus");
+    }
+
+    if(horas==1 && minutos==14 && segundos==43){
+        tabelalugar(100, "Moros");
+    }
+
 }
 
 void PistolWindow::alerta()
@@ -247,72 +277,89 @@ void PistolWindow::blockDecideMode(){
     ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
 }
 
-void PistolWindow::tabelalugar(float pontuação, QString nome){
+void PistolWindow::tabelalugar(float pontuação, std::string nome){
     //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
     
+    int idx=0;
+    int cnt=0;
+    int zr=0;
+    int zz=1;
+    nm=QString::fromStdString(nome);
+
     if(jogadores.size()==0){
-      jogadores.push_back(nome);
-      pontuações.push_back(pontuação);
+      jogadores.append(nm);
+      pontuações.append(pontuação);
     }
     else{
-        for(int idx=0; idx<jogadores.size(); idx++){
-            if(nome.compare(jogadores[idx])==0){
+        for(idx=0; idx<jogadores.size(); idx++){
+            if(nm.compare(jogadores[idx])==0){
                 pontuações[idx]=pontuação;
+                zz=1;
+                break;
             }
             else{
-                jogadores.push_back(nome);
-                pontuações.push_back(pontuação);
+                zz=0;
             }
         }
     }
+    if(zz==0){
+        jogadores.append(nm);
+        pontuações.append(pontuação);
+    }
 
-    while(procss==1){                                         //por a funçaõ a correr enquanto o processo estiver ativo
-        for(z=1; z<=10; z++){
+    if(jogadores.size()<10){
+        for(z=1; z<=jogadores.size(); z++){
             for(i=0;i<jogadores.size();i++){                  //percorrer todos os atletas, tt=total de atletas.
-                if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9 || i==lug_10){
+                if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9){
                     continue;                                 //passa para o seguinte i;
                 }
                 //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
-                if(z==2 && pontuações[i]==lug_1){
-                    lug_igual==1;
+                if(z==2 && pontuações[i]==pontuações[lug_1]){
+                    lug_igual=1;
                 }
-                if(z==3 && pontuações[i]==lug_2){
-                    lug_igual==1;
+                if(z==3 && pontuações[i]==pontuações[lug_2]){
+                    lug_igual=1;
                 }
-                if(z==4 && pontuações[i]==lug_3){
-                    lug_igual==1;
+                if(z==4 && pontuações[i]==pontuações[lug_3]){
+                    lug_igual=1;
                 }
-                if(z==5 && pontuações[i]==lug_4){
-                    lug_igual==1;
+                if(z==5 && pontuações[i]==pontuações[lug_4]){
+                    lug_igual=1;
                 }
-                if(z==6 && pontuações[i]==lug_5){
-                    lug_igual==1;
+                if(z==6 && pontuações[i]==pontuações[lug_5]){
+                    lug_igual=1;
                 }
-                if(z==7 && pontuações[i]==lug_6){
-                    lug_igual==1;
+                if(z==7 && pontuações[i]==pontuações[lug_6]){
+                    lug_igual=1;
                 }
-                if(z==8 && pontuações[i]==lug_7){
-                    lug_igual==1;
+                if(z==8 && pontuações[i]==pontuações[lug_7]){
+                    lug_igual=1;
                 }
-                if(z==9 && pontuações[i]==lug_8){
-                    lug_igual==1;
+                if(z==9 && pontuações[i]==pontuações[lug_8]){
+                    lug_igual=1;
                 }
-                if(z==10 && pontuações[i]==lug_9){
-                    lug_igual==1;
+                if(z==10 && pontuações[i]==pontuações[lug_9]){
+                    lug_igual=1;
                 }
-
                 if(lug_igual==0){
                     for(d=0; d<jogadores.size(); d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
-                        if(i!=d){
+                        if(d==lug_1 || d==lug_2 || d==lug_3 || d==lug_4 || d==lug_5 || d==lug_6 || d==lug_7 || d==lug_8 || d==lug_9 || i==d){
+                            continue;
+                        }
+                        else{
                             if(pontuações[i]<pontuações[d]){
                                 i=d;
+                                zr=1;
                                 break;
+                            }
+                            else{
+                                zr=0;
                             }
                         }
                     }
                 }
-
-                if(d==jogadores.size()){
+                cnt=i;
+                if(zr==0 || zr==1  || lug_igual==1){
                     if(z==1){
                         lug_1=i;
                         break;
@@ -370,7 +417,7 @@ void PistolWindow::tabelalugar(float pontuação, QString nome){
                 }
             }
             if(z==4){
-            if(lug_igual!=1){
+                if(lug_igual!=1){
                     lug="4º";
                 } 
             }
@@ -405,21 +452,176 @@ void PistolWindow::tabelalugar(float pontuação, QString nome){
                 }
             }
             ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
-            ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[i]));
-            ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[i]))));
-            ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[i])));
-
+            ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[cnt]));
+            ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[cnt]))));
+            ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[cnt])));
+            cnt=0;
             lug_igual=0;
         }
-        lug_1=0;
-        lug_2=0;
-        lug_3=0;
-        lug_4=0;
-        lug_5=0;
-        lug_6=0;
-        lug_7=0;
-        lug_8=0;
-        lug_9=0;
-        lug_10=0;
     }
+
+    if(jogadores.size()>=10){
+        for(z=1; z<=10; z++){
+            for(i=0;i<jogadores.size();i++){                  //percorrer todos os atletas, tt=total de atletas.
+                if(i==lug_1 || i==lug_2 || i==lug_3 || i==lug_4 || i==lug_5 || i==lug_6 || i==lug_7 || i==lug_8 || i==lug_9){
+                    continue;                                 //passa para o seguinte i;
+                }
+                //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
+                if(z==2 && pontuações[i]==pontuações[lug_1]){
+                    lug_igual=1;
+                }
+                if(z==3 && pontuações[i]==pontuações[lug_2]){
+                    lug_igual=1;
+                }
+                if(z==4 && pontuações[i]==pontuações[lug_3]){
+                    lug_igual=1;
+                }
+                if(z==5 && pontuações[i]==pontuações[lug_4]){
+                    lug_igual=1;
+                }
+                if(z==6 && pontuações[i]==pontuações[lug_5]){
+                    lug_igual=1;
+                }
+                if(z==7 && pontuações[i]==pontuações[lug_6]){
+                    lug_igual=1;
+                }
+                if(z==8 && pontuações[i]==pontuações[lug_7]){
+                    lug_igual=1;
+                }
+                if(z==9 && pontuações[i]==pontuações[lug_8]){
+                    lug_igual=1;
+                }
+                if(z==10 && pontuações[i]==pontuações[lug_9]){
+                    lug_igual=1;
+                }
+                if(lug_igual==0){
+                    for(d=0; d<jogadores.size(); d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
+                        if(d==lug_1 || d==lug_2 || d==lug_3 || d==lug_4 || d==lug_5 || d==lug_6 || d==lug_7 || d==lug_8 || d==lug_9 || i==d){
+                            continue;
+                        }
+                        else{
+                            if(pontuações[i]<pontuações[d]){
+                                i=d;
+                                zr=1;
+                                break;
+                            }
+                            else{
+                                zr=0;
+                            }
+                        }
+                    }
+                }
+                cnt=i;
+                if(zr==0 || zr==1  || lug_igual==1){
+                    if(z==1){
+                        lug_1=i;
+                        break;
+                    }
+                    if(z==2){
+                        lug_2=i;
+                        break;
+                    }
+                    if(z==3){
+                        lug_3=i;
+                        break;
+                    }
+                    if(z==4){
+                        lug_4=i;
+                        break;
+                    }
+                    if(z==5){
+                        lug_5=i;
+                        break;
+                    }
+                    if(z==6){
+                        lug_6=i;
+                        break;
+                    }
+                    if(z==7){
+                        lug_7=i;
+                        break;
+                    }
+                    if(z==8){
+                        lug_8=i;
+                        break;
+                    }
+                    if(z==9){
+                        lug_9=i;
+                        break;
+                    }
+                    if(z==10){
+                        lug_10=i;
+                        break;
+                    }
+                }
+            }
+
+            if(z==1){
+                lug="1º";
+            }
+            if(z==2){
+                if(lug_igual!=1){
+                    lug="2º";
+                }
+            }
+            if(z==3){
+                if(lug_igual!=1){
+                    lug="3º";
+                }
+            }
+            if(z==4){
+                if(lug_igual!=1){
+                    lug="4º";
+                } 
+            }
+            if(z==5){
+                if(lug_igual!=1){
+                    lug="5º";
+                }
+            }
+            if(z==6){
+                if(lug_igual!=1){
+                    lug="6º";
+                }
+            }
+            if(z==7){
+                if(lug_igual!=1){
+                    lug="7º";
+                }
+            }
+            if(z==8){
+                if(lug_igual!=1){
+                    lug="8º";
+                }
+            }
+            if(z==9){
+                if(lug_igual!=1){
+                    lug="9º";
+                }
+            }
+            if(z==10){
+                if(lug_igual!=1){
+                    lug="10º";
+                }
+            }
+            ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
+            ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[cnt]));
+            ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[cnt]))));
+            ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[cnt])));
+            cnt=0;
+            lug_igual=0;
+        }
+    }
+
+    lug_1=-1;
+    lug_2=-1;
+    lug_3=-1;
+    lug_4=-1;
+    lug_5=-1;
+    lug_6=-1;
+    lug_7=-1;
+    lug_8=-1;
+    lug_9=-1;
+    lug_10=-1;
+    
 }
