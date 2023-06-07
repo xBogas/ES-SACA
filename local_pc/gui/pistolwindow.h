@@ -45,6 +45,7 @@ private slots:
     void resetTimer();
     void backToDecideMode();
     void backToDecideType();
+    void deleteShots();
 
 protected:
     void showEvent(QShowEvent *revent);

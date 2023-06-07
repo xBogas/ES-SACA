@@ -226,6 +226,7 @@ void PistolWindow::resetTimer()
 
 void PistolWindow::backToDecideMode(){
     resetTimer();
+    deleteShots();
 }
 
 void PistolWindow::backToDecideType(){
@@ -236,6 +237,8 @@ void PistolWindow::backToDecideType(){
 
 
 void PistolWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação){
+    deleteShots();
+
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     intshot= static_cast<int>(pontuação);                   //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
@@ -296,9 +299,10 @@ void PistolWindow::shootzoom()
     }
 }
 
-
-// Código para limpar o Target
-//    qDeleteAll(scene->items());
-//    QPixmap PistolTarget(":/resources/img/RifleTarget.png");
-//    scene->addPixmap(PistolTarget.scaled(w,h));
-//    ui->Target->setScene(scene);
+void PistolWindow::deleteShots()
+{
+    qDeleteAll(scene->items());
+    QImage PistolTarget(":/resources/img/PistolTarget.png");
+    scene->addPixmap(QPixmap::fromImage(PistolTarget));
+    ui->Target->setScene(scene);
+}

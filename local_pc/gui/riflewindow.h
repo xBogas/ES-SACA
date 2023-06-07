@@ -19,7 +19,6 @@ class RifleWindow : public QMainWindow
 public:
     explicit RifleWindow(QWidget *parent = nullptr);
     ~RifleWindow();
-    bool electretSignal;
 
 signals:    
     void finalButtonClickedSignal();
@@ -47,6 +46,7 @@ private slots:
     void resetTimer();
     void backToDecideMode();
     void backToDecideType();
+    void deleteShots();
 
 protected:
     void showEvent(QShowEvent *revent);

@@ -239,7 +239,7 @@ void RifleWindow::backToDecideType(){
 
 
 void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação){
-    electretSignal = true;
+    deleteShots();
 
     x=coordenada_x;                                         //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
     y=coordenada_y;                                         //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
@@ -694,7 +694,13 @@ void RifleWindow::shootzoom()
     }
 }
 
-
+void RifleWindow::deleteShots()
+{
+    qDeleteAll(scene->items());
+    QImage RifleTarget(":/resources/img/RifleTarget.png");
+    scene->addPixmap(QPixmap::fromImage(RifleTarget));
+    ui->Target->setScene(scene);
+}
 // Código para limpar o Target
 //    qDeleteAll(scene->items());
 //    QPixmap PistolTarget(":/resources/img/RifleTarget.png");
