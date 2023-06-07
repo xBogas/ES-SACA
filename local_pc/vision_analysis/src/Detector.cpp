@@ -37,11 +37,13 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 
 #ifdef VISION_TEST
 
-	// transformImage();
-	// getCenter();
-	// getPoints();
-	// std::cout << "getPOints 2\n";
-	// getPoints();
+	transformImage();
+	getCenter();
+	getPoints();
+	std::cout << "SHOT 2\n";
+	transformImage();
+	getCenter();
+	getPoints();
 #endif
 }
 
@@ -161,8 +163,8 @@ void Detector::getCenter()
 			
 			cv::circle(alt, m_center, 0, cv::Scalar(0, 0, 255));
 			cv::drawContours(alt, contours, i, cv::Scalar(0, 255, 0));
-			// cv::imshow("Center detection", alt);
-			// cv::waitKey();
+			cv::imshow("Center detection", alt);
+			cv::waitKey();
 			alt = m_image.clone();
 #endif
 		}
@@ -170,8 +172,8 @@ void Detector::getCenter()
 #ifdef VISION_TEST
 	m_center = mean(centers);
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
-	// cv::imshow("Center detection", alt);
-	// cv::waitKey();
+	cv::imshow("Center detection", alt);
+	cv::waitKey();
 #endif
 }
 
@@ -277,7 +279,10 @@ Detector::rejectOutliers(const std::vector<cv::Point>& data, int threshold, std:
 
 void Detector::getPoints()
 {
-	cv::Mat hsv;
+	cv::Mat hsv, display;
+#ifdef VISION_TEST
+	display = m_image.clone();
+#endif
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
 	
 	// HSV color space
@@ -342,7 +347,7 @@ void Detector::getPoints()
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
 #ifdef VISION_TEST
-			cv::circle(m_image, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
+			cv::circle(display, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
 #endif
 
 			cv::Point2d shot(x,y);
@@ -409,8 +414,8 @@ void Detector::getPoints()
 		}
 	}
 #ifdef VISION_TEST
-	// cv::imshow("Shot detection", m_image);
-	// cv::waitKey();
+	cv::imshow("Shot detection", display);
+	cv::waitKey();
 #endif
 }
 
@@ -462,6 +467,8 @@ void Detector::transformImage()
 {
 #ifdef CAMERA
 	m_camera.retrieve(m_image);
+#else
+	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
 #endif
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
