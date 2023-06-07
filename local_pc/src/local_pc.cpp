@@ -306,7 +306,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         boost::asio::write(socket, boost::asio::buffer("shot->" + std::to_string(coordinateX) + ";" + std::to_string(coordinateY) + ";" + numberString + ";"));
                     }
                     else if(trainMode){
-                        boost::asio::write(socket, boost::asio::buffer("shotInTrain"));
+                        boost::asio::write(socket, boost::asio::buffer("shotInPractice"));
                     }
 
                     if(isPistol){

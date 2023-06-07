@@ -188,33 +188,33 @@ void PistolWindow::processar()
         ui->StartButton->setStyleSheet("QPushButton{background-color: rgb(85, 255, 0)}");
     }
 
-    if(horas==1 && minutos==14 && segundos==58){
-        tabelalugar(13.5, "João", 2);
-        tabelalugar(27.5, "Trevor", 3);
-        tabelalugar(10.3, "Dan", 1);
-    }
-    if(horas==1 && minutos==14 && segundos==55){
-        tabelalugar(10.3, "Tibérios", 1);
-        tabelalugar(10.3, "Salazar", 1);
-        tabelalugar(9, "Ricardo", 1);
-    }
-    if(horas==1 && minutos==14 && segundos==52){
-        tabelalugar(30.9, "Luís", 3);
-    }
+    // if(horas==1 && minutos==14 && segundos==58){
+    //     tabelalugar(13.5, "João", 2);
+    //     tabelalugar(27.5, "Trevor", 3);
+    //     tabelalugar(10.3, "Dan", 1);
+    // }
+    // if(horas==1 && minutos==14 && segundos==55){
+    //     tabelalugar(10.3, "Tibérios", 1);
+    //     tabelalugar(10.3, "Salazar", 1);
+    //     tabelalugar(9, "Ricardo", 1);
+    // }
+    // if(horas==1 && minutos==14 && segundos==52){
+    //     tabelalugar(30.9, "Luís", 3);
+    // }
 
-    if(horas==1 && minutos==14 && segundos==49){
-        tabelalugar(60.7, "João", 6);
-        tabelalugar(30.9, "Kyle", 3);
-    }
+    // if(horas==1 && minutos==14 && segundos==49){
+    //     tabelalugar(60.7, "João", 6);
+    //     tabelalugar(30.9, "Kyle", 3);
+    // }
 
-    if(horas==1 && minutos==14 && segundos==45){
-        tabelalugar(5.8, "Tiago", 1);
-        tabelalugar(9.8, "Mateus", 1);
-    }
+    // if(horas==1 && minutos==14 && segundos==45){
+    //     tabelalugar(5.8, "Tiago", 1);
+    //     tabelalugar(9.8, "Mateus", 1);
+    // }
 
-    if(horas==1 && minutos==14 && segundos==43){
-        tabelalugar(100, "Moros", 10);
-    }
+    // if(horas==1 && minutos==14 && segundos==43){
+    //     tabelalugar(100, "Moros", 10);
+    // }
 
 }
 
