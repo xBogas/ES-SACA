@@ -13,13 +13,16 @@ PistolWindow::PistolWindow(QWidget *parent) :
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
     QStringList titulos; 
-    ui->tableWidget->setColumnCount(4);
+    ui->tableWidget->setColumnCount(5);
     ui->tableWidget->setRowCount(10);
-    titulos << "Lugar" << "Atleta" << "Pont.(Int)" << "Pont.(Dec)";
+    titulos << "Lugar" << "Atleta" << "Num. de Tiros" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
     ui->tableWidget->verticalHeader()->setVisible(0);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setFont(fnt);
+
+    fnt.setPointSize(16);
     
     practiceSignal = false;
     matchSignal = false;
@@ -187,31 +190,31 @@ void PistolWindow::processar()
     }
 
     if(horas==1 && minutos==14 && segundos==58){
-        tabelalugar(13.5, "João");
-        tabelalugar(27.5, "Trevor");
-        tabelalugar(10.3, "Dan");
+        tabelalugar(13.5, "João", 2);
+        tabelalugar(27.5, "Trevor", 3);
+        tabelalugar(10.3, "Dan", 1);
     }
     if(horas==1 && minutos==14 && segundos==55){
-        tabelalugar(10.3, "Tibérios");
-        tabelalugar(10.3, "Salazar");
-        tabelalugar(9, "Ricardo");
+        tabelalugar(10.3, "Tibérios", 1);
+        tabelalugar(10.3, "Salazar", 1);
+        tabelalugar(9, "Ricardo", 1);
     }
     if(horas==1 && minutos==14 && segundos==52){
-        tabelalugar(30.9, "Luís");
+        tabelalugar(30.9, "Luís", 3);
     }
 
     if(horas==1 && minutos==14 && segundos==49){
-        tabelalugar(60.7, "João");
-        tabelalugar(30.9, "Kyle");
+        tabelalugar(60.7, "João", 6);
+        tabelalugar(30.9, "Kyle", 3);
     }
 
     if(horas==1 && minutos==14 && segundos==45){
-        tabelalugar(5.8, "Tiago");
-        tabelalugar(9.8, "Mateus");
+        tabelalugar(5.8, "Tiago", 1);
+        tabelalugar(9.8, "Mateus", 1);
     }
 
     if(horas==1 && minutos==14 && segundos==43){
-        tabelalugar(100, "Moros");
+        tabelalugar(100, "Moros", 10);
     }
 
 }
@@ -277,7 +280,7 @@ void PistolWindow::blockDecideMode(){
     ui->FinalButton->setStyleSheet("QPushButton{background-color: rgb(100, 100, 100)}");
 }
 
-void PistolWindow::tabelalugar(float pontuação, std::string nome){
+void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros){
     //Verificação e alteraração dos lugares na tabela. Descomentar e adicionar os dados em falta. Os dados em falta são o valor de tt(total de atletas), o nome dos atletas para por na tabela e as pontuações dos atletas para comparar-se e por na tabela. Fora disso o código deve funcionar. 
     
     int idx=0;
@@ -289,11 +292,13 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome){
     if(jogadores.size()==0){
       jogadores.append(nm);
       pontuações.append(pontuação);
+      ntir.append(numtiros);
     }
     else{
         for(idx=0; idx<jogadores.size(); idx++){
             if(nm.compare(jogadores[idx])==0){
                 pontuações[idx]=pontuação;
+                ntir[idx]=numtiros;
                 zz=1;
                 break;
             }
@@ -305,6 +310,7 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome){
     if(zz==0){
         jogadores.append(nm);
         pontuações.append(pontuação);
+        ntir.append(numtiros);
     }
 
     if(jogadores.size()<10){
@@ -606,8 +612,21 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome){
             }
             ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
             ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[cnt]));
+            ui->tableWidget->setItem(z-1,NumTir,new QTableWidgetItem(QString::number(ntir[cnt])));
             ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[cnt]))));
             ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[cnt])));
+
+            ui->tableWidget->item(z-1,Lugar)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Lugar)->setFont(fnt);
+            ui->tableWidget->item(z-1,Atleta)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Atleta)->setFont(fnt);
+            ui->tableWidget->item(z-1,NumTir)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,NumTir)->setFont(fnt);
+            ui->tableWidget->item(z-1,Inte)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Inte)->setFont(fnt);
+            ui->tableWidget->item(z-1,Dec)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Dec)->setFont(fnt);
+
             cnt=0;
             lug_igual=0;
         }
