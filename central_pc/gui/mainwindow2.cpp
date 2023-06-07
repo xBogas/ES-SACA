@@ -46,7 +46,7 @@ RifleWindow* MainWindow2::getRifleWindow(){
 
 void MainWindow2::on_rifleButton_clicked(){
     this->hide();
-    riflewindow->show();
+    riflewindow->showFullScreen();
 
     pistol = false;
     rifle = true;
@@ -54,7 +54,7 @@ void MainWindow2::on_rifleButton_clicked(){
 
 void MainWindow2::on_pistolButton_clicked(){
     this->hide();
-    pistolwindow->show();
+    pistolwindow->showFullScreen();
 
     rifle = false;
     pistol = true;

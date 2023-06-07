@@ -10,6 +10,7 @@
 #include <opencv2/opencv.hpp>
 #include "../vision_analysis/src/Detector.hpp"
 #include <fstream>
+#include <iomanip>
 
 // connection to server in central_pc
 using boost::asio::ip::tcp;
@@ -77,7 +78,7 @@ void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& c
 void handle_new_score(int x, int y, double radius, double shotScore){
     coordinateX = x;
     coordinateY = y;
-    score = shotScore;
+    score = shotScore; 
     shot = true;
 
     std::cout << "Shot detected in local_pc!" << std::endl;
@@ -279,7 +280,6 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     std::mt19937 gen(rd());
                     std::uniform_int_distribution<> dis(5000, 8000); //random time between 5000 and 8000 milliseconds
                     delay_ms = dis(gen);
-                    //delay_ms = 5000;
 
                     entry = false;
                 }
@@ -300,7 +300,10 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     // Send message to server
                     if(matchORfinalMode){
-                        boost::asio::write(socket, boost::asio::buffer("shot ; "));
+                        std::string numberString = std::to_string(score);
+                        size_t decimalPos = numberString.find(',');
+                        numberString = numberString.substr(0, decimalPos + 2);
+                        boost::asio::write(socket, boost::asio::buffer("shot->" + std::to_string(coordinateX) + ";" + std::to_string(coordinateY) + ";" + numberString + ";"));
                     }
                     else if(trainMode){
                         boost::asio::write(socket, boost::asio::buffer("shotInTrain"));
@@ -313,6 +316,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         emit rflwindow->new_score(coordinateX, coordinateY, score);
                     }
 
+                    entry = true;
                     readSignal = true;
                     shot = false;
                     continueReading = false;

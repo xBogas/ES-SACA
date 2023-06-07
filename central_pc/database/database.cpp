@@ -49,8 +49,9 @@ vector<vector<string>> Database::execute(const string& query, bool is_select) {
 }
 
 bool Database::update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float score){
+    std::cout << "Updating score" << std::endl;
     string seriesid = create_seriesid(licenseid, competitionid);
-
+    int coordinatesid = 0;
     if(db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid)) return true;
     else return false;
 }
