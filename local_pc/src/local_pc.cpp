@@ -21,7 +21,8 @@ const char* addr = "192.168.4.1";
 
 // handle decisions in client_thread
 bool initial = true, decideType = false, decideMode = false, canStart = false, readSignal = false;
-bool matchORfinal = false;
+bool matchORfinalMode = false, trainMode = false;
+bool matchORfinal = false, train = false;
 bool entry = true;
 bool isPistol = false, isRifle = false;
 
@@ -173,13 +174,16 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     if(std::strncmp(mode, "backToDecideType", std::strlen("backToDecideType")) == 0){
                         emit ptlwindow->backToDecideTypeSignal();
 
+                        matchORfinal = false;
+                        train = false;
                         decideMode = false;
                         decideType = true;
                     }
 
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit ptlwindow->practiceButtonClickedSignal();
-
+                        
+                        train = true;
                         matchORfinal = false;
                         canStart = true;
                     }
@@ -187,12 +191,14 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         emit ptlwindow->matchButtonClickedSignal();
                         
                         matchORfinal = true;
+                        train = false;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
                         emit ptlwindow->finalButtonClickedSignal();
 
                         matchORfinal = true;
+                        train = false;
                         canStart = true;
                     }
 
@@ -201,25 +207,24 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         continueReading = true;
 
                         if(matchORfinal){
-                            canStart = false;
-                            decideMode = false;
                             matchORfinal = false;
+                            matchORfinalMode = true;
                         }
-                            
-                    }
-
-                    if(std::strncmp(mode, "backToDecideMode", std::strlen("backToDecideMode")) == 0){
-                        emit ptlwindow->backToDecideModeSignal();
+                        else if(train){
+                            train = false;
+                            trainMode = true;
+                        }
                         
-                        matchORfinal = false;
-                        decideMode = true;
-                        continueReading = false;
+                        canStart = false;
+                        decideMode = false;
                     }
                 }
                 else if(isRifle){
                     if(std::strncmp(mode, "backToDecideType", std::strlen("backToDecideType")) == 0){
                         emit rflwindow->backToDecideTypeSignal();
 
+                        matchORfinal = false;
+                        train = false;
                         decideMode = false;
                         decideType = true;
                     }
@@ -227,6 +232,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     if(std::strncmp(mode, "practice", std::strlen("practice")) == 0){
                         emit rflwindow->practiceButtonClickedSignal();
                         
+                        train = true;
                         matchORfinal = false;
                         canStart = true;
                     }
@@ -234,12 +240,14 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         emit rflwindow->matchButtonClickedSignal();
 
                         matchORfinal = true;
+                        train = false;
                         canStart = true;
                     }
                     else if(std::strncmp(mode, "final", std::strlen("final")) == 0){
                         emit rflwindow->finalButtonClickedSignal();
                         
                         matchORfinal = true;
+                        train = false;
                         canStart = true;
                     }
 
@@ -248,18 +256,16 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         continueReading = true;
                         
                         if(matchORfinal){
-                            canStart = false;
-                            decideMode = false;
                             matchORfinal = false;
+                            matchORfinalMode = true;
                         }
-                    }
-
-                    if(std::strncmp(mode, "backToDecideMode", std::strlen("backToDecideMode")) == 0){
-                        emit rflwindow->backToDecideModeSignal();
+                        else if(train){
+                            train = false;
+                            trainMode = true;
+                        }
                         
-                        matchORfinal = false;
-                        decideMode = true;
-                        continueReading = false;
+                        canStart = false;
+                        decideMode = false;
                     }
                 }
             }
@@ -293,9 +299,12 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     std::cout << "Shot detected" << std::endl;
 
                     // Send message to server
-                    boost::asio::write(socket, boost::asio::buffer("shot"));
-
-                    std::cout << "SCORE ISSSSS:  " << score << std::endl;
+                    if(matchORfinalMode){
+                        boost::asio::write(socket, boost::asio::buffer("shot ; "));
+                    }
+                    else if(trainMode){
+                        boost::asio::write(socket, boost::asio::buffer("shotInTrain"));
+                    }
 
                     if(isPistol){
                         emit ptlwindow->new_score(coordinateX, coordinateY, score);
@@ -325,6 +334,8 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         }
                         
                         decideMode = true;
+                        matchORfinalMode = false;
+                        trainMode = false;
                         readSignal = false;
                         continueReading = false;
                     }
