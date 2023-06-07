@@ -15,14 +15,13 @@ PistolWindow::PistolWindow(QWidget *parent) :
     QStringList titulos; 
     ui->tableWidget->setColumnCount(5);
     ui->tableWidget->setRowCount(10);
+    fnt.setPointSize(16);
     titulos << "Lugar" << "Atleta" << "Num. de Tiros" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
     ui->tableWidget->verticalHeader()->setVisible(0);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->horizontalHeader()->setFont(fnt);
-
-    fnt.setPointSize(16);
     
     practiceSignal = false;
     matchSignal = false;
@@ -459,8 +458,20 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
             }
             ui->tableWidget->setItem(z-1,Lugar,new QTableWidgetItem(lug));
             ui->tableWidget->setItem(z-1,Atleta,new QTableWidgetItem(jogadores[cnt]));
+            ui->tableWidget->setItem(z-1,NumTir,new QTableWidgetItem(QString::number(ntir[cnt])));
             ui->tableWidget->setItem(z-1,Inte,new QTableWidgetItem(QString::number(static_cast<int>(pontuações[cnt]))));
             ui->tableWidget->setItem(z-1,Dec,new QTableWidgetItem(QString::number(pontuações[cnt])));
+
+            ui->tableWidget->item(z-1,Lugar)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Lugar)->setFont(fnt);
+            ui->tableWidget->item(z-1,Atleta)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Atleta)->setFont(fnt);
+            ui->tableWidget->item(z-1,NumTir)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,NumTir)->setFont(fnt);
+            ui->tableWidget->item(z-1,Inte)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Inte)->setFont(fnt);
+            ui->tableWidget->item(z-1,Dec)->setTextAlignment(Qt::AlignCenter);
+            ui->tableWidget->item(z-1,Dec)->setFont(fnt);
             cnt=0;
             lug_igual=0;
         }
