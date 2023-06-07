@@ -47,11 +47,25 @@ void MainWindow::on_exitButton_clicked(){
 }
 
 void MainWindow::on_continueButton_clicked(){
-    if(rightIDs()){
-        isMainWindow = false;
-        this->hide();
-        mainwindow2->show();
+    if(!rightIDs()){
+        QMessageBox::critical(this, "Erro", "IDs inválidos!");
+        return;
     }
+
+    // read the competition data
+    nome = ui->nameText->text().toStdString();
+    local = ui->localText->text().toStdString();
+    data = ui->dateText->date().toString("yyyy-MM-dd").toStdString();
+
+    if(nome.empty() || local.empty() || data.empty()) {
+        // Exibe uma mensagem de erro caso um dos campos esteja vazio
+        QMessageBox::critical(this, "Erro", "Dados da competição em falta!");
+        return;
+    }
+
+    isMainWindow = false;
+    this->hide();
+    mainwindow2->show();
 }
 
 bool MainWindow::rightIDs(){

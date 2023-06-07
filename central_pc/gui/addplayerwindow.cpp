@@ -25,16 +25,16 @@ void AddPlayerWindow::on_saveButton_clicked(){
         QMessageBox::critical(this, "Erro", "Nome ou licença do atleta não preenchido");
         return;
     }
-
+    
     //obter strings
     int licenca = ui->IDText->text().toInt();
-    string nome = ui->nameText->text().toStdString();
-    string clube = ui->clubeText->text().toStdString();
-    string disciplina = ui->disciplinaText->text().toStdString();
-    string escalao = ui->escalaoText->text().toStdString();
-    string nascimento = ui-> birthText->date().toString("yyyy-MM-dd").toStdString();
-    string pais = ui->paisText->text().toUpper().toStdString();
-    string observacoes = ui->obserText->toPlainText().toStdString();
+    std::string nome = ui->nameText->text().toStdString();
+    std::string clube = ui->clubeText->text().toStdString();
+    std::string disciplina = ui->disciplinaText->text().toStdString();
+    std::string escalao = ui->escalaoText->text().toStdString();
+    std::string nascimento = ui-> birthText->date().toString("yyyy-MM-dd").toStdString();
+    std::string pais = ui->paisText->text().toUpper().toStdString();
+    std::string observacoes = ui->obserText->toPlainText().toStdString();
 
     //guardar na base de dados
     bool insert = database->db_INSERT_Athlete(licenca, nome, clube, disciplina, escalao, nascimento, pais, observacoes);

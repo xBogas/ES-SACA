@@ -9,6 +9,7 @@
 #include <QWidget>
 #include "mainwindow2.h"
 #include <QMessageBox>
+#include <iostream>
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +23,9 @@ public:
     std::map<std::string, bool> nonPlayerIds;
     std::map<std::string, bool> samePlayerIds;
     std::map<std::string, bool> cellWasChanged;
+    std::string nome;
+    std::string local;
+    std::string data;
 
 signals:
     void showErrorMessageSignal(std::string errorType);

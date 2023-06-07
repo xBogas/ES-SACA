@@ -36,6 +36,9 @@ bool oldStart = false;
 bool isPistol = false, isRifle = false;
 bool matchORfinalORtrain = false;
 
+// competition data
+std::string nome, local, dataComp, categoria, competitionid;
+
 int aux = 0;
 
 std::atomic<bool> finish(false);
@@ -172,6 +175,12 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     waitForOthers();
                     
                     boost::asio::write(socket, boost::asio::buffer("continue"));
+                    
+                    dataComp = window->data;
+                    local = window->local;
+                    nome = window->nome;
+
+                    std::cout << "data: " << dataComp << " local: " << local << " nome: " << nome << std::endl;
 
                     decideType = true;
                     initial = false;

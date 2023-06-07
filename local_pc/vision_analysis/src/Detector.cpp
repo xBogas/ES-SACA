@@ -36,7 +36,7 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #endif
 
 #ifdef VISION_TEST
-
+#warning "vision test"
 	transformImage();
 	getCenter();
 	getPoints();
