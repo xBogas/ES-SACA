@@ -281,7 +281,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
 
                     std::random_device rd;
                     std::mt19937 gen(rd());
-                    std::uniform_int_distribution<> dis(5000, 8000); //random time between 5000 and 8000 milliseconds
+                    std::uniform_int_distribution<> dis(8000, 13000); //random time between 5000 and 8000 milliseconds
                     delay_ms = dis(gen);
 
                     entry = false;
