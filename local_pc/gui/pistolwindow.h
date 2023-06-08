@@ -46,6 +46,7 @@ private slots:
     void backToDecideMode();
     void backToDecideType();
     void deleteShots();
+    void limparTabela();
 
 protected:
     void showEvent(QShowEvent *revent);

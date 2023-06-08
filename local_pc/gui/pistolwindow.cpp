@@ -306,3 +306,9 @@ void PistolWindow::deleteShots()
     scene->addPixmap(QPixmap::fromImage(PistolTarget));
     ui->Target->setScene(scene);
 }
+
+
+void PistolWindow::limparTabela(){
+    ui->tableWidget->clear();                    //Apaga dados da tabela
+    ui->tableWidget->setRowCount(0);             //Apaga as linhas da tabela    
+}

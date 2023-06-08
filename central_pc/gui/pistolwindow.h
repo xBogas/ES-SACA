@@ -47,6 +47,7 @@ private slots:
     void resetTimer();
     void blockDecideMode();
     void tabelalugar(float pontuação, std::string nome, int numtiros);
+    void limparTabela();
 
 private:
     Ui::PistolWindow *ui;

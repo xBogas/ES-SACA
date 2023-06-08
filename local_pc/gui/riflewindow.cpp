@@ -701,6 +701,13 @@ void RifleWindow::deleteShots()
     scene->addPixmap(QPixmap::fromImage(RifleTarget));
     ui->Target->setScene(scene);
 }
+
+void RifleWindow::limparTabela(){
+    ui->tableWidget->clear();                    //Apaga dados da tabela
+    ui->tableWidget->setRowCount(0);             //Apaga as linhas da tabela    
+}
+
+
 // Código para limpar o Target
 //    qDeleteAll(scene->items());
 //    QPixmap PistolTarget(":/resources/img/RifleTarget.png");

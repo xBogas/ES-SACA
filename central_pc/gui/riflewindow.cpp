@@ -628,3 +628,7 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
     lug_10=-1;
     
 }
+
+void RifleWindow::limparTabela(){
+    ui->tableWidget->clear();                    //Apaga dados da tabela 
+}

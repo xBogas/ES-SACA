@@ -655,3 +655,7 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
     lug_10=-1;
     
 }
+
+void PistolWindow::limparTabela(){
+    ui->tableWidget->clear();                    //Apaga dados da tabela 
+}
