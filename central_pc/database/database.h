@@ -42,7 +42,7 @@ public:
     bool db_UPDATE_Series(float finalscore, int licenseid, string competitionid, bool isFinal);
 
     bool db_EXPORT_CompetitionResults(int licenseid, string competitionid, string user, string file_loc);
-
+    bool db_EXPORT_Athletes(string user, string file_loc);
 
     bool update_score(int licenseid, string competitionid, int coordinatex, int coordinatey, float individual_score, float finalscore, int i, bool isFinal);
 

@@ -168,6 +168,31 @@ bool Database::db_EXPORT_CompetitionResults(int licenseid, string competitionid,
     }
 }
 
+bool Database::db_EXPORT_Athletes(string user, string file_loc){
+
+    try{
+
+        //give permission
+        string command1 = "sudo chown postgres /home/" + user +"\n";
+        command1 += "sudo chgrp postgres /home/" + user;
+        system(command1.c_str());
+        
+        string sql = "COPY (SELECT * FROM \"Athlete\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
+        cout << sql << endl;
+        execute(sql, false);
+
+        //retrieve permission
+        string command2 = "sudo chown " + user + " /home/" + user + "\n";
+        command2 += "sudo chgrp " + user + " /home/" + user;
+        system(command2.c_str());
+
+        return true;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+}
 
 
 
