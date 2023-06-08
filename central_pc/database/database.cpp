@@ -21,42 +21,49 @@ Database::~Database() {
     conn->disconnect();
 }
 
-vector<vector<string>> Database::execute(const string& query, bool is_select) {
 
-    try {
-        work W(*conn);
-        result r = W.exec(query);
-        W.commit();
-        vector<vector<string>> rows;
-        if(is_select){
-            
-            for (const auto& row : r) {
-                vector<std::string> values;
-                for (const auto& field : row) {
-                    values.push_back(field.c_str());
+bool Database::update_score(int licenseid, string competitionid, int coordinatex, int coordinatey, float individual_score, float finalscore, int i, bool isFinal){
+    std::cout << "Updating score" << std::endl;
+    string seriesid = create_seriesid(licenseid, competitionid, isFinal);
 
-                }
-                rows.push_back(values);
-            }
-        }
-        return rows;
+    db_INSERT_Coordinates(licenseid, competitionid, coordinatex, coordinatey, individual_score, i, isFinal);
 
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    db_UPDATE_Series(finalscore, licenseid, competitionid, isFinal);
+    return true;
 
 }
 
-bool Database::update_score(int licenseid, string competitionid, int coordinatex, int coordinatey, float individual_score, float finalscore, int i){
-    std::cout << "Updating score" << std::endl;
-    string seriesid = create_seriesid(licenseid, competitionid);
+bool Database::update_rank(string competitionid, bool isFinal){
+    int i = 0;
 
-    db_INSERT_Coordinates(licenseid, competitionid, coordinatex, coordinatey, individual_score, i);
+    try{
+        string sql = "SELECT \"Athlete\".\"Licença\", \"Series\".finalscore FROM \"Athlete\" JOIN \"Series\" ON \"Series\".licenseid = \"Athlete\".\"Licença\" WHERE \"Series\".competitionid = '" 
+                    + competitionid + "' ORDER BY \"Series\".finalscore DESC;";
 
-    db_UPDATE_Series(finalscore, licenseid, competitionid);
-    return true;
+        vector<vector<string>> rows = execute(sql, true);
 
+        i = 0;
+
+        for (const auto& row : rows) {
+            int license = stoi(row[0]);
+            //float score = stof(row[1]);
+            i++;
+            db_INSERT_Rank(i, license, competitionid, isFinal);
+        }
+        return true;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    //ordenar atletas por rank com outros parametros
+
+    // SELECT "Rank".place AS "Rank", "Athlete"."Nome" AS "Nome", "Athlete"."Licença" AS "Licença", "Series".finalscore AS "Pontuação"   
+    // FROM "Athlete"
+    // JOIN "Rank" ON "Rank".licenseid = "Athlete"."Licença"
+    // JOIN "Series" ON "Series".licenseid = "Athlete"."Licença"
+    // ORDER BY "Rank".place;
 }
 
 bool Database::verify_id(int ID){
@@ -94,38 +101,74 @@ string Database::get_name_from_id(int ID){
 
 }
 
+bool Database::db_IMPORT(string file_loc, string user){
 
-bool Database::verify_competitionid(string id){
 
     try{
-        string sql = "SELECT * FROM \"Competition\" WHERE competitionid = '" + id + "';";
-        vector<vector<string>> rows = execute(sql, true);
+        //give permission
+        string command1 = "sudo chown postgres /home/" + user +"\n";
+        command1 += "sudo chgrp postgres /home/" + user;
+        system(command1.c_str());
 
-        return !rows.empty();
+        //create command
+        string sql = "COPY temp FROM '" + file_loc + "' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
+        sql += "UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\"; ";
+        sql += "INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
+        
+        execute(sql, false);
+
+        string sql2 = "DELETE FROM temp";
+        execute(sql2, false);
+
+        //retrieve permission
+        string command2 = "sudo chown " + user + " /home/" + user + "\n";
+        command2 += "sudo chgrp " + user + " /home/" + user;
+        system(command2.c_str());
+
+        cout << "Imported successfully" << endl;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
       return false;
     }
 
-    return false;
+
+    return true;
 }
 
-bool Database::verify_seriesid(string id){
+bool Database::db_EXPORT_CompetitionResults(int licenseid, string competitionid, string user, string file_loc){
 
+    string seriesid_f = create_seriesid(licenseid, competitionid, true);
+    string seriesid_q = create_seriesid(licenseid, competitionid, false);
+    string name = get_name_from_id(licenseid);
     try{
-        string sql = "SELECT * FROM \"Series\" WHERE seriesid = '" + id + "';";
-        vector<vector<string>> rows = execute(sql, true);
 
-        return !rows.empty();
+        //give permission
+        string command1 = "sudo chown postgres /home/" + user +"\n";
+        command1 += "sudo chgrp postgres /home/" + user;
+        system(command1.c_str());
+        
+        string sql = "COPY (SELECT \"Coordinates\".coordinatex, \"Coordinates\".coordinatey, \"Coordinates\".score FROM \"Coordinates\" WHERE \"Coordinates\".seriesid = '" 
+                    + seriesid_f + "' OR \"Coordinates\".seriesid = '" 
+                    + seriesid_q + "' ORDER BY \"Coordinates\".coordinatesid DESC) TO '" + file_loc + "/" + to_string(licenseid) + "_" + name + "_" 
+                    + competitionid + ".csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
+        cout << sql << endl;
+        execute(sql, false);
+
+        //retrieve permission
+        string command2 = "sudo chown " + user + " /home/" + user + "\n";
+        command2 += "sudo chgrp " + user + " /home/" + user;
+        system(command2.c_str());
+
+        return true;
 
     }catch (const std::exception &e) {
       cerr << e.what() << std::endl;
       return false;
     }
-
-    return false;
 }
+
+
 
 
 bool Database::db_INSERT_Athlete(int licenseid, string nome, string clube, string disciplina, string escalao, string dataNascimento, string pais, string observacoes){
@@ -168,17 +211,17 @@ bool Database::db_INSERT_Competition(string competitionid, string name, string l
 
 }
 
-bool Database::db_INSERT_Series(int participantrow, int licenseid, string competitionid){
+bool Database::db_INSERT_Series(int participantrow, int licenseid, string competitionid, bool isFinal){
 
-    string seriesid = create_seriesid(licenseid, competitionid);
+    string seriesid = create_seriesid(licenseid, competitionid, isFinal);
 
     if(verify_seriesid(seriesid)) return false;
     if(!verify_id(licenseid)) return false;
     if(!verify_competitionid(competitionid)) return false;
 
     try{
-        string sql = "INSERT INTO \"Series\" (seriesid, participantrow, licenseid, competitionid) VALUES ('"
-             + seriesid + "', " + to_string(participantrow) + ", " + to_string(licenseid) + ", '" + competitionid + "');";
+        string sql = "INSERT INTO \"Series\" (seriesid, participantrow, licenseid, competitionid, isFinal) VALUES ('"
+             + seriesid + "', " + to_string(participantrow) + ", " + to_string(licenseid) + ", '" + competitionid + "', '" + to_string(isFinal) + "');";
 
         execute(sql, false);
 
@@ -191,11 +234,9 @@ bool Database::db_INSERT_Series(int participantrow, int licenseid, string compet
     }
 }
 
-//ver problemas em ter que mandar seriesid, que melhor forma é para otimizar isto
-//ver problemas com coordinatesid
-bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, int coordinatex, int coordinatey, float score, int i){
+bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, int coordinatex, int coordinatey, float score, int i, bool isFinal){
 
-    string seriesid = create_seriesid(licenseid, competitionid);
+    string seriesid = create_seriesid(licenseid, competitionid, isFinal);
 
     string coordinatesid = create_coordenatesid(seriesid, i);
 
@@ -208,7 +249,7 @@ bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, int co
 
         string sql = "INSERT INTO \"Coordinates\" VALUES ('" 
                     + coordinatesid + "', " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + scoreString  + ", '" + seriesid + "');";
-
+ 
         execute(sql, false);
 
         cout << "Updated Coordinates successfully" << endl;
@@ -220,46 +261,9 @@ bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, int co
     }
 }
 
-bool Database::db_IMPORT(string file_loc, string user){
+bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid, bool isFinal){
 
-
-    try{
-        //give permission
-        string command1 = "sudo chown postgres /home/" + user +"\n";
-        command1 += "sudo chgrp postgres /home/" + user;
-        system(command1.c_str());
-
-        //create command
-        string sql = "COPY temp FROM '"+ file_loc + "' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
-        sql += "UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\"; ";
-        sql += "INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
-        
-        execute(sql, false);
-
-        string sql2 = "DELETE FROM temp";
-        execute(sql2, false);
-
-        //retrieve permission
-        string command2 = "sudo chown " + user + " /home/" + user + "\n";
-        command2 += "sudo chgrp " + user + " /home/" + user;
-        system(command2.c_str());
-
-        cout << "Imported successfully" << endl;
-
-    }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return false;
-    }
-
-
-    return true;
-}
-
-
-
-bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
-
-    string seriesid = create_seriesid(licenseid, competitionid);
+    string seriesid = create_seriesid(licenseid, competitionid, isFinal);
     if(!verify_seriesid(seriesid)) return false;
 
     try{
@@ -276,17 +280,18 @@ bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
     }
 } 
 
+bool Database::db_UPDATE_Series(float finalscore, int licenseid, string competitionid, bool isFinal){
 
-bool Database::db_UPDATE_Series(float finalscore, int licenseid, string competitionid){
-
-    string seriesid = create_seriesid(licenseid, competitionid);
+    string seriesid = create_seriesid(licenseid, competitionid, isFinal);
 
     if(!verify_seriesid(seriesid)) return false;
 
     try{
+
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(1) << finalscore;
         std::string finalscoreString = oss.str();
+
         string sql = "UPDATE \"Series\" SET finalscore = " + finalscoreString + " WHERE seriesid = '" + seriesid + "';";
 
         execute(sql, false);
@@ -301,9 +306,12 @@ bool Database::db_UPDATE_Series(float finalscore, int licenseid, string competit
 }
 
 
-//1234_PORTO_12/02/22_pistola
-string Database::create_seriesid(int licenseid, string competitionid){
-    string id = to_string(licenseid) + "_" + competitionid;
+//1234_PORTO_12/02/22_pistola_Final
+string Database::create_seriesid(int licenseid, string competitionid, bool isFinal){
+    string id;
+
+    if(isFinal) id = to_string(licenseid) + "_" + competitionid + "_F";
+    else id = to_string(licenseid) + "_" + competitionid + "_Q";
 
     //cout << "series id: " << id << endl;
     
@@ -329,4 +337,82 @@ string Database::create_coordenatesid(string seriesid, int i){
     //cout << "series id: " << id << endl;
     
     return id;
+}
+
+bool Database::verify_competitionid(string id){
+
+    try{
+        string sql = "SELECT * FROM \"Competition\" WHERE competitionid = '" + id + "';";
+        vector<vector<string>> rows = execute(sql, true);
+
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return false;
+}
+
+bool Database::verify_seriesid(string id){
+
+    try{
+        string sql = "SELECT * FROM \"Series\" WHERE seriesid = '" + id + "';";
+        
+        vector<vector<string>> rows = execute(sql, true);
+
+        cout << sql << endl;
+
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return false;
+}
+
+bool Database::verify_coordinatesid(string id){
+
+    try{
+        string sql = "SELECT * FROM \"Coordianates\" WHERE coordinatesid = '" + id + "';";
+        vector<vector<string>> rows = execute(sql, true);
+
+        return !rows.empty();
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+
+    return false;
+}
+
+vector<vector<string>> Database::execute(const string& query, bool is_select) {
+
+    try {
+        work W(*conn);
+        result r = W.exec(query);
+        W.commit();
+        vector<vector<string>> rows;
+        if(is_select){
+            
+            for (const auto& row : r) {
+                vector<std::string> values;
+                for (const auto& field : row) {
+                    values.push_back(field.c_str());
+
+                }
+                rows.push_back(values);
+            }
+        }
+        return rows;
+
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+
 }

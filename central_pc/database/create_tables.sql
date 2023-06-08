@@ -10,17 +10,7 @@ CREATE TABLE "Athlete"(
 	CONSTRAINT PK_Athlete PRIMARY KEY ("Licença")
 );
 
-
 CREATE TABLE temp AS TABLE "Athlete" WITH NO DATA;
-
-CREATE TABLE "Series"(
-	seriesid VARCHAR NOT NULL,
-	participantrow INT NOT NULL,
-	finalscore REAL,
-	licenseid INT NOT NULL,
-	competitionid VARCHAR NOT NULL,
-	CONSTRAINT PK_Series PRIMARY KEY (seriesid)
-);
 
 CREATE TABLE "Competition"(
 	competitionid VARCHAR NOT NULL,
@@ -30,6 +20,18 @@ CREATE TABLE "Competition"(
 	"Categoria" VARCHAR NOT NULL,
 	CONSTRAINT PK_Competition PRIMARY KEY (competitionid)
 );
+
+CREATE TABLE "Series"(
+	seriesid VARCHAR NOT NULL,
+	participantrow INT NOT NULL,
+	finalscore REAL,
+	licenseid INT NOT NULL,
+	competitionid VARCHAR NOT NULL,
+	isFinal BOOLEAN NOT NULL,
+	CONSTRAINT PK_Series PRIMARY KEY (seriesid)
+);
+
+
 
 CREATE TABLE "Coordinates"(
 	coordinatesid VARCHAR NOT NULL,
@@ -60,3 +62,22 @@ ALTER TABLE "Rank"
 ADD CONSTRAINT FK_RankAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" ("Licença") ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE "Rank"
 ADD CONSTRAINT FK_RankCompetitionID FOREIGN KEY (competitionid) REFERENCES "Competition" (competitionid) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+
+WHERE "Competition".competitionid = 
+
+SELECT "Athlete"."Licença", "Series".finalscore 
+FROM "Athlete"
+JOIN "Series" ON "Series".licenseid = "Athlete"."Licença"
+WHERE "Series".competitionid = 'BRAGA_12.02.2021_P'
+ORDER BY "Series".finalscore DESC;
+
+SELECT "Coordinates".coordinatex, "Coordinates".coordinatey, "Coordinates".score
+FROM "Coordinates"
+WHERE "Coordinates".seriesid = '3000000_BRAGA_12.02.2021_P';
+
+COPY (SELECT "Coordinates".coordinatex, "Coordinates".coordinatey, "Coordinates".score
+FROM "Coordinates"
+WHERE "Coordinates".seriesid = '3000000_BRAGA_12.02.2021_P') TO '/home/ines/teste1.csv'
+WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');
