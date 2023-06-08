@@ -77,6 +77,7 @@ private:
     QVector<float> pontuações;
     QVector<short int> ntir;
     QFont fnt;
+    QStringList titulos;
     
     QTimer reloj;
     QTimer alert;

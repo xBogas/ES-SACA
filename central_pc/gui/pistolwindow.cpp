@@ -11,17 +11,16 @@ PistolWindow::PistolWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
-
-    QStringList titulos; 
+ 
     ui->tableWidget->setColumnCount(5);
     ui->tableWidget->setRowCount(10);
-    fnt.setPointSize(16);
     titulos << "Lugar" << "Atleta" << "Num. de Tiros" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
     ui->tableWidget->verticalHeader()->setVisible(0);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableWidget->horizontalHeader()->setFont(fnt);
+    ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 20pt; }");
+    fnt.setPointSize(16);
     
     practiceSignal = false;
     matchSignal = false;
@@ -214,6 +213,10 @@ void PistolWindow::processar()
 
     // if(horas==1 && minutos==14 && segundos==43){
     //     tabelalugar(100, "Moros", 10);
+    // }
+
+    // if(horas==1 && minutos==14 && segundos==40){
+    //     limparTabela();
     // }
 
 }
@@ -658,4 +661,5 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
 
 void PistolWindow::limparTabela(){
     ui->tableWidget->clear();                    //Apaga dados da tabela 
+    ui->tableWidget->setHorizontalHeaderLabels(titulos);
 }
