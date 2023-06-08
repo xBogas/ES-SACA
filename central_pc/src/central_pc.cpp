@@ -22,15 +22,13 @@ int totalClients = 0;
 int checkedClients = 0;
 std::mutex barrierMutex;
 std::condition_variable barrierCV;
+std::atomic<bool> finish(false);
 
 void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
 void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
 void waitForOthers();
 void extractValues(std::string message, int& coordinateX, int& coordinateY, double& score);
-
-int aux = 0;
-
-std::atomic<bool> finish(false);
+int getPlayerRow(string computerIP);
 
 int main(int argc, char *argv[]){
     //gui code
@@ -65,15 +63,6 @@ void start_accept(tcp::acceptor& acceptor, MainWindow* window, MainWindow2* wind
         [window, window2, ptlwindow, rflwindow, database, &acceptor](boost::system::error_code ec, tcp::socket socket) {
             if (!ec) {
                 std::string client_ip = socket.remote_endpoint().address().to_string();
-
-                /*****************************************/
-                aux++;
-                boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
-                uint32_t ip_num = ip.to_ulong();
-                ip_num += aux;
-                boost::asio::ip::address_v4 new_ip(ip_num);
-                client_ip = new_ip.to_string();
-                /*****************************************/
 
                 std::cout << "Client connected: " << client_ip << std::endl;
 
@@ -120,8 +109,6 @@ void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwi
 
 void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database){
     try{
-        std::string client_ip = socket.remote_endpoint().address().to_string();
-        
         //boolean variables
         bool initial = true, decideType = false, decideMode = false, canStart = false;
         bool wasClicked = false;
@@ -132,7 +119,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
         // mode of the competition
         bool practice = false, match = false, Final = false;
-        int totalShotsMatch = 0, totalShotsFinal = 0;
+        int totalShots = 0;
 
         // competition data
         std::string nome, local, dataComp, categoria, competitionid;
@@ -145,13 +132,10 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
         int new_clientID = 0;   
         std::string athleteName;
 
-        /*****************************************/
-        boost::asio::ip::address_v4 ip = boost::asio::ip::address_v4::from_string(client_ip);
-        uint32_t ip_num = ip.to_ulong();
-        ip_num += aux;
-        boost::asio::ip::address_v4 new_ip(ip_num);
-        client_ip = new_ip.to_string();
-        /*****************************************/
+        // get client IP and player row
+        std::string client_ip = socket.remote_endpoint().address().to_string();
+        int playerROW = getPlayerRow(client_ip);
+        std::cout << "Player row: " << playerROW << std::endl;
 
         while(!finish){
             if(initial){
@@ -212,7 +196,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                     categoria = "pistola";
                     competitionid = database->create_competitionid(local, dataComp, categoria);
-                    database->db_INSERT_Competition(nome, local, dataComp, categoria, competitionid);
+                    database->db_INSERT_Competition(competitionid, nome, local, dataComp, categoria);
+                    database->db_INSERT_Series(playerROW, new_clientID, competitionid);
 
                     isPistol = true;
                     isRifle = false;
@@ -227,7 +212,8 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                     categoria = "carabina";
                     competitionid = database->create_competitionid(local, dataComp, categoria);
-                    database->db_INSERT_Competition(nome, local, dataComp, categoria, competitionid);
+                    database->db_INSERT_Competition(competitionid, nome, local, dataComp, categoria);
+                    database->db_INSERT_Series(playerROW, new_clientID, competitionid);
 
                     isRifle = true;
                     isPistol = false;
@@ -417,26 +403,26 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                 // analyse the received message
                 if(!(std::strncmp(data, "timeout", std::strlen("timeout")) == 0) && !(std::strncmp(data, "shotInPractice", std::strlen("shotInPractice")) == 0)){ // if the message has the total shots
                     extractValues(data, coordinateX, coordinateY, score);
- 
-                    //update score in database
-                    bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score);
-                    if(update) std::cout << "Score updated" << std::endl;
-                    else std::cout << "Score not updated" << std::endl;
 
                     if(match){
-                        totalShotsMatch++;
+                        totalShots++;
                         totalScore += score;
+
+                        //update score in database
+                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots);
+                        if(update) std::cout << "Score updated" << std::endl;
+                        else std::cout << "Score not updated" << std::endl;
 
                         // update scores in GUI
                         if(isPistol){
-                            emit ptlwindow->tabelaLugarSignal(totalScore, athleteName, totalShotsMatch);
+                            emit ptlwindow->tabelaLugarSignal(totalScore, athleteName, totalShots);
                         }
                         else if(isRifle){
-                            emit rflwindow->tabelaLugarSignal(totalScore, athleteName, totalShotsMatch);
+                            emit rflwindow->tabelaLugarSignal(totalScore, athleteName, totalShots);
                         }
 
                         //detect if it is the last shot or not
-                        if(totalShotsMatch == 60){
+                        if(totalShots == 60){
                             waitForOthers();
 
                             boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
@@ -454,24 +440,29 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                             decideMode = true;
                             match = false;
-                            totalShotsMatch = 0;
+                            totalShots = 0;
                             totalScore = 0;
                         }
                     }
                     else if(Final){
-                        totalShotsFinal++;
+                        totalShots++;
                         totalScore += score;
+
+                        //update score in database
+                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots);
+                        if(update) std::cout << "Score updated" << std::endl;
+                        else std::cout << "Score not updated" << std::endl;
 
                         // update scores in GUI
                         if(isPistol){
-                            emit ptlwindow->tabelaLugarSignal(totalScore, athleteName, totalShotsFinal);
+                            emit ptlwindow->tabelaLugarSignal(totalScore, athleteName, totalShots);
                         }
                         else if(isRifle){
-                            emit rflwindow->tabelaLugarSignal(totalScore, athleteName, totalShotsFinal);
+                            emit rflwindow->tabelaLugarSignal(totalScore, athleteName, totalShots);
                         }
 
                         //detect if it is the last shot or not
-                        if(totalShotsFinal == 24){
+                        if(totalShots == 24){
                             waitForOthers();
 
                             boost::asio::write(socket, boost::asio::buffer("backToDecideMode"));
@@ -489,7 +480,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                             decideMode = true;
                             Final = false;
-                            totalShotsFinal = 0;
+                            totalShots = 0;
                             totalScore = 0;
                         }
                     }
@@ -515,7 +506,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     decideMode = true;
                     match = false;
                     Final = false;
-                    totalShotsMatch = 0;
+                    totalShots = 0;
                     totalScore = 0;
                 }
                 else{
@@ -564,6 +555,23 @@ void extractValues(std::string message, int& coordinateX, int& coordinateY, doub
     pos = message.find(delimiter);
     token = message.substr(0, pos);
     score = std::stod(token);
+    std::cout << "Score: " << score << std::endl;
+}
+
+int getPlayerRow(std::string ipAddress){
+    //imagine, I want to extract the row number of the IP, for example "192.168.0.1" will be row 1, "192.168.0.10" will be row 10, etc. Compute that, please
+
+    std::size_t lastDotPos = ipAddress.rfind('.');
+    if (lastDotPos != std::string::npos && lastDotPos + 1 < ipAddress.length()) {
+        std::string rowNumberString = ipAddress.substr(lastDotPos + 1);
+        std::istringstream iss(rowNumberString);
+        int rowNumber;
+        if (iss >> rowNumber) {
+            return rowNumber;
+        }
+    }
+    // Return -1 if the IP address format is not valid or the row number extraction failed
+    return -1;
 }
 
 void waitForOthers(){

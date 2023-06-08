@@ -14,6 +14,9 @@
 
 #include <algorithm>
 
+#include <sstream>
+#include <iomanip>
+
 using namespace pqxx;
 using namespace std;
 
@@ -34,11 +37,11 @@ public:
     bool db_INSERT_Athlete(int licenseid, string nome, string clube, string disciplina, string escalao, string dataNascimento, string pais, string observacoes);
     bool db_INSERT_Competition(string name, string location, string date, string category, string competitionid);
     bool db_INSERT_Series(int participantrow, int licenseid, string competitionid);
-    bool db_INSERT_Coordinates(int licenseid, string competitionid, float coordinatex, float coordinatey, float score, int i);
+    bool db_INSERT_Coordinates(int licenseid, string competitionid, int coordinatex, int coordinatey, float score, int i);
     bool db_INSERT_Rank(int place, int licenseid, string competitionid);
     bool db_UPDATE_Series(float finalscore, int licenseid, string competitionid);
 
-    bool update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float individual_score, float finalscore, int i);
+    bool update_score(int licenseid, string competitionid, int coordinatex, int coordinatey, float individual_score, float finalscore, int i);
     bool verify_id(int ID);
     string get_name_from_id(int ID);
     bool db_IMPORT(string file_loc, string user);

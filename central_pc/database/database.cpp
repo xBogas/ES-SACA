@@ -48,7 +48,7 @@ vector<vector<string>> Database::execute(const string& query, bool is_select) {
 
 }
 
-bool Database::update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float individual_score, float finalscore, int i){
+bool Database::update_score(int licenseid, string competitionid, int coordinatex, int coordinatey, float individual_score, float finalscore, int i){
     std::cout << "Updating score" << std::endl;
     string seriesid = create_seriesid(licenseid, competitionid);
 
@@ -193,7 +193,7 @@ bool Database::db_INSERT_Series(int participantrow, int licenseid, string compet
 
 //ver problemas em ter que mandar seriesid, que melhor forma é para otimizar isto
 //ver problemas com coordinatesid
-bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, float coordinatex, float coordinatey, float score, int i){
+bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, int coordinatex, int coordinatey, float score, int i){
 
     string seriesid = create_seriesid(licenseid, competitionid);
 
@@ -202,8 +202,12 @@ bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, float 
     if(!verify_seriesid(seriesid)) return false;
     
     try{
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(1) << score;
+        std::string scoreString = oss.str();
+
         string sql = "INSERT INTO \"Coordinates\" VALUES ('" 
-                    + coordinatesid + "', " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + to_string(score)  + ", '" + seriesid + "');";
+                    + coordinatesid + "', " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + scoreString  + ", '" + seriesid + "');";
 
         execute(sql, false);
 
@@ -280,7 +284,10 @@ bool Database::db_UPDATE_Series(float finalscore, int licenseid, string competit
     if(!verify_seriesid(seriesid)) return false;
 
     try{
-        string sql = "UPDATE \"Series\" SET finalscore = " + to_string(finalscore) + " WHERE seriesid = '" + seriesid + "';";
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(1) << finalscore;
+        std::string finalscoreString = oss.str();
+        string sql = "UPDATE \"Series\" SET finalscore = " + finalscoreString + " WHERE seriesid = '" + seriesid + "';";
 
         execute(sql, false);
 

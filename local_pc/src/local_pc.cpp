@@ -306,6 +306,9 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                         std::string numberString = std::to_string(score);
                         size_t decimalPos = numberString.find(',');
                         numberString = numberString.substr(0, decimalPos + 2);
+                        // std::ostringstream oss;
+                        // oss << std::fixed << std::setprecision(1) << score;
+                        // std::string numberString = oss.str();
                         boost::asio::write(socket, boost::asio::buffer("shot->" + std::to_string(coordinateX) + ";" + std::to_string(coordinateY) + ";" + numberString + ";"));
                     }
                     else if(trainMode){
