@@ -16,7 +16,7 @@ CREATE TABLE temp AS TABLE "Athlete" WITH NO DATA;
 CREATE TABLE "Series"(
 	seriesid VARCHAR NOT NULL,
 	participantrow INT NOT NULL,
-	finalscore REAL NOT NULL,
+	finalscore REAL,
 	licenseid INT NOT NULL,
 	competitionid VARCHAR NOT NULL,
 	CONSTRAINT PK_Series PRIMARY KEY (seriesid)
@@ -32,10 +32,10 @@ CREATE TABLE "Competition"(
 );
 
 CREATE TABLE "Coordinates"(
-	coordinatesid serial,
+	coordinatesid VARCHAR NOT NULL,
 	coordinatex REAL NOT NULL,
 	coordinatey REAL NOT NULL,
-	score VARCHAR NOT NULL,
+	score REAL NOT NULL,
 	seriesid VARCHAR NOT NULL,
 	CONSTRAINT PK_Coordinates PRIMARY KEY (coordinatesid)
 );

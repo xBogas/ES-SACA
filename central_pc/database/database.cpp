@@ -48,12 +48,15 @@ vector<vector<string>> Database::execute(const string& query, bool is_select) {
 
 }
 
-bool Database::update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float score){
+bool Database::update_score(int licenseid, string competitionid, float coordinatex, float coordinatey, float individual_score, float finalscore, int i){
     std::cout << "Updating score" << std::endl;
     string seriesid = create_seriesid(licenseid, competitionid);
-    int coordinatesid = 0;
-    if(db_INSERT_Coordinates(coordinatesid, coordinatex, coordinatey, score, seriesid)) return true;
-    else return false;
+
+    db_INSERT_Coordinates(licenseid, competitionid, coordinatex, coordinatey, individual_score, i);
+
+    db_UPDATE_Series(finalscore, licenseid, competitionid);
+    return true;
+
 }
 
 bool Database::verify_id(int ID){
@@ -71,6 +74,26 @@ bool Database::verify_id(int ID){
 
     return false;
 }
+
+string Database::get_name_from_id(int ID){
+
+    try{
+        string sql = "SELECT \"Nome\" FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
+
+        vector<vector<string>> rows = execute(sql, true);
+
+        if (rows.empty()) return "";
+        else {
+            return rows[0][0];
+        }
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return "";
+    }
+
+}
+
 
 bool Database::verify_competitionid(string id){
 
@@ -104,24 +127,6 @@ bool Database::verify_seriesid(string id){
     return false;
 }
 
-string Database::get_name_from_id(int ID){
-
-    try{
-        string sql = "SELECT \"Nome\" FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
-
-        vector<vector<string>> rows = execute(sql, true);
-
-        if (rows.empty()) return "";
-        else {
-            return rows[0][0];
-        }
-
-    }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return "";
-    }
-
-}
 
 bool Database::db_INSERT_Athlete(int licenseid, string nome, string clube, string disciplina, string escalao, string dataNascimento, string pais, string observacoes){
 
@@ -143,7 +148,7 @@ bool Database::db_INSERT_Athlete(int licenseid, string nome, string clube, strin
     }
 }
 
-bool Database::db_INSERT_Competition(string name, string location, string date, string category, string competitionid){
+bool Database::db_INSERT_Competition(string competitionid, string name, string location, string date, string category){
 
     if(verify_competitionid(competitionid)) return false;
 
@@ -163,7 +168,7 @@ bool Database::db_INSERT_Competition(string name, string location, string date, 
 
 }
 
-bool Database::db_INSERT_Series(int participantrow, float finalscore, int licenseid, string competitionid){
+bool Database::db_INSERT_Series(int participantrow, int licenseid, string competitionid){
 
     string seriesid = create_seriesid(licenseid, competitionid);
 
@@ -172,8 +177,8 @@ bool Database::db_INSERT_Series(int participantrow, float finalscore, int licens
     if(!verify_competitionid(competitionid)) return false;
 
     try{
-        string sql = "INSERT INTO \"Series\" VALUES ('"
-             + seriesid + "', " + to_string(participantrow) + ", " + to_string(finalscore) + ", " + to_string(licenseid) + ", '" + competitionid + "');";
+        string sql = "INSERT INTO \"Series\" (seriesid, participantrow, licenseid, competitionid) VALUES ('"
+             + seriesid + "', " + to_string(participantrow) + ", " + to_string(licenseid) + ", '" + competitionid + "');";
 
         execute(sql, false);
 
@@ -188,13 +193,17 @@ bool Database::db_INSERT_Series(int participantrow, float finalscore, int licens
 
 //ver problemas em ter que mandar seriesid, que melhor forma é para otimizar isto
 //ver problemas com coordinatesid
-bool Database::db_INSERT_Coordinates(int coordinatesid, float coordinatex, float coordinatey, float finalscore, string seriesid){
+bool Database::db_INSERT_Coordinates(int licenseid, string competitionid, float coordinatex, float coordinatey, float score, int i){
+
+    string seriesid = create_seriesid(licenseid, competitionid);
+
+    string coordinatesid = create_coordenatesid(seriesid, i);
 
     if(!verify_seriesid(seriesid)) return false;
     
     try{
-        string sql = "INSERT INTO \"Coordinates\" VALUES (" 
-                    + to_string(coordinatesid) + ", " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + to_string(finalscore)  + ", '" + seriesid + "');";
+        string sql = "INSERT INTO \"Coordinates\" VALUES ('" 
+                    + coordinatesid + "', " + to_string(coordinatex) + ", " + to_string(coordinatey) + ", " + to_string(score)  + ", '" + seriesid + "');";
 
         execute(sql, false);
 
@@ -263,7 +272,29 @@ bool Database::db_INSERT_Rank(int place, int licenseid, string competitionid){
     }
 } 
 
-//1234_PORTO_12/02/22_P
+
+bool Database::db_UPDATE_Series(float finalscore, int licenseid, string competitionid){
+
+    string seriesid = create_seriesid(licenseid, competitionid);
+
+    if(!verify_seriesid(seriesid)) return false;
+
+    try{
+        string sql = "UPDATE \"Series\" SET finalscore = " + to_string(finalscore) + " WHERE seriesid = '" + seriesid + "';";
+
+        execute(sql, false);
+
+        cout << "Updated Series Row successfully" << endl;
+        return true;
+
+    }catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+      return false;
+    }
+}
+
+
+//1234_PORTO_12/02/22_pistola
 string Database::create_seriesid(int licenseid, string competitionid){
     string id = to_string(licenseid) + "_" + competitionid;
 
@@ -272,7 +303,7 @@ string Database::create_seriesid(int licenseid, string competitionid){
     return id;
 }
 
-//PORTO_12/02/22_P
+//PORTO_12/02/22_pistola
 string Database::create_competitionid(string location, string date, string category){
     string id;
 
@@ -280,6 +311,15 @@ string Database::create_competitionid(string location, string date, string categ
 
     id += location + "_" + date + "_" + category;
     //cout << "competition id: " << id << endl;
+    
+    return id;
+}
+
+//1234_PORTO_12/02/22_pistola_1
+string Database::create_coordenatesid(string seriesid, int i){
+    string id = seriesid + "_" + to_string(i);
+
+    //cout << "series id: " << id << endl;
     
     return id;
 }
