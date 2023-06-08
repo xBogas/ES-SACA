@@ -72,6 +72,7 @@ private:
     QTimer reloj;
     QTimer alert;
     QTimer timedzoom;
+    QStringList titulos; 
     QGraphicsScene *scene;
     QGraphicsPixmapItem* item;
     enum Columna

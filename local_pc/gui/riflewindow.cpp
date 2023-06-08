@@ -19,7 +19,6 @@ RifleWindow::RifleWindow(QWidget *parent) :
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
-    QStringList titulos; 
     ui->tableWidget->setColumnCount(3);
     titulos << "Tiro" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
@@ -252,7 +251,7 @@ void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
+        item->setScale(0.04);
         item->setPos(257+x,257+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
@@ -294,8 +293,8 @@ void RifleWindow::on_ShootButton_clicked(){
 
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.01);
-        item->setPos(257+x,257+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.04);
+        item->setPos(450+x,450+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -705,6 +704,7 @@ void RifleWindow::deleteShots()
 void RifleWindow::limparTabela(){
     ui->tableWidget->clear();                    //Apaga dados da tabela
     ui->tableWidget->setRowCount(0);             //Apaga as linhas da tabela    
+    ui->tableWidget->setHorizontalHeaderLabels(titulos);
 }
 
 

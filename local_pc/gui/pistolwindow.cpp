@@ -17,7 +17,6 @@ PistolWindow::PistolWindow(QWidget *parent) :
 
     ui->ExitButton->setIcon(QIcon(":/resources/img/exit.png"));
 
-    QStringList titulos; 
     ui->tableWidget->setColumnCount(3);
     titulos << "Tiro" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
@@ -310,5 +309,6 @@ void PistolWindow::deleteShots()
 
 void PistolWindow::limparTabela(){
     ui->tableWidget->clear();                    //Apaga dados da tabela
-    ui->tableWidget->setRowCount(0);             //Apaga as linhas da tabela    
+    ui->tableWidget->setRowCount(0);             //Apaga as linhas da tabela
+    ui->tableWidget->setHorizontalHeaderLabels(titulos);
 }
