@@ -124,14 +124,12 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 }
                 else{
                     std::string athlete(init);
-                    std::cout << "athlete = " << athlete << std::endl;
 
                     size_t delimiter_pos = athlete.find(';');
                     if (delimiter_pos != std::string::npos) {
                         name = athlete.substr(0, delimiter_pos);
                         std::string idString = athlete.substr(delimiter_pos + 1);
                         ID = std::stoi(idString);
-                        std::cout << "ID = " << ID << std::endl;
                     }
                 }
             }
