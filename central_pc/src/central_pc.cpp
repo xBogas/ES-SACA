@@ -1,5 +1,6 @@
 #include "../gui/initwindow.h"
 #include "../gui/mainwindow.h"
+#include "../gui/exportwindow.h"
 #include "../gui/mainwindow2.h"
 #include "../gui/pistolwindow.h"
 #include "../gui/riflewindow.h"
@@ -24,8 +25,8 @@ std::mutex barrierMutex;
 std::condition_variable barrierCV;
 std::atomic<bool> finish(false);
 
-void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
-void server_thread(MainWindow *window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
+void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow *window, ExportWindow *expwindow, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
+void server_thread(MainWindow *window, ExportWindow *expwindow, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database);
 void waitForOthers();
 void extractValues(std::string message, int& coordinateX, int& coordinateY, double& score);
 int getPlayerRow(string computerIP);
@@ -40,13 +41,14 @@ int main(int argc, char *argv[]){
     //create windows
     InitWindow i = InitWindow(nullptr, database);  
     i.show();
+    ExportWindow* e = i.getExportWindow();
     MainWindow* w = i.getMainWindow();
     MainWindow2* w2 = w->getMainWindow2();
     RifleWindow* rfl = w2->getRifleWindow();
     PistolWindow* ptl = w2->getPistolWindow();
 
     //start threads
-    std::thread server(server_thread, w, w2, ptl, rfl, database);
+    std::thread server(server_thread, w, e, w2, ptl, rfl, database);
 
     //connect signals
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
@@ -58,9 +60,9 @@ int main(int argc, char *argv[]){
     return a.exec();
 }
 
-void start_accept(tcp::acceptor& acceptor, MainWindow* window, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
+void start_accept(tcp::acceptor& acceptor, MainWindow* window, ExportWindow *expwindow, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
     acceptor.async_accept(
-        [window, window2, ptlwindow, rflwindow, database, &acceptor](boost::system::error_code ec, tcp::socket socket) {
+        [window, expwindow, window2, ptlwindow, rflwindow, database, &acceptor](boost::system::error_code ec, tcp::socket socket) {
             if (!ec) {
                 std::string client_ip = socket.remote_endpoint().address().to_string();
 
@@ -80,16 +82,16 @@ void start_accept(tcp::acceptor& acceptor, MainWindow* window, MainWindow2* wind
                 window->updateClientList(clients);
 
                 // handle the client in a separate thread
-                std::thread client_thread(handle_client, std::move(socket), window, window2, ptlwindow, rflwindow, database);
+                std::thread client_thread(handle_client, std::move(socket), window, expwindow, window2, ptlwindow, rflwindow, database);
                 client_thread.detach();
             }
 
             // call start_accept again to wait for the next connection
-            start_accept(acceptor, window, window2, ptlwindow, rflwindow, database);
+            start_accept(acceptor, window, expwindow, window2, ptlwindow, rflwindow, database);
         });
 }
 
-void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
+void server_thread(MainWindow* window, ExportWindow *expwindow, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
     try {
         tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
         //tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("192.168.0.1"), 8080));
@@ -97,7 +99,7 @@ void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwi
         std::cout << "Server started. Listening on port 8080..." << std::endl;
 
         // start accepting connections
-        start_accept(acceptor, window, window2, ptlwindow, rflwindow, database);
+        start_accept(acceptor, window, expwindow, window2, ptlwindow, rflwindow, database);
 
         // run the I/O service event loop to handle async_accept operation
         io_context.run();
@@ -107,7 +109,7 @@ void server_thread(MainWindow* window, MainWindow2* window2, PistolWindow* ptlwi
     }
 }
 
-void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database){
+void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, ExportWindow *expwindow, MainWindow2 *window2, PistolWindow *ptlwindow, RifleWindow *rflwindow, Database* database){
     try{
         //boolean variables
         bool initial = true, decideType = false, decideMode = false, canStart = false;
@@ -197,7 +199,10 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     categoria = "pistola";
                     competitionid = database->create_competitionid(local, dataComp, categoria);
                     database->db_INSERT_Competition(competitionid, nome, local, dataComp, categoria);
-                    database->db_INSERT_Series(playerROW, new_clientID, competitionid);
+
+                    expwindow->categoria = categoria;
+                    expwindow->local = local;
+                    expwindow->data = dataComp;
 
                     isPistol = true;
                     isRifle = false;
@@ -213,7 +218,10 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     categoria = "carabina";
                     competitionid = database->create_competitionid(local, dataComp, categoria);
                     database->db_INSERT_Competition(competitionid, nome, local, dataComp, categoria);
-                    database->db_INSERT_Series(playerROW, new_clientID, competitionid);
+
+                    expwindow->categoria = categoria;
+                    expwindow->local = local;
+                    expwindow->data = dataComp;
 
                     isRifle = true;
                     isPistol = false;
@@ -286,6 +294,9 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
 
                         ptlwindow->startSignal = false; 
                         ptlwindow->canBack = false;
+
+                        // create series in database
+                        database->db_INSERT_Series(playerROW, new_clientID, competitionid, Final);
 
                         if(practice || match || Final){
                             decideMode = false;
@@ -360,6 +371,9 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         rflwindow->startSignal = false;
                         rflwindow->canBack = false;
 
+                        // create series in database
+                        database->db_INSERT_Series(playerROW, new_clientID, competitionid, Final);
+
                         if(practice || match || Final){
                             decideMode = false;
                             canStart = false;
@@ -409,7 +423,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         totalScore += score;
 
                         //update score in database
-                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots);
+                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots, Final);
                         if(update) std::cout << "Score updated" << std::endl;
                         else std::cout << "Score not updated" << std::endl;
 
@@ -449,7 +463,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                         totalScore += score;
 
                         //update score in database
-                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots);
+                        bool update = database->update_score(new_clientID, competitionid, coordinateX, coordinateY, score, totalScore, totalShots, Final);
                         if(update) std::cout << "Score updated" << std::endl;
                         else std::cout << "Score not updated" << std::endl;
 
@@ -506,6 +520,7 @@ void handle_client(boost::asio::ip::tcp::socket&& socket, MainWindow* window, Ma
                     decideMode = true;
                     match = false;
                     Final = false;
+                    practice = false;
                     totalShots = 0;
                     totalScore = 0;
                 }
@@ -555,7 +570,6 @@ void extractValues(std::string message, int& coordinateX, int& coordinateY, doub
     pos = message.find(delimiter);
     token = message.substr(0, pos);
     score = std::stod(token);
-    std::cout << "Score: " << score << std::endl;
 }
 
 int getPlayerRow(std::string ipAddress){

@@ -228,6 +228,8 @@ void RifleWindow::resetTimer()
 
 void RifleWindow::backToDecideMode(){
     resetTimer();
+    deleteShots();
+    limparTabela();
 }
 
 void RifleWindow::backToDecideType(){

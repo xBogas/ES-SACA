@@ -105,7 +105,7 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         int ID;
 
         for(;;){
-            char init[1024], athlete[1024], type[1024], mode[1024], backToType[1024], backToMode[1024];
+            char init[1024], type[1024], mode[1024], backToType[1024], backToMode[1024];
 
             if(finishClientThread)
                 break;
@@ -116,19 +116,22 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                 std::cout << "Server replied: ";
                 std::cout.write(init, init_length);
                 std::cout << std::endl;
+                init[init_length] = '\0';
 
                 if (std::strncmp(init, "continue", std::strlen("continue")) == 0){
                     decideType = true;
                     initial = false;
                 }
                 else{
-                    std::strcpy(athlete, init);
-                    std::string athl(athlete);
+                    std::string athlete(init);
+                    std::cout << "athlete = " << athlete << std::endl;
 
-                    size_t delimiter_pos = athl.find(';');
+                    size_t delimiter_pos = athlete.find(';');
                     if (delimiter_pos != std::string::npos) {
-                        name = athl.substr(0, delimiter_pos);
-                        ID = std::stoi(athl.substr(delimiter_pos + 1));
+                        name = athlete.substr(0, delimiter_pos);
+                        std::string idString = athlete.substr(delimiter_pos + 1);
+                        ID = std::stoi(idString);
+                        std::cout << "ID = " << ID << std::endl;
                     }
                 }
             }

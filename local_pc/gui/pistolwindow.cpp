@@ -226,6 +226,7 @@ void PistolWindow::resetTimer()
 void PistolWindow::backToDecideMode(){
     resetTimer();
     deleteShots();
+    limparTabela();
 }
 
 void PistolWindow::backToDecideType(){

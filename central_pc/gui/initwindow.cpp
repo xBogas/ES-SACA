@@ -12,6 +12,7 @@ InitWindow::InitWindow(QWidget *parent, Database *db)
     //create window
     mainwindow = new MainWindow();
     addplayerwindow = new AddPlayerWindow(nullptr, database);
+    exportwindow = new ExportWindow(nullptr, database);
 
     // Load the image files using the resource path:/resources/img/744px-Muskets.svg.png
     QPixmap owl(":/resources/img/Target owl.png");
@@ -25,14 +26,20 @@ InitWindow::~InitWindow(){
     delete ui;
     delete mainwindow;
     delete addplayerwindow;
+    delete exportwindow;
 
     ui = nullptr;
     mainwindow = nullptr;
     addplayerwindow = nullptr;
+    exportwindow = nullptr;
 }
 
 MainWindow* InitWindow::getMainWindow(){
     return mainwindow;
+}
+
+ExportWindow* InitWindow::getExportWindow(){
+    return exportwindow;
 }
 
 void InitWindow::on_importButton_clicked(){
@@ -40,7 +47,9 @@ void InitWindow::on_importButton_clicked(){
 }
 
 void InitWindow::on_exportButton_clicked(){
-    
+    exportwindow->show();
+    exportwindow->move(100,100);
+    exportwindow->fillTextIfExist();
 }
 
 

@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include "mainwindow.h"
 #include "addplayerwindow.h"
+#include "exportwindow.h"
 #include "../database/database.h"
 
 class InitWindow : public QMainWindow
@@ -24,6 +25,7 @@ signals:
 
 public slots:
     MainWindow* getMainWindow();
+    ExportWindow* getExportWindow();
 
 private slots:
     void on_exitButton_clicked();
@@ -37,6 +39,7 @@ private:
     Ui::InitWindow *ui;
     MainWindow *mainwindow;
     AddPlayerWindow *addplayerwindow;
+    ExportWindow *exportwindow;
     Database *database;
 };
 #endif // INITWINDOW_H

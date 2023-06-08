@@ -139,6 +139,7 @@ void RifleWindow::on_switchButton_clicked()
 {
     switchModeSignal = true;
     blockDecideMode();
+    limparTabela();
 }
 
 void RifleWindow::on_backButton_clicked()
