@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-#define DEBUG
+//#define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -16,7 +16,7 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	
 	case 1:
 		m_target = Target::Rifle;
-		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		m_img_ref = cv::imread("../images/rifle_ref.jpg");
 		break;
 
 	default:
@@ -26,30 +26,22 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 
 	// Connect to ESP8266
 #ifdef ESP_COMS
-#warning "connection"
 	tcp::resolver resolver(io_context);
   boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
 	boost::asio::write(socket, boost::asio::buffer(""));
 #endif
 
 #ifndef CAMERA
-	m_image = cv::imread("../images/test.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
 #endif
 
 #ifdef VISION_TEST
-#warning "vision test"
-	//transformImage();/home/saca/ES-SACA/local_pc/vision_analysis/build/transformed.jpg
-	m_image = cv::imread("transformed.jpg", cv::IMREAD_COLOR);
+	transformImage();
 	start = std::chrono::high_resolution_clock::now();
 	getCenter();
 	getPoints();
 	end = std::chrono::high_resolution_clock::now();
 	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
-
-	/* std::cout << "SHOT 2\n";
-	transformImage();
-	getCenter();
-	getPoints(); */
 #endif
 }
 
@@ -99,7 +91,7 @@ void Detector::changeMode(int type)
 	
 	case 1:
 		m_target = Target::Rifle;
-		m_img_ref = cv::imread("../images/pistol_ref.jpg");
+		m_img_ref = cv::imread("../images/rifle_ref.jpg");
 		break;
 
 	default:
@@ -116,37 +108,39 @@ void Detector::getCenter()
 	std::vector<std::vector<cv::Point>> contours;
 	//cv::cvtColor(alt, alt, cv::COLOR_BGR2GRAY);
 	//cv::blur(alt, alt, cv::Size(5,5));
-	cv::Canny(m_image, edge, 200, 500);	
-#ifdef VISION_TEST
+	cv::Canny(m_image, edge, 200, 500);
+#if defined(VISION_TEST) && defined(DEBUG)
 	cv::imshow("edge contours", edge);
+	cv::waitKey();
 #endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 200)
+		// above 200 for pistol -> 1050
+		// above 950 for rifle -> 1190
+		if (contours[i].size() > 950)
 		{
-			double new_r;
-			if (m_target == Target::Pistol)
-				new_r = 185;	//TODO: change /* 30 * image.size/170 */
+			if (m_target == Target::Pistol) //! Review
+				m_center_radius = 185;		//TODO: change /* 30 * image.size/170 */
 			else
-				new_r = 95;		// 30.5/2 * image.size/170
-			m_center_radius = new_r;
+				m_center_radius = 182;		// 
 			double x_init = m_image.rows/2;
 			double y_init = m_image.cols/2;
 
 			m_approx.setInitialPoint(x_init, y_init);
-			m_approx.setRadius(new_r);
+			m_approx.setRadius(m_center_radius);
 
 			m_approx.insertPoints(contours[i]);
 
 #ifdef DEBUG
-			std::cout << "Set radius " << new_r << "\n";
+			std::cout << "Set radius " << m_center_radius << "\n";
 #endif
 
 			int iter = 0;
-			while (iter < 10)
+			std::cout << "[" << iter << "]" << "Center " << x_init << "," << y_init << "\n";
+			while (iter < 20)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
@@ -164,9 +158,14 @@ void Detector::getCenter()
 			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
 			centers.emplace_back(x, y);
-			std::cout << "Center " << m_center << " and radius " << new_r << " " << contours[i].size() << "\n";
-#ifdef VISION_TEST
-			
+			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << "\n";
+#if defined(VISION_TEST) && defined(DEBUG)
+
+			cv::circle(alt, m_center, m_center_radius, cv::Scalar(0, 0, 255));
+			cv::imshow("Center detection", alt);
+			cv::waitKey();
+			alt = m_image.clone();
+
 			cv::circle(alt, m_center, 0, cv::Scalar(0, 0, 255));
 			cv::drawContours(alt, contours, i, cv::Scalar(0, 255, 0));
 			cv::imshow("Center detection", alt);
@@ -179,6 +178,28 @@ void Detector::getCenter()
 	m_center = mean(centers);
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
 #endif
+/* 	cv::cvtColor(m_image, alt, cv::COLOR_BGR2GRAY);
+	cv::medianBlur(alt, alt, 5);
+
+    HoughCircles(alt, circles, cv::HOUGH_GRADIENT, 1,
+                 alt.rows/4,  // change this value to detect circles with different distances to each other
+                 100, 30, 180, 190 // change the last two parameters
+            // (min_radius & max_radius) to detect larger circles
+    );
+
+	alt = m_image.clone();
+	for( size_t i = 0; i < circles.size(); i++ )
+    {
+        cv::Point2d center = cv::Point2d(circles[i][0], circles[i][1]);
+        // circle center
+        cv::circle( alt, center, 1, cv::Scalar(0,100,100), 1, cv::LINE_AA);
+        // circle outline
+        int radius = circles[i][2];
+        cv::circle( alt, center, radius, cv::Scalar(255,0,255), 1, cv::LINE_AA);
+		std::cout << "Center " << center << " and radius " << 182 << "\n";
+    }
+    imshow("detected circles", alt);
+    cv::waitKey(); */
 }
 
 
@@ -294,7 +315,7 @@ Detector::getPoints()
 	// TODO: Correct background
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
-	cv::inRange(hsv, cv::Vec3b(0,0,120), cv::Vec3b(190,55,220), op2);
+	cv::inRange(hsv, cv::Vec3b(100,0,200), cv::Vec3b(255,255,255), op2);
 
 #ifdef DEBUG
 	cv::imshow("Points hsv", op2);
@@ -317,7 +338,9 @@ Detector::getPoints()
 	{
 		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
 		{
-			double new_r = 15; //TODO: change
+			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
+			//? 27.4 for rifle		(4.5+0.1)/2 * 364/30.5 = 27.449180327868852
+			double shot_radius = 26.85; //TODO: change
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 
@@ -325,11 +348,11 @@ Detector::getPoints()
 			std::cout << "Set Init point  " << x_init << "," << y_init << "\n";
 #endif
 			m_approx.setInitialPoint(x_init, y_init);
-			m_approx.setRadius(new_r);
+			m_approx.setRadius(shot_radius);
 			m_approx.insertPoints(contours[i]);
 			
 #ifdef DEBUG
-			std::cout << "Set radius " << new_r << "\n";
+			std::cout << "Set radius " << shot_radius << "\n";
 #endif
 
 			int iter = 0;
@@ -350,16 +373,19 @@ Detector::getPoints()
 
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
-			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << new_r << " and "<< cv::contourArea(contours[i]) << " contours area\n";
-#ifdef VISION_TEST
-			cv::circle(display, cv::Point(x,y), new_r, cv::Scalar(0,0,255));
+			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << shot_radius << " and "<< cv::contourArea(contours[i]) << " contours area\n";
+#if defined(VISION_TEST) && defined(DEBUG)
+			cv::circle(display, cv::Point(x,y), shot_radius, cv::Scalar(0,0,255));
+			cv::circle(display, cv::Point(x,y), 0, cv::Scalar(0,255,255));
+			cv::imshow("Shot detection", display);
+			cv::waitKey();
 #endif
 
 			cv::Point2d shot(x,y);
 
 			double result = cv::norm(m_center-shot);
-			std::cout << "Shot distance " << result << "\n";
-			double score = getScore(result, new_r);
+			std::cout << "Shot distance " << result << " pixels\n";
+			double score = getScore(result, shot_radius);
 			if (score == m_lastScore)
 			{
 				std::cout << "Same as before not sending\n";
@@ -368,8 +394,8 @@ Detector::getPoints()
 			else
 				m_lastScore = score;
 
-			emit new_score(x, y, new_r, score);
-			if (result > m_center_radius+new_r) // 185 -> center circle
+			emit new_score(x, y, shot_radius, score);
+			if (result > m_center_radius+shot_radius) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
@@ -377,14 +403,14 @@ Detector::getPoints()
 				boost::asio::write(socket, boost::asio::buffer("NO\n"));
 #endif
 			}
-			else if (result < m_center_radius-new_r)
+			else if (result < m_center_radius-shot_radius)
 			{
-				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				move_ESP *= 170/(double)m_image.cols;
+				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
+				if (m_target == Target::Pistol)  //! Review
+					move_ESP *= TargetSize::Pistol/(double)m_image.cols;
 
-				// char msg[64] = "@";
-				// memcpy(&msg[1], &move_ESP, 8);
-				// memcpy(&msg[9], "*", 1);
+				else
+					move_ESP *= 30.5f/(double)364; //TargetSize::Rifle/(double)m_image.cols;
 
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 
@@ -399,12 +425,16 @@ Detector::getPoints()
 			{
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
 
-				int move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y;
-				move_ESP *= 170/(double)m_image.cols;
+				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 
-				// char msg[64] = "@";
-				// memcpy(&msg[1], &move_ESP, 8);
-				// memcpy(&msg[9], "*", 1);
+				if (m_target == Target::Pistol)  //! Review
+					move_ESP *= TargetSize::Pistol/(double)m_image.cols;
+
+				else
+					move_ESP *= 30.5f/(double)364; //TargetSize::Rifle/(double)m_image.cols;
+				
+
+
 
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 				
@@ -418,7 +448,7 @@ Detector::getPoints()
 			return;
 		}
 	}
-#ifdef VISION_TEST
+#if defined(VISION_TEST) && defined(DEBUG)
 	cv::imshow("Shot detection", display);
 	cv::waitKey();
 #endif
@@ -427,11 +457,9 @@ Detector::getPoints()
 double Detector::getScore(double distance, double radius)
 {
 	double score = 0;
-	distance = abs((distance-radius)*170/m_image.cols);
-	std::cout << "Distance " << distance << " mm\n";
-	std::cout << "Score is ";
-	if (m_target == Target::Pistol)
+	if (m_target == Target::Pistol)  //! Review
 	{
+		distance = (distance-radius)*TargetSize::Pistol/m_image.cols;
 		if(distance <= 5.75)
 		{
 			score += 10;
@@ -445,26 +473,26 @@ double Detector::getScore(double distance, double radius)
 			distance = 72-(distance-5.75);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
-			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
 	}
 	else
 	{
+		distance = (distance-radius)*30.5f/364;
+		std::cout << "Distance " << distance << " mm\n";
 		if(distance <= 0.25)
 		{
-			score += 10;
-			int dec = (0.25-distance)/(0.5);
-			std::cout << score + dec*0.1 << "\n";
+			score = 10;
 		}
 		else if(distance <= 22.75)
 		{
-			double delta = 0.8;
+			double delta = 0.5;
 			distance = 22.5-(distance-0.25);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
-			std::cout << "\033[1;32m" << score << "\033[0m\n";
 		}
 	}
+	std::cout << "Score is ";
+	std::cout << "\033[1;32m" << score << "\033[0m\n";
 	return score;
 }
 
@@ -475,7 +503,7 @@ void Detector::transformImage()
 #ifdef CAMERA
 	m_camera.retrieve(m_image);
 #else
-	m_image = cv::imread("../images/test.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
 #endif
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
@@ -531,13 +559,14 @@ void Detector::transformImage()
 	// Use homography to warp image
 	warpPerspective(m_image, m_image, h, m_img_ref.size());
 
-	/* cv::imshow("Transformed",m_image);
+#ifdef DEBUG
+	cv::imshow("Transformed",m_image);
 	cv::waitKey();
-	cv::imwrite("transformed.jpg", m_image); */
-	
+	cv::imwrite("transformed.jpg", m_image);
+#endif
 	end = std::chrono::high_resolution_clock::now();
 	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
-	exit(1);
+	//exit(1);
 }
 
 /**

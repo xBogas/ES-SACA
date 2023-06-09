@@ -39,6 +39,12 @@ private:
 		Rifle
 	};
 
+	enum TargetSize
+	{
+		Pistol = 170,
+		Rifle = 80	// 30.5 mm -> 364 pixels
+	};
+
 
 	/// @brief Calculate target center
 	void

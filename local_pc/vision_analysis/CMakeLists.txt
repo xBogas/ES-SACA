@@ -15,10 +15,12 @@ find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 if(ESP_COMS)
+message("Compiling with flag ESP_COMS")
 	add_definitions(-DESP_COMS)
 endif(ESP_COMS)
 
 if(TESTING)
+	message("Compiling with flag VISION_TEST")
 	add_definitions(-DVISION_TEST)
 endif(TESTING)
 

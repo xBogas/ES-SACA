@@ -77,8 +77,12 @@ public:
 	void
 	nextIter()
 	{
+		// jac*h = f
 		h = jac.colPivHouseholderQr().solve(f);
-		//jac. ldlt().solve(f)
+		// h = jac.fullPivHouseholderQr().solve(f); //! 596.73-591.78
+
+		// h = (jac.transpose() * jac).ldlt().solve(jac.transpose() * f);
+
 		u.coeffRef(0) = u.coeff(0) + h.coeff(0);
 		u.coeffRef(1) = u.coeff(1) + h.coeff(1);
 	};
@@ -97,6 +101,10 @@ public:
 			double dis = norm(u1, u2, x1, x2);
 			jac.coeffRef(i,0) = (u1 - x1)/dis;
 			jac.coeffRef(i,1) = (u2 - x2)/dis;
+#ifdef DEBUG
+			if (jac.coeffRef(i,0) == 0 || jac.coeffRef(i,1) == 0)
+				throw std::runtime_error("Jac = 0");
+#endif	
 		}
 	}
 
