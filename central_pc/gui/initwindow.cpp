@@ -46,12 +46,15 @@ void InitWindow::on_importButton_clicked(){
     
 }
 
-void InitWindow::on_exportButton_clicked(){
+void InitWindow::on_exportCompButton_clicked(){
     exportwindow->show();
     exportwindow->move(100,100);
     exportwindow->fillTextIfExist();
 }
 
+void InitWindow::on_exportAthletesButton_clicked(){
+    // database->exportAthletes();
+}
 
 void InitWindow::on_exitButton_clicked(){
     this->close();
@@ -60,6 +63,9 @@ void InitWindow::on_exitButton_clicked(){
 void InitWindow::on_continueButton_clicked(){
     this->hide();
     mainwindow->show();
+
+    
+    // mainwindow->move()
 }
 
 void InitWindow::on_addButton_clicked(){

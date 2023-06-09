@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1271</width>
-    <height>666</height>
+    <width>1268</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>70</x>
       <y>110</y>
       <width>551</width>
       <height>441</height>
@@ -42,7 +42,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>430</x>
       <y>20</y>
       <width>461</width>
       <height>61</height>
@@ -73,7 +73,7 @@
    <widget class="QPushButton" name="continueButton">
     <property name="geometry">
      <rect>
-      <x>720</x>
+      <x>740</x>
       <y>470</y>
       <width>401</width>
       <height>41</height>
@@ -95,9 +95,9 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>230</y>
-      <width>511</width>
-      <height>161</height>
+      <y>170</y>
+      <width>561</width>
+      <height>261</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -109,9 +109,9 @@
     <widget class="QPushButton" name="importButton">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>241</width>
+       <x>130</x>
+       <y>20</y>
+       <width>301</width>
        <height>41</height>
       </rect>
      </property>
@@ -124,15 +124,15 @@
       <string notr="true">background-color: rgb(214, 214, 214);</string>
      </property>
      <property name="text">
-      <string>IMPORTAR</string>
+      <string>IMPORTAR ATLETAS</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="exportButton">
+    <widget class="QPushButton" name="exportAthletesButton">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>30</y>
-       <width>241</width>
+       <x>130</x>
+       <y>80</y>
+       <width>301</width>
        <height>41</height>
       </rect>
      </property>
@@ -145,14 +145,14 @@
       <string notr="true">background-color: rgb(214, 214, 214);</string>
      </property>
      <property name="text">
-      <string>EXPORTAR</string>
+      <string>EXPORTAR ATLETAS</string>
      </property>
     </widget>
     <widget class="QPushButton" name="addButton">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>90</y>
+       <x>140</x>
+       <y>200</y>
        <width>281</width>
        <height>41</height>
       </rect>
@@ -169,19 +169,40 @@
       <string>ADICIONAR ATLETA</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="exportCompButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>140</y>
+       <width>521</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(214, 214, 214);</string>
+     </property>
+     <property name="text">
+      <string>EXPORTAR COMPETIÇÃO DO ATLETA</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>190</y>
-      <width>511</width>
-      <height>31</height>
+      <y>120</y>
+      <width>561</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>14</pointsize>
+      <pointsize>18</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -192,7 +213,7 @@
      <enum>QFrame::Panel</enum>
     </property>
     <property name="lineWidth">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="text">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Gestão da Base de Dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -204,7 +225,7 @@
    <widget class="QPushButton" name="exitButton">
     <property name="geometry">
      <rect>
-      <x>1150</x>
+      <x>1200</x>
       <y>40</y>
       <width>22</width>
       <height>22</height>

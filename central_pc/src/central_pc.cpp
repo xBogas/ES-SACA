@@ -6,6 +6,7 @@
 #include "../gui/riflewindow.h"
 #include "../database/database.h"
 #include <QtWidgets/QApplication>
+#include <QScreen>
 #include <thread>
 #include <iostream>
 #include <boost/asio.hpp>
@@ -41,6 +42,12 @@ int main(int argc, char *argv[]){
     //create windows
     InitWindow i = InitWindow(nullptr, database);  
     i.show();
+    //center the window
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect availableGeometry = screen->availableGeometry();
+    i.move(availableGeometry.x() + (availableGeometry.width() - i.width()) / 2, availableGeometry.y() + (availableGeometry.height() - i.height()) / 2);
+
+    //get other window objects
     ExportWindow* e = i.getExportWindow();
     MainWindow* w = i.getMainWindow();
     MainWindow2* w2 = w->getMainWindow2();

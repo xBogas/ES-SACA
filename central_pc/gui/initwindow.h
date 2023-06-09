@@ -32,7 +32,8 @@ private slots:
     void on_continueButton_clicked();
     void on_addButton_clicked();
     void on_importButton_clicked();
-    void on_exportButton_clicked();
+    void on_exportCompButton_clicked();
+    void on_exportAthletesButton_clicked();
     void onBackButtonClicked();
     
 private:
