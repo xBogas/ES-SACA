@@ -35,7 +35,7 @@ public slots:
 
 private slots:
     void on_cancelButton_clicked();
-    void on_saveButton_clicked();
+    void on_exportButton_clicked();
     
 private:
     Ui::ExportWindow *ui;

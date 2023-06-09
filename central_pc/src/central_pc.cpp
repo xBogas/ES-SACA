@@ -93,8 +93,8 @@ void start_accept(tcp::acceptor& acceptor, MainWindow* window, ExportWindow *exp
 
 void server_thread(MainWindow* window, ExportWindow *expwindow, MainWindow2* window2, PistolWindow* ptlwindow, RifleWindow* rflwindow, Database* database) {
     try {
-        tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
-        //tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("192.168.0.1"), 8080));
+        // tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("10.0.2.15"), 8080));
+        tcp::acceptor acceptor(io_context, tcp::endpoint(boost::asio::ip::address_v4::from_string("192.168.0.1"), 8080));
 
         std::cout << "Server started. Listening on port 8080..." << std::endl;
 

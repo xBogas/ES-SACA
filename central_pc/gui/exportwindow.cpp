@@ -18,7 +18,28 @@ void ExportWindow::on_cancelButton_clicked(){
     this->close();
 }
 
-void ExportWindow::on_saveButton_clicked(){
+void ExportWindow::on_exportButton_clicked(){
+    local = ui->localText->text().toStdString();
+    categoria = ui->disciplinaText->text().toStdString();
+    data = ui-> dataText->date().toString("yyyy-MM-dd").toStdString();
+
+    std::string competitionid = database->create_competitionid(local, data, categoria);
+
+    bool comp = database->verify_competitionid(competitionid);
+    if(!comp){
+        QMessageBox::critical(this, "Erro", "Competição não existente!");
+        return;
+    } 
+
+    std::cout << "Competition id successfully inserted" << std::endl;
+
+    int playerID = ui->IDText->text().toInt();
+
+    bool exp = database->db_EXPORT_CompetitionResults(playerID, competitionid, "saca", "/home/saca");
+    if(!exp){
+        QMessageBox::critical(this, "Erro", "Exportado sem sucesso!");
+        return;
+    }
 
     this->close();
 }

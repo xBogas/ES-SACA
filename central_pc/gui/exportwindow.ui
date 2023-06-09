@@ -46,7 +46,7 @@
      <string>CANCELAR</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="saveButton">
+   <widget class="QPushButton" name="exportButton">
     <property name="geometry">
      <rect>
       <x>310</x>
