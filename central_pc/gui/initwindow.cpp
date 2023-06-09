@@ -47,8 +47,8 @@ void InitWindow::on_importButton_clicked(){
 }
 
 void InitWindow::on_exportCompButton_clicked(){
-    exportwindow->show();
     exportwindow->move(100,100);
+    exportwindow->show();
     exportwindow->fillTextIfExist();
 }
 
@@ -62,16 +62,16 @@ void InitWindow::on_exitButton_clicked(){
 
 void InitWindow::on_continueButton_clicked(){
     this->hide();
-    mainwindow->show();
 
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect availableGeometry = screen->availableGeometry();
     mainwindow->move(availableGeometry.x() + (availableGeometry.width() - mainwindow->width()) / 2, availableGeometry.y() + (availableGeometry.height() - mainwindow->height()) / 2);
+    mainwindow->show();
 }
 
 void InitWindow::on_addButton_clicked(){
+    addplayerwindow->move(100, 100);
     addplayerwindow->show();
-    addplayerwindow->move(100,100);
 }
 
 void InitWindow::onBackButtonClicked(){

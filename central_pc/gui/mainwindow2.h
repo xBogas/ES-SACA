@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <QTableWidget>
 #include <QWidget>
+#include <QScreen>
 #include "pistolwindow.h"
 #include "riflewindow.h"
 
