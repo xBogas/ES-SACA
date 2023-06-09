@@ -31,7 +31,7 @@ mkdir -p build && cd build
 cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.x/modules ../opencv-4.x
 cmake --build .
 
-sudo make install -j
+sudo make install -j3
 
 
 # Eigen

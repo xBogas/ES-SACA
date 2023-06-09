@@ -1,8 +1,9 @@
 #include "Detector.hpp"
 #include <vector>
+#include <chrono>
 
-// TODO: clean getCenter and getPoints 
-
+std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+#define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -27,23 +28,28 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #ifdef ESP_COMS
 #warning "connection"
 	tcp::resolver resolver(io_context);
-  	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+  boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
 	boost::asio::write(socket, boost::asio::buffer(""));
 #endif
 
 #ifndef CAMERA
-	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/test.png", cv::IMREAD_COLOR);
 #endif
 
 #ifdef VISION_TEST
 #warning "vision test"
-	transformImage();
+	//transformImage();/home/saca/ES-SACA/local_pc/vision_analysis/build/transformed.jpg
+	m_image = cv::imread("transformed.jpg", cv::IMREAD_COLOR);
+	start = std::chrono::high_resolution_clock::now();
 	getCenter();
 	getPoints();
-	std::cout << "SHOT 2\n";
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+
+	/* std::cout << "SHOT 2\n";
 	transformImage();
 	getCenter();
-	getPoints();
+	getPoints(); */
 #endif
 }
 
@@ -110,16 +116,16 @@ void Detector::getCenter()
 	std::vector<std::vector<cv::Point>> contours;
 	//cv::cvtColor(alt, alt, cv::COLOR_BGR2GRAY);
 	//cv::blur(alt, alt, cv::Size(5,5));
-	cv::Canny(m_image, edge, 300, 500);	
+	cv::Canny(m_image, edge, 200, 500);	
 #ifdef VISION_TEST
-	// cv::imshow("edge contours", edge);
+	cv::imshow("edge contours", edge);
 #endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 500)
+		if (contours[i].size() > 200)
 		{
 			double new_r;
 			if (m_target == Target::Pistol)
@@ -140,7 +146,7 @@ void Detector::getCenter()
 #endif
 
 			int iter = 0;
-			while (iter < 50)
+			while (iter < 10)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
@@ -148,8 +154,8 @@ void Detector::getCenter()
 				//m_approx.print();
 				iter++;
 
-				//auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
+			auto [x,y] = m_approx.getCenter();
 			std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 			}
@@ -172,8 +178,6 @@ void Detector::getCenter()
 #ifdef VISION_TEST
 	m_center = mean(centers);
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
-	cv::imshow("Center detection", alt);
-	cv::waitKey();
 #endif
 }
 
@@ -277,7 +281,8 @@ Detector::rejectOutliers(const std::vector<cv::Point>& data, int threshold, std:
 }
 
 
-void Detector::getPoints()
+void 
+Detector::getPoints()
 {
 	cv::Mat hsv, display;
 #ifdef VISION_TEST
@@ -289,7 +294,7 @@ void Detector::getPoints()
 	// TODO: Correct background
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5) );
-	cv::inRange(hsv, cv::Vec3b(100,0,120), cv::Vec3b(190,55,220), op2);
+	cv::inRange(hsv, cv::Vec3b(0,0,120), cv::Vec3b(190,55,220), op2);
 
 #ifdef DEBUG
 	cv::imshow("Points hsv", op2);
@@ -328,15 +333,15 @@ void Detector::getPoints()
 #endif
 
 			int iter = 0;
-			while (iter < 50)
+			while (iter < 10)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
 				m_approx.nextIter();
 				iter++;
 
-				//auto [x,y] = m_approx.getCenter();
 #ifdef DEBUG
+				auto [x,y] = m_approx.getCenter();
 				std::cout << "[" << iter << "]" << "Center " << x << "," << y << "\n";
 #endif
 
@@ -465,10 +470,12 @@ double Detector::getScore(double distance, double radius)
 
 void Detector::transformImage()
 {
+	start = std::chrono::high_resolution_clock::now();
+
 #ifdef CAMERA
 	m_camera.retrieve(m_image);
 #else
-	m_image = cv::imread("../images/226431.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/test.png", cv::IMREAD_COLOR);
 #endif
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
@@ -502,10 +509,10 @@ void Detector::transformImage()
 	matches.erase(matches.begin()+numGoodMatches, matches.end());
 	//? (1)
 
-#if DEBUG
-	cv::Mat imMatches;
+#ifdef DEBUG
+	/* cv::Mat imMatches;
 	drawMatches(m_image, key_points1, m_img_ref, key_points2, matches, imMatches);
-	cv::imwrite("matches.jpg", imMatches);
+	cv::imwrite("matches.jpg", imMatches); */
 #endif
 	// Extract location of good matches
 	std::vector<cv::Point2f> points1, points2;
@@ -523,6 +530,14 @@ void Detector::transformImage()
 
 	// Use homography to warp image
 	warpPerspective(m_image, m_image, h, m_img_ref.size());
+
+	/* cv::imshow("Transformed",m_image);
+	cv::waitKey();
+	cv::imwrite("transformed.jpg", m_image); */
+	
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+	exit(1);
 }
 
 /**

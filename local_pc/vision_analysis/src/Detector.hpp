@@ -10,7 +10,6 @@
 
 using boost::asio::ip::tcp;
 
-//TODO: add change mode Method
 class Detector : public QObject
 {
 	Q_OBJECT
