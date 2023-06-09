@@ -8,6 +8,7 @@
 #include <QTableWidget>
 #include <QWidget>
 #include <QMessageBox>
+#include <QScreen>
 #include "mainwindow.h"
 #include "addplayerwindow.h"
 #include "exportwindow.h"

@@ -64,8 +64,9 @@ void InitWindow::on_continueButton_clicked(){
     this->hide();
     mainwindow->show();
 
-    
-    // mainwindow->move()
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect availableGeometry = screen->availableGeometry();
+    mainwindow->move(availableGeometry.x() + (availableGeometry.width() - mainwindow->width()) / 2, availableGeometry.y() + (availableGeometry.height() - mainwindow->height()) / 2);
 }
 
 void InitWindow::on_addButton_clicked(){
