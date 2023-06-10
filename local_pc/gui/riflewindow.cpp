@@ -254,7 +254,7 @@ void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.04);
-        item->setPos(257+x,257+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setPos(x*(436*2)/1190,y*(427*2)/1190);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -274,7 +274,7 @@ void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(5,5));
-            ui->Target->centerOn(QPointF(259.0+x,259.0+y));
+            ui->Target->centerOn(QPointF(x*(445.0*2)/1190,y*(445.0*2)/1190));
         }
 
         nim=nim+1;
@@ -295,8 +295,9 @@ void RifleWindow::on_ShootButton_clicked(){
 
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.04);
-        item->setPos(450+x,450+y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.1);
+        item->setPos(x*(436*2)/1190,y*(427*2)/1190);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        //item->setPos(x+434.0,y+434.0);
         scene->addItem(item);
 
 
@@ -667,7 +668,8 @@ void RifleWindow::on_ShootButton_clicked(){
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(5,5));
-            ui->Target->centerOn(QPointF(259.0+x,259.0+y));
+            ui->Target->centerOn(QPointF(x*(445.0*2)/1190,y*(445.0*2)/1190));
+            //ui->Target->centerOn(QPointF(x+445.0,y+(445.0)));
         }
         
         nim=nim+1;
