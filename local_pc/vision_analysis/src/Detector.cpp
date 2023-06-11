@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-//#define DEBUG
+#define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -32,7 +32,7 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #endif
 
 #ifndef CAMERA
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/098896_n.png", cv::IMREAD_COLOR);
 #endif
 
 #ifdef VISION_TEST
@@ -340,7 +340,20 @@ Detector::getPoints()
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
 			//? 27.4 for rifle		(4.5+0.1)/2 * 364/30.5 = 27.449180327868852
-			double shot_radius = 26.85; //TODO: change
+			double shot_radius;
+			switch (m_target)
+			{
+			case Target::Pistol:
+				shot_radius = 15;
+				break;
+
+			case Target::Rifle:
+				shot_radius = 27;
+				break;
+			default:
+				break;
+			}
+
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 
@@ -503,7 +516,7 @@ void Detector::transformImage()
 #ifdef CAMERA
 	m_camera.retrieve(m_image);
 #else
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/098896_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
 #endif
 	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
