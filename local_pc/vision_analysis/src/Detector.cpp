@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-//#define DEBUG
+#define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -32,11 +32,15 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 #endif
 
 #ifndef CAMERA
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);
 #endif
 
 #ifdef VISION_TEST
+
+	transformImage2();
+	
 	transformImage();
+	::exit(0);
 	start = std::chrono::high_resolution_clock::now();
 	getCenter();
 	getPoints();
@@ -140,12 +144,11 @@ void Detector::getCenter()
 
 			int iter = 0;
 			std::cout << "[" << iter << "]" << "Center " << x_init << "," << y_init << "\n";
-			while (iter < 20)
+			while (iter < 5)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
 				m_approx.nextIter();
-				//m_approx.print();
 				iter++;
 
 #ifdef DEBUG
@@ -154,12 +157,11 @@ void Detector::getCenter()
 #endif
 			}
 
-			m_approx.print();
 			auto [x,y] = m_approx.getCenter();
 			m_center.x = x, m_center.y = y;
 			centers.emplace_back(x, y);
-			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << "\n";
 #if defined(VISION_TEST) && defined(DEBUG)
+			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << "\n";
 
 			cv::circle(alt, m_center, m_center_radius, cv::Scalar(0, 0, 255));
 			cv::imshow("Center detection", alt);
@@ -171,35 +173,14 @@ void Detector::getCenter()
 			cv::imshow("Center detection", alt);
 			cv::waitKey();
 			alt = m_image.clone();
+			m_approx.print();
 #endif
 		}
 	}
-#ifdef VISION_TEST
 	m_center = mean(centers);
+#ifdef VISION_TEST
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
 #endif
-/* 	cv::cvtColor(m_image, alt, cv::COLOR_BGR2GRAY);
-	cv::medianBlur(alt, alt, 5);
-
-    HoughCircles(alt, circles, cv::HOUGH_GRADIENT, 1,
-                 alt.rows/4,  // change this value to detect circles with different distances to each other
-                 100, 30, 180, 190 // change the last two parameters
-            // (min_radius & max_radius) to detect larger circles
-    );
-
-	alt = m_image.clone();
-	for( size_t i = 0; i < circles.size(); i++ )
-    {
-        cv::Point2d center = cv::Point2d(circles[i][0], circles[i][1]);
-        // circle center
-        cv::circle( alt, center, 1, cv::Scalar(0,100,100), 1, cv::LINE_AA);
-        // circle outline
-        int radius = circles[i][2];
-        cv::circle( alt, center, radius, cv::Scalar(255,0,255), 1, cv::LINE_AA);
-		std::cout << "Center " << center << " and radius " << 182 << "\n";
-    }
-    imshow("detected circles", alt);
-    cv::waitKey(); */
 }
 
 
@@ -312,9 +293,8 @@ Detector::getPoints()
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
 	
 	// HSV color space
-	// TODO: Correct background
 	cv::Mat op2;
-	blur(hsv, hsv, cv::Size(5,5) );
+	blur(hsv, hsv, cv::Size(5,5));
 	cv::inRange(hsv, cv::Vec3b(100,0,200), cv::Vec3b(255,255,255), op2);
 
 #ifdef DEBUG
@@ -340,7 +320,20 @@ Detector::getPoints()
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
 			//? 27.4 for rifle		(4.5+0.1)/2 * 364/30.5 = 27.449180327868852
-			double shot_radius = 26.85; //TODO: change
+			double shot_radius;
+			switch (m_target)
+			{
+			case Target::Pistol:
+				shot_radius = 15;
+				break;
+
+			case Target::Rifle:
+				shot_radius = 27;
+				break;
+			default:
+				break;
+			}
+
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
 
@@ -356,7 +349,7 @@ Detector::getPoints()
 #endif
 
 			int iter = 0;
-			while (iter < 10)
+			while (iter < 5)
 			{
 				m_approx.updateJac();
 				m_approx.updateF();
@@ -371,10 +364,10 @@ Detector::getPoints()
 			}
 			auto [x,y] = m_approx.getCenter();
 
+#if defined(VISION_TEST) && defined(DEBUG)
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << shot_radius << " and "<< cv::contourArea(contours[i]) << " contours area\n";
-#if defined(VISION_TEST) && defined(DEBUG)
 			cv::circle(display, cv::Point(x,y), shot_radius, cv::Scalar(0,0,255));
 			cv::circle(display, cv::Point(x,y), 0, cv::Scalar(0,255,255));
 			cv::imshow("Shot detection", display);
@@ -383,7 +376,7 @@ Detector::getPoints()
 
 			cv::Point2d shot(x,y);
 
-			double result = cv::norm(m_center-shot);
+			double result = cv::norm(m_center - shot);
 			std::cout << "Shot distance " << result << " pixels\n";
 			double score = getScore(result, shot_radius);
 			if (score == m_lastScore)
@@ -428,16 +421,12 @@ Detector::getPoints()
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 
 				if (m_target == Target::Pistol)  //! Review
-					move_ESP *= TargetSize::Pistol/(double)m_image.cols;
+					move_ESP *= TargetSize::Pistol/(double)m_image.cols; // verify image ref size
 
 				else
 					move_ESP *= 30.5f/(double)364; //TargetSize::Rifle/(double)m_image.cols;
 				
-
-
-
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
-				
 				std::cout << msg << std::endl;
 				std::cout << "[Sending data...]" << std::endl;
 				std::cout << "ESP should move " << move_ESP << " mm\n";
@@ -454,6 +443,7 @@ Detector::getPoints()
 #endif
 }
 
+//!Review for Pistol
 double Detector::getScore(double distance, double radius)
 {
 	double score = 0;
@@ -496,6 +486,34 @@ double Detector::getScore(double distance, double radius)
 	return score;
 }
 
+/**
+ * 10 Ring: 5.75  mm
+ * 9  Ring: 13.75 mm
+ * 8  Ring: 21.75 mm
+ * 7  Ring: 29.75 mm
+ * 6  Ring: 37.75 mm
+ * 5  Ring: 45.75 mm
+ * 4  Ring: 53.75 mm
+ * 3  Ring: 61.75 mm
+ * 2  Ring: 69.75 mm
+ * 1  Ring: 77.75 mm
+ */
+
+/**
+ * 
+ * 109 Ring: 2.50  mm
+ * 100 Ring: 5.75  mm
+ * 90  Ring: 13.75 mm
+ * 80  Ring: 21.75 mm
+ * 70  Ring: 29.75 mm
+ * 60  Ring: 37.75 mm
+ * 50  Ring: 45.75 mm
+ * 40  Ring: 53.75 mm
+ * 30  Ring: 61.75 mm
+ * 20  Ring: 69.75 mm
+ * 10  Ring: 77.75 mm
+ */
+
 void Detector::transformImage()
 {
 	start = std::chrono::high_resolution_clock::now();
@@ -503,9 +521,10 @@ void Detector::transformImage()
 #ifdef CAMERA
 	m_camera.retrieve(m_image);
 #else
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);
+	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
 #endif
-	const int MAX_FEATURES = 1000;
+	
+	const int MAX_FEATURES = (m_target == Target::Rifle)? 1000 : 20000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
@@ -558,306 +577,70 @@ void Detector::transformImage()
 
 	// Use homography to warp image
 	warpPerspective(m_image, m_image, h, m_img_ref.size());
-
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
 #ifdef DEBUG
 	cv::imshow("Transformed",m_image);
 	cv::waitKey();
 	cv::imwrite("transformed.jpg", m_image);
 #endif
-	end = std::chrono::high_resolution_clock::now();
-	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
 	//exit(1);
 }
 
-/**
- * 10 Ring: 5.75  mm
- * 9  Ring: 13.75 mm
- * 8  Ring: 21.75 mm
- * 7  Ring: 29.75 mm
- * 6  Ring: 37.75 mm
- * 5  Ring: 45.75 mm
- * 4  Ring: 53.75 mm
- * 3  Ring: 61.75 mm
- * 2  Ring: 69.75 mm
- * 1  Ring: 77.75 mm
- */
 
-/**
- * 
- * 109 Ring: 2.50  mm
- * 100 Ring: 5.75  mm
- * 90  Ring: 13.75 mm
- * 80  Ring: 21.75 mm
- * 70  Ring: 29.75 mm
- * 60  Ring: 37.75 mm
- * 50  Ring: 45.75 mm
- * 40  Ring: 53.75 mm
- * 30  Ring: 61.75 mm
- * 20  Ring: 69.75 mm
- * 10  Ring: 77.75 mm
- */
-
-
-
-
-
-/* struct DistFunc
+void Detector::transformImage2()
 {
-	int dist;
+	//get 4 corner points of m_image
+	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);
 
-	DistFunc(int _d) : dist(_d*_d) {}
+	/* cv::Point top_left(450, 55), top_right(1430, 20), bottom_left(150, 1020), bottom_right(1690, 1020);
 
-	bool operator() (const cv::Point& p1, const cv::Point& p2) const
-	{
-		return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < dist;
-	}
-};
- */
-// separate data
-/* 	std::vector<cv::Point> data;
-	cv::findNonZero(op2, data);
-	int min_dist = 30;
-	min_dist *= min_dist;
-	std::vector<int> labels;
-
-	int n_labels = partition(data, labels, 
-		[min_dist](const cv::Point& p1, const cv::Point& p2){
-			return ((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)) < min_dist;
-		});
 	
-	std::vector<std::vector<cv::Point>> separate_data(n_labels);
+	double width_A = cv::norm(top_left - top_right);
+	double width_B = cv::norm(bottom_left - bottom_right);
 
-	for (size_t i = 0; i < labels.size(); i++)
-		separate_data[labels[i]].push_back(data[i]); 
-*/
-
+	double max_width = (width_A > width_B)? width_A: width_B;
 
 
-/*
-cv::Mat mask1(m_image.rows, m_image.cols, m_image.type(), cv::Scalar(0,0,0));
-	cv::Mat mask2(m_image.rows, m_image.cols, m_image.type(), cv::Scalar(0,0,0));
-	
+	double heightA = cv::norm(top_left - bottom_left);
+	double heightB = cv::norm(top_right - bottom_right);
 
-	circle(mask2, p_center, 290,    cv::Scalar(255,255,255), -1, -1);
-	circle(mask2, p_center, radius+3, cv::Scalar(0), -1, -1);
-	circle(mask1, p_center, radius+3, cv::Scalar(255,255,255), -1, -1);
+	double maxHeight = (heightA > heightB)? heightA: heightB; */
 
-	cv::imshow("mask1", mask1);
-	cv::imshow("mask2", mask2);
+	start = std::chrono::high_resolution_clock::now();
+	std::array<cv::Point, 4> corners = {cv::Point(450, 55),
+										cv::Point(1430, 20),
+										cv::Point(150, 1020),
+										cv::Point(1690, 1020)};
 
-	cv::Mat center, donut;
-	cv::bitwise_and(m_image, mask1, center);
-	cv::bitwise_xor(center, mask1, center); // find closest to white
+	/* const cv::Point* point = &corners[0];
+	int n = (int)corners.size();
+	cv::Mat draw = m_image.clone();
+	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
+	imwrite("draw.jpg", draw); */
 
-	cv::bitwise_and(m_image, mask2, donut);
-	cv::bitwise_not(mask2, mask2);
-	cv::bitwise_xor(donut, mask2, donut); // find closest to white
-	
-	cv::imshow("center", center);
-	cv::imshow("donut", donut);
 
-	// get center points
-	cv::inRange(center, cv::Scalar(235,235,235), cv::Scalar(300,300,300), center);
+	cv::Point2f src_vertices[3];
+	src_vertices[0] = corners[0];
+    src_vertices[1] = corners[1];
+    src_vertices[2] = corners[2];
+    src_vertices[3] = corners[3];
 
-	cv::imshow("center shot", center);
-	std::vector<cv::Point> center_points;
-	cv::findNonZero(center, center_points);
-	
-	std::vector<cv::Point> center_filter;
-	
-	rejectOutliers(center_points, 1, center_filter);
 
-	for (auto &&i : center_filter)
-	{
-		std::cout << i << "\n";
-	}
-	
+	cv::Point2f dst_vertices[3];
+	dst_vertices[0] = cv::Point(0, 0);
+    dst_vertices[1] = cv::Point(1050, 0);
+	dst_vertices[2] = cv::Point(0, 1050);
+	dst_vertices[3] = cv::Point(1050, 1050);
 
-	// get donut points
-	cv::inRange(donut, cv::Scalar(0,0,0), cv::Scalar(40,40,40), donut);
+	cv::Mat warpPerspectiveMatrix = getPerspectiveTransform(src_vertices, dst_vertices);
+	cv::Mat rotated;
+	warpPerspective(m_image, rotated, warpPerspectiveMatrix, cv::Size(1050, 1050), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
 
-	cv::imshow("donut shot", donut);
-	std::vector<cv::Point> donut_points;
-	cv::findNonZero(donut, donut_points);
-	
-	std::vector<cv::Point> donut_filter;
-	
-	rejectOutliers(donut_points, 1, donut_filter);
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
 
-	for (auto &&i : donut_filter)
-	{
-		std::cout << i << "\n";
-	}
+	cv::imshow("Image", rotated);
+	imwrite("Fodasse.png", rotated);
 	cv::waitKey();
-*/
-
-
-
-/* 
-	cv::Mat mask1(m_image.rows, m_image.cols, m_image.type(), cv::Scalar(0,0,0));
-	cv::Mat mask2(m_image.rows, m_image.cols, CV_8UC1, cv::Scalar(0));
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	circle(mask1, (cv::Point(m_image.cols/2.f, m_image.rows/2.f) ), circles[0][2], cv::Scalar(255,255,255), -1, -1);
-
-	circle(mask2, (cv::Point(m_image.cols/2.f, m_image.rows/2.f) ), 290,           cv::Scalar(255), -1, -1);
-	circle(mask2, (cv::Point(m_image.cols/2.f, m_image.rows/2.f) ), circles[0][2], cv::Scalar(0), -1, -1);
-	
-	
-	cv::imshow("mask1", mask1);
-	cv::imshow("mask2", mask2);
-
-	cv::Mat center, donut;
-	cv::subtract(mask1, m_image, center);
-	cv::subtract(m_image, cv::Scalar(100,0,0), donut, mask2);
-
-	cv::imshow("center", center);
-	cv::imshow("donut", donut);
-
-
-
-	cv::Mat center_filtered, donut_filtered;
-
-	cv::inRange(center, cv::Scalar(240,240,240), cv::Scalar(255,255,255), center_filtered);
-	cv::inRange(donut,  cv::Scalar(0,0,0), cv::Scalar(50,50,50), donut_filtered);
-
-	cv::imshow("center points", center_filtered);
-	cv::imshow("donut filtered", donut_filtered);
- */
-
-
-
-
-
-
-
-
-
-
-
-
-	//cv::waitKey();
-	
-	// slow method
-	/* int distance = 15;
-
-	int th2 = distance * distance; // squared radius tolerance
-	std::vector<int> labels;
-
-	std::cout<< "Starting \n";
-	int n_labels = partition(m_points, labels, 
-	[th2](const cv::Point& lhs, const cv::Point& rhs) { 
-		return ((lhs.x - rhs.x)*(lhs.x - rhs.x) + (lhs.y - rhs.y)*(lhs.y - rhs.y)) < th2; 
-	}
-	);
-	std::cout<< "Ended \n";
-	std::vector<std::vector<cv::Point>> contours(n_labels);
-	for (int i = 0; i < m_points.size(); ++i)
-	{
-		contours[labels[i]].push_back(m_points[i]);
-	}
-	std::cout << "Drawing\n";
-	// Draw results
-
-	// Build a vector of random color, one for each class (label)
-	std::vector<cv::Vec3b> colors;
-	for (int i = 0; i < n_labels; ++i)
-	{
-		colors.push_back(cv::Vec3b(rand() & 255, rand() & 255, rand() & 255));
-	}
-
-	// Draw the labels
-	cv::Mat3b lbl(m_image.rows, m_image.cols, cv::Vec3b(0, 0, 0));
-	for (int i = 0; i < m_points.size(); ++i)
-	{
-		lbl(m_points[i]) = colors[labels[i]];
-	}
-
-	imshow("Labels", lbl);
-	cv::waitKey(); */
-	/* std::vector<int> labels;
-
-	cv::kmeans(m_points, 3, labels, 
-		cv::TermCriteria(cv::TermCriteria::EPS, 1000, 0.0000001), 
-		3, cv::KMEANS_RANDOM_CENTERS);
-
-	
-
-	out3.convertTo(out3, m_image.type());
-	cv::cvtColor(out3, out3, cv::COLOR_GRAY2BGR);
-	for (size_t i = 0; i < labels.size(); i++)
-	{
-		if (labels[i] == 0)
-			out3.at<cv::Vec3b>(m_points[i]) = cv::Vec3b(255,0,0);
-		else if (labels[i] == 1)
-			out3.at<cv::Vec3b>(m_points[i]) = cv::Vec3b(0,255,0);
-		else
-			out3.at<cv::Vec3b>(m_points[i]) = cv::Vec3b(0,0,255);
-		
-	}
-
-	imshow("final", out3); */
-
-
-
-/*
-	std::array<cv::Mat,3> channels;
-
-	cv::split(hsv, channels);
-	//cv::imshow("H channel", channels[0]);
-	//cv::imshow("S channel", channels[1]);
-	//cv::imshow("V channel", channels[2]);
-	
-	cv::Scalar h = cv::mean(hsv);
-	std::cout << h << "\n";
-
-	// HUE
-	cv::threshold(channels[0], out1, h[0], h[0] + 10, cv::ThresholdTypes::THRESH_BINARY);
-	cv::imshow("h ths", out1);
-	
-	cv::threshold(channels[0], out1, h[0], 255, cv::ThresholdTypes::THRESH_BINARY_INV);
-	cv::imshow("h ths inv", out1);
-
-	//Saturation
-	cv::threshold(channels[1], out2, h[1], h[1] + 10, cv::ThresholdTypes::THRESH_BINARY);
-	cv::imshow("s ths", out2);
-
-	cv::threshold(channels[1], out2, h[1], 255, cv::ThresholdTypes::THRESH_BINARY_INV);
-	cv::imshow("s ths inv", out2);
-
-
-	cv::abs diff(h, channels[1], out2);
-	
-	cv::Scalar sat_mean, sat_std;
-	cv::meanStdDev(hsv, sat_mean, sat_std);
-
-	std::cout << "S mean: " << sat_mean << "\t S dev: " << sat_std << "\n";
-	cv::inRange(hsv, sat_mean, sat_mean + 2*sat_std, out2);
-	cv::imshow("s range", out2);
-
-
-	// Value
-	cv::threshold(channels[2], out3, h[2], h[2] + 20, cv::ThresholdTypes::THRESH_BINARY);
-	cv::imshow("v ths", out3);
-
-	cv::threshold(channels[2], out3, h[2], h[2] - 10, cv::ThresholdTypes::THRESH_BINARY_INV);
-	cv::imshow("v ths inv", out3);
-
-
-
-	
-	cv::imshow("s diff", out1);
-*/
+}
