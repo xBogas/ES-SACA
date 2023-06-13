@@ -5,18 +5,17 @@
 
 const char* ssid = "ESP_SACA_AP";
 const char* password = "SACA123saca";
-const int port = 80;
-
+const int port = 80
 const int motorPin = 5;
 const int PWM_value = 100;
 int base = 5;   
 int state = 0;    
 int sensorValue, newSensorValue = false, oldSensorValue = false; 
-
 float dist_papel = 50;
-
-bool stopRotate = false;
+bool stopRotate = false, connected = false;
 double distance = 0;
+unsigned long timeToRotate;
+String message, subMessage;
 
 typedef struct {
   int state, new_state;
@@ -27,10 +26,6 @@ typedef struct {
 } fsm_t;
 
 fsm_t fsm0;
-
-unsigned long timeToRotate;
-
-String message, subMessage;
 
 // Set new state
 void set_state(fsm_t& fsm, int new_state)
@@ -68,75 +63,75 @@ void setup() {
 void loop() {
   if (!client.connected()) {
     client = server.available();
+    connected = false;
+    //Serial.println("Client disconnected");
+  }
+  else{
+    connected = true;
+    //Serial.println("Client connected");
   }
 
-  if (client.connected()) {
-
-    if(client.available()) 
-      Serial.println("available");
-
+  if(connected) {
     message = "";
 
-    while (1) {
-      // Update tis for all state machines
-      unsigned long cur_time = millis();   // Just one call to millis()
-      fsm0.tis = cur_time - fsm0.tes;
+    // Update tis for all state machines
+    unsigned long cur_time = millis();   // Just one call to millis()
+    fsm0.tis = cur_time - fsm0.tes;
 
-      // read sensor
-      newSensorValue = digitalRead(12); 
-      sensorValue = newSensorValue && !oldSensorValue;
+    // read sensor
+    newSensorValue = digitalRead(12); 
+    sensorValue = newSensorValue && !oldSensorValue;
 
-      if(fsm0.state == 0 && sensorValue){
-        set_state(fsm0, 1); 
+    if(fsm0.state == 0 && sensorValue){
+      set_state(fsm0, 1); 
 
-        Serial.println("disparo");
-      }
-      else if(fsm0.state == 1 && (message.length() <= 3)){
-        set_state(fsm0, 0); 
-
-        message = "";
-      }
-      else if(fsm0.state == 1 && (message.length() >= 5)){
-        set_state(fsm0, 2); 
-
-        distance = (getDistance(message)/1000)*30;
-
-        Serial.print("A distancia obtida é de: "); Serial.println(distance, 2);
-      
-        message = "";
-      }
-      else if(fsm0.state == 2 && stopRotate){
-        set_state(fsm0, 0); 
-        stopRotate = false;
-
-        Serial.println("Para motor");
-      }
-
-      // update outputs
-      // update outputs
-      if(fsm0.state == 0){
-        analogWrite(base, 0);
-
-        Serial.println("actual state -> 0");
-      }
-      else if(fsm0.state == 1){
-        Serial.println("actual state -> 1");
-        client.println("disparo");
-        message = client.readStringUntil('\n');
-        Serial.println("Received message: " + message);
-      }
-      else if(fsm0.state == 2){
-        rotate(distance);
-        stopRotate = true;
-        Serial.println("actual state -> 2");
-      }
-
-      //update old values
-      oldSensorValue = newSensorValue;
-      
-      delay(20);
+      Serial.println("disparo");
     }
+    else if(fsm0.state == 1 && (message.length() <= 3)){
+      set_state(fsm0, 0); 
+
+      message = "";
+    }
+    else if(fsm0.state == 1 && (message.length() >= 5)){
+      set_state(fsm0, 2); 
+
+      distance = (getDistance(message)/1000)*30;
+
+      Serial.print("A distancia obtida é de: "); Serial.println(distance, 2);
+    
+      message = "";
+    }
+    else if(fsm0.state == 2 && stopRotate){
+      set_state(fsm0, 0); 
+      stopRotate = false;
+
+      Serial.println("Para motor");
+    }
+
+    // update outputs
+    // update outputs
+    if(fsm0.state == 0){
+      analogWrite(base, 0);
+
+      //Serial.println("actual state -> 0");
+    }
+    else if(fsm0.state == 1){
+      //Serial.println("actual state -> 1");
+      client.println("disparo");
+      message = client.readStringUntil('\n');
+      Serial.println("Received message: " + message);
+    }
+    else if(fsm0.state == 2){
+      rotate(distance);
+      stopRotate = true;
+      //Serial.println("actual state -> 2");
+    }
+
+    //update old values
+    oldSensorValue = newSensorValue;
   }  
+
+  delay(20);
 }
 
 double getDistance(String message){
@@ -196,7 +191,6 @@ float Calc_tempo_rota(float raio , float speed_nominal, float dist_percorrer ){ 
   Serial.printf("Frequência: %.2f, Velocidade Angular: %.2f, Velocidade: %.2f, Tempo: %.2f \n", freq,W,V,T);
   return T;
 }
-
 
 void rotate(double distance){
   dist_papel = Calc_dist_papel(0.025, 0.090, 0.000121);
