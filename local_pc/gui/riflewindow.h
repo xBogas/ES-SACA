@@ -32,7 +32,6 @@ signals:
 
 private slots:
     void on_ExitButton_clicked();
-    void on_MainButton_clicked();
     void on_ShootButton_clicked();
     void on_horizontalSlider_valueChanged(int value);
     void processar();

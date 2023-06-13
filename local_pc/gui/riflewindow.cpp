@@ -112,11 +112,6 @@ void RifleWindow::finalButtonClicked()
    }
 }
 
-void RifleWindow::on_MainButton_clicked(){
-    this->hide();
-    this->parentWidget()->show();
-}
-
 void RifleWindow::on_ExitButton_clicked()
 {
     qApp->quit();

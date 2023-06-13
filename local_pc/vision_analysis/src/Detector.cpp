@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-#define DEBUG
+// #define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -27,8 +27,9 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	// Connect to ESP8266
 #ifdef ESP_COMS
 	tcp::resolver resolver(io_context);
-  boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
+  	boost::asio::connect(socket, resolver.resolve(addr, std::to_string(port))); // ESP8266 IP address and port
 	boost::asio::write(socket, boost::asio::buffer(""));
+	std::cout << "[Connected to ESP8266]" << std::endl;
 #endif
 
 #ifndef CAMERA

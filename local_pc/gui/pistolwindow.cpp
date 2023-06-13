@@ -109,11 +109,6 @@ void PistolWindow::finalButtonClicked()
    }
 }
 
-void PistolWindow::on_MainButton_clicked(){
-    this->hide();
-    this->parentWidget()->show();
-}
-
 void PistolWindow::on_ExitButton_clicked()
 {
     qApp->quit();
