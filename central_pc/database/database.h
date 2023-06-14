@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <limits>
 #include <stdio.h>
+#include <fstream>
 
 #include <pqxx/pqxx>
 #include <ctime>
