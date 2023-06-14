@@ -1,25 +1,28 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <EEPROM.h>
 
 #define __DEBUG__
+#define DISTANCE_EEPROM_ADDRESS 0
 
 const char* ssid = "ESP_SACA_AP";
 const char* password = "SACA123saca";
-const int port = 80
+const int port = 80;
 const int motorPin = 5;
+const int buttonPin = 4;
 const int PWM_value = 100;
-int base = 5;   
 int state = 0;    
 int sensorValue, newSensorValue = false, oldSensorValue = false; 
-float dist_papel = 50;
-bool stopRotate = false, connected = false;
+float dist_papel = 0;
+bool stopRotate = false;
+bool connected = false, oldConnected = false;
+bool newBut = false, oldBut = false;
 double distance = 0;
 unsigned long timeToRotate;
 String message, subMessage;
 
 typedef struct {
   int state, new_state;
-
   // tes - time entering state
   // tis - time in state
   unsigned long tes, tis;
@@ -46,7 +49,8 @@ void rotate(double distance);
 
 void setup() {
   Serial.begin(9600);
-  pinMode(base,OUTPUT); 
+  pinMode(buttonPin, INPUT);
+  pinMode(motorPin, OUTPUT);
   
   // Initialize state machines
   set_state(fsm0, 0);
@@ -64,11 +68,36 @@ void loop() {
   if (!client.connected()) {
     client = server.available();
     connected = false;
-    //Serial.println("Client disconnected");
   }
   else{
     connected = true;
-    //Serial.println("Client connected");
+  }
+
+  newBut = digitalRead(buttonPin);
+  if(newBut && !oldBut){
+    dist_papel = 50;
+    EEPROM.put(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    Serial.print("Distance reset: "); Serial.println(dist_papel);
+  }
+
+  if(connected && !oldConnected){
+    //initialize EEPROM
+    EEPROM.begin(12);
+
+    Serial.println("Client connected");
+
+    //read the EEPROM value of dist_papel
+    EEPROM.get(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    Serial.print("dist_papel when connected = "); Serial.println(dist_papel);
+  }
+  else if (!connected && oldConnected){
+    dist_papel = 30;
+    Serial.println("Client disconnected");
+    EEPROM.put(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    //write the EEPROM value of dist_papel
+
+    EEPROM.end();
+    Serial.print("dist_papel when disconnected = "); Serial.println(dist_papel);
   }
 
   if(connected) {
@@ -111,8 +140,6 @@ void loop() {
     // update outputs
     // update outputs
     if(fsm0.state == 0){
-      analogWrite(base, 0);
-
       //Serial.println("actual state -> 0");
     }
     else if(fsm0.state == 1){
@@ -130,6 +157,9 @@ void loop() {
     //update old values
     oldSensorValue = newSensorValue;
   }  
+
+  oldBut = newBut;
+  oldConnected = connected;
 
   delay(20);
 }
