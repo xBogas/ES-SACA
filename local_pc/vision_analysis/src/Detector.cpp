@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-// #define DEBUG
+//#define DEBUG
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -38,11 +38,9 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 
 #ifdef VISION_TEST
 
-	transformImage2();
-	
-	transformImage();
-	::exit(0);
 	start = std::chrono::high_resolution_clock::now();
+	transformPistol();
+	//transformRifle();
 	getCenter();
 	getPoints();
 	end = std::chrono::high_resolution_clock::now();
@@ -515,6 +513,7 @@ double Detector::getScore(double distance, double radius)
  * 10  Ring: 77.75 mm
  */
 
+//! For pistol only
 void Detector::transformImage()
 {
 	start = std::chrono::high_resolution_clock::now();
@@ -525,7 +524,7 @@ void Detector::transformImage()
 	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
 #endif
 	
-	const int MAX_FEATURES = (m_target == Target::Rifle)? 1000 : 20000;
+	const int MAX_FEATURES = 18000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
@@ -558,9 +557,9 @@ void Detector::transformImage()
 	//? (1)
 
 #ifdef DEBUG
-	/* cv::Mat imMatches;
+	cv::Mat imMatches;
 	drawMatches(m_image, key_points1, m_img_ref, key_points2, matches, imMatches);
-	cv::imwrite("matches.jpg", imMatches); */
+	cv::imwrite("matches.jpg", imMatches);
 #endif
 	// Extract location of good matches
 	std::vector<cv::Point2f> points1, points2;
@@ -580,68 +579,218 @@ void Detector::transformImage()
 	warpPerspective(m_image, m_image, h, m_img_ref.size());
 	end = std::chrono::high_resolution_clock::now();
 	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
-#ifdef DEBUG
+//#ifdef DEBUG
 	cv::imshow("Transformed",m_image);
 	cv::waitKey();
 	cv::imwrite("transformed.jpg", m_image);
-#endif
-	//exit(1);
+//#endif
 }
 
 
-void Detector::transformImage2()
+void Detector::transformRifle()
 {
+#ifdef CAMERA
+	m_camera.retrieve(m_image);
+#else
+	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
+#endif
+
 	//get 4 corner points of m_image
-	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);
+	cv::Mat hsv, gray, out;
+	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
 
-	/* cv::Point top_left(450, 55), top_right(1430, 20), bottom_left(150, 1020), bottom_right(1690, 1020);
+	cv::Mat channels[3];
+	cv::split(hsv, channels);
 
-	
-	double width_A = cv::norm(top_left - top_right);
-	double width_B = cv::norm(bottom_left - bottom_right);
+	cv::Mat op2;
+	blur(hsv, hsv, cv::Size(3, 3));
+	cv::inRange(hsv, cv::Vec3b(90,0,0), cv::Vec3b(255,70,255), op2);
+	cv::imshow("Filtered", op2);
+	cv::waitKey();
 
-	double max_width = (width_A > width_B)? width_A: width_B;
+	/* 
+	cv::Mat morph, kernel;
+	kernel = cv::Mat(3, 3, CV_8U, cv::Scalar(1));
+	cv::morphologyEx(op2, morph, cv::MORPH_ERODE, kernel);
+	cv::imshow("Kernel", morph);
+	cv::waitKey(); */
 
+	std::vector<std::vector<cv::Point>> contours;
+	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-	double heightA = cv::norm(top_left - bottom_left);
-	double heightB = cv::norm(top_right - bottom_right);
+	std::cout << "Found " << contours.size() << "\n";
+	double max_area = 0;
+	int pos = 0;
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		if (contours[i].size() < 700)
+			continue;
 
-	double maxHeight = (heightA > heightB)? heightA: heightB; */
+		double area = cv::contourArea(contours[i]);
+		if( area < 10'000)
+			continue;
+		if (area > max_area)
+		{
+			max_area = area;
+			pos = i;
+		}
+#if defined(DEBUG)
+		cv::Mat display = m_image.clone();
+		std::cout << "Area " << area << " and size " << contours[i].size() << "\n";
+		cv::drawContours(display, contours, i, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+		cv::imshow("Image", display);
+		cv::waitKey();
+#endif
+	}
+
+	cv::approxPolyDP(contours[pos], out, 0.05*cv::arcLength(contours[pos], true), true);
+#if defined(DEBUG)
+	std::cout << "Out: " << out << "\n";
+	cv::drawContours(m_image, out, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	cv::imshow("Image", m_image);
+	cv::waitKey();
+#endif
 
 	start = std::chrono::high_resolution_clock::now();
-	std::array<cv::Point, 4> corners = {cv::Point(450, 55),
-										cv::Point(1430, 20),
-										cv::Point(150, 1020),
-										cv::Point(1690, 1020)};
+	std::array<cv::Point, 4> corners = {out.at<cv::Point>(0),
+										out.at<cv::Point>(1),
+										out.at<cv::Point>(2),
+										out.at<cv::Point>(3)};
 
-	/* const cv::Point* point = &corners[0];
+#ifdef DEBUG
+	const cv::Point* point = &corners[0];
 	int n = (int)corners.size();
 	cv::Mat draw = m_image.clone();
 	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
-	imwrite("draw.jpg", draw); */
-
+	imwrite("TargetContour.jpg", draw);
+#endif
 
 	cv::Point2f src_vertices[3];
 	src_vertices[0] = corners[0];
-    src_vertices[1] = corners[1];
-    src_vertices[2] = corners[2];
-    src_vertices[3] = corners[3];
+	src_vertices[1] = corners[1];
+	src_vertices[2] = corners[2];
+	src_vertices[3] = corners[3];
 
 
 	cv::Point2f dst_vertices[3];
 	dst_vertices[0] = cv::Point(0, 0);
-    dst_vertices[1] = cv::Point(1050, 0);
-	dst_vertices[2] = cv::Point(0, 1050);
-	dst_vertices[3] = cv::Point(1050, 1050);
+	dst_vertices[1] = cv::Point(0, 1190);
+	dst_vertices[2] = cv::Point(1190, 1190);
+	dst_vertices[3] = cv::Point(1190, 0);
 
 	cv::Mat warpPerspectiveMatrix = getPerspectiveTransform(src_vertices, dst_vertices);
-	cv::Mat rotated;
-	warpPerspective(m_image, rotated, warpPerspectiveMatrix, cv::Size(1050, 1050), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
+	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
 
 	end = std::chrono::high_resolution_clock::now();
 	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
 
-	cv::imshow("Image", rotated);
-	imwrite("Fodasse.png", rotated);
+#if defined(DEBUG)
+	cv::imshow("Cut", m_image);
 	cv::waitKey();
+#endif
+}
+
+
+
+void Detector::transformPistol()
+{
+#ifdef CAMERA
+	m_camera.retrieve(m_image);
+#else
+	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);  // 226434_n 226431_n
+#endif
+
+	//get 4 corner points of m_image
+	cv::Mat hsv, gray, out;
+	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
+
+	cv::Mat channels[3];
+	cv::split(hsv, channels);
+
+	cv::Mat op2;
+	blur(hsv, hsv, cv::Size(3, 3));
+	cv::inRange(hsv, cv::Vec3b(90,0,0), cv::Vec3b(255,70,255), op2);
+	cv::imshow("Filtered", op2);
+	cv::waitKey();
+	exit(2);
+	/* 
+	cv::Mat morph, kernel;
+	kernel = cv::Mat(3, 3, CV_8U, cv::Scalar(1));
+	cv::morphologyEx(op2, morph, cv::MORPH_ERODE, kernel);
+	cv::imshow("Kernel", morph);
+	cv::waitKey(); */
+
+	std::vector<std::vector<cv::Point>> contours;
+	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+	std::cout << "Found " << contours.size() << "\n";
+	double max_area = 0;
+	int pos = 0;
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		if (contours[i].size() < 700)
+			continue;
+
+		double area = cv::contourArea(contours[i]);
+		if( area < 10'000)
+			continue;
+		if (area > max_area)
+		{
+			max_area = area;
+			pos = i;
+		}
+#if defined(DEBUG)
+		cv::Mat display = m_image.clone();
+		std::cout << "Area " << area << " and size " << contours[i].size() << "\n";
+		cv::drawContours(display, contours, i, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+		cv::imshow("Image", display);
+		cv::waitKey();
+#endif
+	}
+
+	cv::approxPolyDP(contours[pos], out, 0.05*cv::arcLength(contours[pos], true), true);
+#if defined(DEBUG)
+	std::cout << "Out: " << out << "\n";
+	cv::drawContours(m_image, out, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	cv::imshow("Image", m_image);
+	cv::waitKey();
+#endif
+
+	start = std::chrono::high_resolution_clock::now();
+	std::array<cv::Point, 4> corners = {out.at<cv::Point>(0),
+										out.at<cv::Point>(1),
+										out.at<cv::Point>(2),
+										out.at<cv::Point>(3)};
+
+#ifdef DEBUG
+	const cv::Point* point = &corners[0];
+	int n = (int)corners.size();
+	cv::Mat draw = m_image.clone();
+	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
+	imwrite("TargetContour.jpg", draw);
+#endif
+
+	cv::Point2f src_vertices[3];
+	src_vertices[0] = corners[0];
+	src_vertices[1] = corners[1];
+	src_vertices[2] = corners[2];
+	src_vertices[3] = corners[3];
+
+
+	cv::Point2f dst_vertices[3];
+	dst_vertices[0] = cv::Point(0, 0);
+	dst_vertices[1] = cv::Point(0, 1190);
+	dst_vertices[2] = cv::Point(1190, 1190);
+	dst_vertices[3] = cv::Point(1190, 0);
+
+	cv::Mat warpPerspectiveMatrix = getPerspectiveTransform(src_vertices, dst_vertices);
+	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
+
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+
+#if defined(DEBUG)
+	cv::imshow("Cut", m_image);
+	cv::waitKey();
+#endif
 }

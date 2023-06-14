@@ -3,6 +3,10 @@
 
 #include <QtCore/QObject>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>  
 #include "Approx.hpp"
 #include <iostream>
 #include <boost/asio.hpp>
@@ -116,7 +120,10 @@ private:
 	transformImage();
 
 	void
-	transformImage2();
+	transformRifle();
+
+	void
+	transformPistol();
 
 	/// @brief Io handle
 	boost::asio::io_context io_context;
