@@ -19,9 +19,9 @@ RifleWindow::RifleWindow(QWidget *parent) :
     ui->tableWidget->verticalHeader()->setVisible(0);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(2,QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(3,QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4,QHeaderView::ResizeToContents);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 20pt; }");
     fnt.setPointSize(18);
