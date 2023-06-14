@@ -174,16 +174,20 @@ bool Database::db_EXPORT_Athletes(string user, string file_loc){
 
         //give permission
         string command1 = "sudo chown postgres /home/" + user +"\n";
-        command1 += "sudo chgrp postgres /home/" + user;
+        command1 += "sudo chgrp postgres /home/" + user + "\n";
+        command1 += "sudo chown postgres /home/saca/Atletas.csv \n";
+        command1 += "sudo chgrp postgres /home/saca/Atletas.csv";
         system(command1.c_str());
         
-        string sql = "COPY (SELECT * FROM \"Athlete\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
+        string sql = "COPY (SELECT * FROM \"Athlete\" ORDER BY \"Athlete\".\"Licença\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
         cout << sql << endl;
         execute(sql, false);
 
         //retrieve permission
         string command2 = "sudo chown " + user + " /home/" + user + "\n";
-        command2 += "sudo chgrp " + user + " /home/" + user;
+        command2 += "sudo chgrp " + user + " /home/" + user + "\n";
+        command2 += "sudo chown " + user + " /home/saca/Atletas.csv" + "\n";
+        command2 += "sudo chgrp " + user + " /home/saca/Atletas.csv";
         system(command2.c_str());
 
         return true;
