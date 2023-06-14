@@ -18,35 +18,30 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="3">
-     <spacer name="verticalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <pointsize>26</pointsize>
-        <bold>true</bold>
-       </font>
+    <item row="0" column="10">
+     <widget class="QPushButton" name="ExitButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <property name="text">
-       <string>CARABINA</string>
+       <string/>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
+      <property name="icon">
+       <iconset>
+        <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" rowspan="8">
+     <widget class="QTableWidget" name="tableWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>20</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>
@@ -66,11 +61,11 @@
       </property>
      </spacer>
     </item>
-    <item row="4" column="3" colspan="4">
+    <item row="4" column="3" colspan="8">
      <widget class="QPushButton" name="MatchButton">
       <property name="font">
        <font>
-        <pointsize>20</pointsize>
+        <pointsize>24</pointsize>
         <bold>true</bold>
        </font>
       </property>
@@ -82,23 +77,131 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="3" colspan="4">
-     <widget class="QPushButton" name="FinalButton">
+    <item row="7" column="3" colspan="8">
+     <widget class="QPushButton" name="StartButton">
       <property name="font">
        <font>
-        <pointsize>20</pointsize>
+        <pointsize>24</pointsize>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(85, 85, 255);</string>
+       <string notr="true">background-color: rgb(100, 100, 100);</string>
       </property>
       <property name="text">
-       <string>FINAL</string>
+       <string>INICIAR</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="3" colspan="4">
+    <item row="8" column="3" colspan="8">
+     <widget class="QPushButton" name="switchButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>24</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color:  rgb(230, 230, 230);</string>
+      </property>
+      <property name="text">
+       <string>RESET</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="7">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <pointsize>30</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>CARABINA</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="2">
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Minimum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="0">
+     <spacer name="horizontalSpacer_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Minimum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="3" column="3" colspan="8">
+     <widget class="QPushButton" name="PracticeButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>24</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 0);</string>
+      </property>
+      <property name="text">
+       <string>TREINO</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3" colspan="8">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>0</number>
@@ -159,88 +262,13 @@
       </item>
      </layout>
     </item>
-    <item row="7" column="3" colspan="4">
-     <widget class="QPushButton" name="StartButton">
-      <property name="font">
-       <font>
-        <pointsize>20</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(100, 100, 100);</string>
-      </property>
-      <property name="text">
-       <string>INICIAR</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="3" colspan="4">
-     <widget class="QPushButton" name="PracticeButton">
-      <property name="font">
-       <font>
-        <pointsize>20</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 0);</string>
-      </property>
-      <property name="text">
-       <string>TREINO</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QPushButton" name="backButton">
-      <property name="text">
-       <string>VOLTAR</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1" rowspan="8">
-     <widget class="QTableWidget" name="tableWidget"/>
-    </item>
-    <item row="1" column="0">
-     <spacer name="horizontalSpacer_4">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="6">
-     <widget class="QPushButton" name="ExitButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <spacer name="verticalSpacer_2">
+    <item row="2" column="3">
+     <spacer name="verticalSpacer_3">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
       <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
+       <enum>QSizePolicy::Minimum</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -250,23 +278,7 @@
       </property>
      </spacer>
     </item>
-    <item row="1" column="2">
-     <spacer name="horizontalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="5">
+    <item row="0" column="9">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -282,25 +294,26 @@
       </property>
      </spacer>
     </item>
-    <item row="8" column="3" colspan="4">
-     <widget class="QPushButton" name="switchButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="5" column="3" colspan="8">
+     <widget class="QPushButton" name="FinalButton">
       <property name="font">
        <font>
-        <pointsize>20</pointsize>
+        <pointsize>24</pointsize>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color:  rgb(230, 230, 230);</string>
+       <string notr="true">background-color: rgb(85, 85, 255);</string>
       </property>
       <property name="text">
-       <string>RESET</string>
+       <string>FINAL</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="8">
+     <widget class="QPushButton" name="backButton">
+      <property name="text">
+       <string>VOLTAR</string>
       </property>
      </widget>
     </item>

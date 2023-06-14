@@ -43,7 +43,11 @@ ExportWindow* InitWindow::getExportWindow(){
 }
 
 void InitWindow::on_importButton_clicked(){
-    
+    bool verification = database->db_IMPORT("/home/saca/Atletas.csv", "saca");
+    if(verification)
+        QMessageBox::information(this, "Sucesso", "Atletas importados com sucesso!");
+    else
+        QMessageBox::critical(this, "Erro", "Atletas importados sem sucesso!");
 }
 
 void InitWindow::on_exportCompButton_clicked(){
@@ -53,7 +57,11 @@ void InitWindow::on_exportCompButton_clicked(){
 }
 
 void InitWindow::on_exportAthletesButton_clicked(){
-    // database->exportAthletes();
+    bool verification = database->db_EXPORT_Athletes("saca", "/home/saca");
+    if(verification)
+        QMessageBox::information(this, "Sucesso", "Atletas exportados com sucesso!");
+    else
+        QMessageBox::critical(this, "Erro", "Atletas exportados sem sucesso!");
 }
 
 void InitWindow::on_exitButton_clicked(){

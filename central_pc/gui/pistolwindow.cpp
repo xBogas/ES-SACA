@@ -17,10 +17,14 @@ PistolWindow::PistolWindow(QWidget *parent) :
     titulos << "Lugar" << "Atleta" << "Num. de Tiros" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
     ui->tableWidget->verticalHeader()->setVisible(0);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4,QHeaderView::Stretch);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 20pt; }");
-    fnt.setPointSize(16);
+    fnt.setPointSize(18);
     
     practiceSignal = false;
     matchSignal = false;
@@ -288,7 +292,6 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
     
     int idx=0;
     int cnt=0;
-    int zr=0;
     int zz=1;
     nm=QString::fromStdString(nome);
 
@@ -323,52 +326,88 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
                     continue;                                 //passa para o seguinte i;
                 }
                 //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
-                if(z==2 && pontuações[i]==pontuações[lug_1]){
+                if(z==2 && pontuações[i]==pontuações[lug_1] && ntir[i]==ntir[lug_1]){
                     lug_igual=1;
                 }
-                if(z==3 && pontuações[i]==pontuações[lug_2]){
+                if(z==3 && pontuações[i]==pontuações[lug_2] && ntir[i]==ntir[lug_2]){
                     lug_igual=1;
                 }
-                if(z==4 && pontuações[i]==pontuações[lug_3]){
+                if(z==4 && pontuações[i]==pontuações[lug_3] && ntir[i]==ntir[lug_3]){
                     lug_igual=1;
                 }
-                if(z==5 && pontuações[i]==pontuações[lug_4]){
+                if(z==5 && pontuações[i]==pontuações[lug_4] && ntir[i]==ntir[lug_4]){
                     lug_igual=1;
                 }
-                if(z==6 && pontuações[i]==pontuações[lug_5]){
+                if(z==6 && pontuações[i]==pontuações[lug_5] && ntir[i]==ntir[lug_5]){
                     lug_igual=1;
                 }
-                if(z==7 && pontuações[i]==pontuações[lug_6]){
+                if(z==7 && pontuações[i]==pontuações[lug_6] && ntir[i]==ntir[lug_6]){
                     lug_igual=1;
                 }
-                if(z==8 && pontuações[i]==pontuações[lug_7]){
+                if(z==8 && pontuações[i]==pontuações[lug_7] && ntir[i]==ntir[lug_7]){
                     lug_igual=1;
                 }
-                if(z==9 && pontuações[i]==pontuações[lug_8]){
+                if(z==9 && pontuações[i]==pontuações[lug_8] && ntir[i]==ntir[lug_8]){
                     lug_igual=1;
                 }
-                if(z==10 && pontuações[i]==pontuações[lug_9]){
+                if(z==10 && pontuações[i]==pontuações[lug_9] && ntir[i]==ntir[lug_9]){
                     lug_igual=1;
                 }
+
                 if(lug_igual==0){
                     for(d=0; d<jogadores.size(); d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
                         if(d==lug_1 || d==lug_2 || d==lug_3 || d==lug_4 || d==lug_5 || d==lug_6 || d==lug_7 || d==lug_8 || d==lug_9 || i==d){
                             continue;
                         }
-                        else{
-                            if(pontuações[i]<pontuações[d]){
+                        if(pontuações[i]<pontuações[d]){
+                            i=d;
+                        }
+                        if(pontuações[i]==pontuações[d]){
+                            if(ntir[i]>ntir[d]){
                                 i=d;
-                                zr=1;
-                                break;
                             }
-                            else{
-                                zr=0;
-                            }
+                        }
+                        if(z==2 && pontuações[i]==pontuações[lug_1] && ntir[i]==ntir[lug_1]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==3 && pontuações[i]==pontuações[lug_2] && ntir[i]==ntir[lug_2]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==4 && pontuações[i]==pontuações[lug_3] && ntir[i]==ntir[lug_3]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==5 && pontuações[i]==pontuações[lug_4] && ntir[i]==ntir[lug_4]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==6 && pontuações[i]==pontuações[lug_5] && ntir[i]==ntir[lug_5]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==7 && pontuações[i]==pontuações[lug_6] && ntir[i]==ntir[lug_6]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==8 && pontuações[i]==pontuações[lug_7] && ntir[i]==ntir[lug_7]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==9 && pontuações[i]==pontuações[lug_8] && ntir[i]==ntir[lug_8]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==10 && pontuações[i]==pontuações[lug_9] && ntir[i]==ntir[lug_9]){
+                            lug_igual=1;
+                            break;
                         }
                     }
                 }
-                cnt=i;
-                if(zr==0 || zr==1  || lug_igual==1){
+                
+                if(d==jogadores.size() || lug_igual==1){
+                    cnt=i;
                     if(z==1){
                         lug_1=i;
                         break;
@@ -488,52 +527,88 @@ void PistolWindow::tabelalugar(float pontuação, std::string nome, int numtiros
                     continue;                                 //passa para o seguinte i;
                 }
                 //Verificar se atleta tem a mesma pontuação que o atleta posto linha anterior da tabela.
-                if(z==2 && pontuações[i]==pontuações[lug_1]){
+                if(z==2 && pontuações[i]==pontuações[lug_1] && ntir[i]==ntir[lug_1]){
                     lug_igual=1;
                 }
-                if(z==3 && pontuações[i]==pontuações[lug_2]){
+                if(z==3 && pontuações[i]==pontuações[lug_2] && ntir[i]==ntir[lug_2]){
                     lug_igual=1;
                 }
-                if(z==4 && pontuações[i]==pontuações[lug_3]){
+                if(z==4 && pontuações[i]==pontuações[lug_3] && ntir[i]==ntir[lug_3]){
                     lug_igual=1;
                 }
-                if(z==5 && pontuações[i]==pontuações[lug_4]){
+                if(z==5 && pontuações[i]==pontuações[lug_4] && ntir[i]==ntir[lug_4]){
                     lug_igual=1;
                 }
-                if(z==6 && pontuações[i]==pontuações[lug_5]){
+                if(z==6 && pontuações[i]==pontuações[lug_5] && ntir[i]==ntir[lug_5]){
                     lug_igual=1;
                 }
-                if(z==7 && pontuações[i]==pontuações[lug_6]){
+                if(z==7 && pontuações[i]==pontuações[lug_6] && ntir[i]==ntir[lug_6]){
                     lug_igual=1;
                 }
-                if(z==8 && pontuações[i]==pontuações[lug_7]){
+                if(z==8 && pontuações[i]==pontuações[lug_7] && ntir[i]==ntir[lug_7]){
                     lug_igual=1;
                 }
-                if(z==9 && pontuações[i]==pontuações[lug_8]){
+                if(z==9 && pontuações[i]==pontuações[lug_8] && ntir[i]==ntir[lug_8]){
                     lug_igual=1;
                 }
-                if(z==10 && pontuações[i]==pontuações[lug_9]){
+                if(z==10 && pontuações[i]==pontuações[lug_9] && ntir[i]==ntir[lug_9]){
                     lug_igual=1;
                 }
+                
                 if(lug_igual==0){
                     for(d=0; d<jogadores.size(); d++){          //percorrer restantes atletas para comparar pontuação, verificando se há atleta com pontuação maior.
                         if(d==lug_1 || d==lug_2 || d==lug_3 || d==lug_4 || d==lug_5 || d==lug_6 || d==lug_7 || d==lug_8 || d==lug_9 || i==d){
                             continue;
                         }
-                        else{
-                            if(pontuações[i]<pontuações[d]){
+                        if(pontuações[i]<pontuações[d]){
+                            i=d;
+                        }
+                        if(pontuações[i]==pontuações[d]){
+                            if(ntir[i]>ntir[d]){
                                 i=d;
-                                zr=1;
-                                break;
                             }
-                            else{
-                                zr=0;
-                            }
+                        }
+                        if(z==2 && pontuações[i]==pontuações[lug_1] && ntir[i]==ntir[lug_1]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==3 && pontuações[i]==pontuações[lug_2] && ntir[i]==ntir[lug_2]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==4 && pontuações[i]==pontuações[lug_3] && ntir[i]==ntir[lug_3]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==5 && pontuações[i]==pontuações[lug_4] && ntir[i]==ntir[lug_4]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==6 && pontuações[i]==pontuações[lug_5] && ntir[i]==ntir[lug_5]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==7 && pontuações[i]==pontuações[lug_6] && ntir[i]==ntir[lug_6]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==8 && pontuações[i]==pontuações[lug_7] && ntir[i]==ntir[lug_7]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==9 && pontuações[i]==pontuações[lug_8] && ntir[i]==ntir[lug_8]){
+                            lug_igual=1;
+                            break;
+                        }
+                        if(z==10 && pontuações[i]==pontuações[lug_9] && ntir[i]==ntir[lug_9]){
+                            lug_igual=1;
+                            break;
                         }
                     }
                 }
-                cnt=i;
-                if(zr==0 || zr==1  || lug_igual==1){
+
+                if(d==jogadores.size() || lug_igual==1){
+                    cnt=i;
                     if(z==1){
                         lug_1=i;
                         break;
