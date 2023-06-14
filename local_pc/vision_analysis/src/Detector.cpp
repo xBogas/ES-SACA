@@ -2,8 +2,8 @@
 #include <vector>
 #include <chrono>
 
-std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-//#define DEBUG
+#define DEBUG
+//#define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -32,15 +32,21 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	std::cout << "[Connected to ESP8266]" << std::endl;
 #endif
 
-#ifndef CAMERA
-	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);
+#ifdef CAMERA
+	if(!m_camera.open("/dev/video0"))
+		throw std::runtime_error("Failed to open camera");
+	m_camera.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+	m_camera.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 #endif
 
 #ifdef VISION_TEST
 
+	getCapture();
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start = std::chrono::high_resolution_clock::now();
-	transformPistol();
-	//transformRifle();
+	//transformImage();
+	//transformPistol();
+	transformRifle();
 	getCenter();
 	getPoints();
 	end = std::chrono::high_resolution_clock::now();
@@ -71,7 +77,11 @@ void Detector::onMain(bool& finish, bool& continueReading)
 			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
 			if (newRead && !oldRead)
 			{
-				transformImage();
+				getCapture();
+				if (m_target == Target::Pistol)
+					transformImage(); // transformPistol();
+				else
+					transformRifle();
 				getCenter();
 				getPoints();
 			}
@@ -318,20 +328,8 @@ Detector::getPoints()
 		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
-			//? 27.4 for rifle		(4.5+0.1)/2 * 364/30.5 = 27.449180327868852
-			double shot_radius;
-			switch (m_target)
-			{
-			case Target::Pistol:
-				shot_radius = 15;
-				break;
-
-			case Target::Rifle:
-				shot_radius = 27;
-				break;
-			default:
-				break;
-			}
+			//? 27 for rifle		4.5/2 * 1190/100
+			double shot_radius = (m_target == Target::Pistol)? 15 : 27;
 
 			double x_init = (contours[i][0].x + contours[i][20].x) / 2;
 			double y_init = (contours[i][0].y + contours[i][20].y) / 2;
@@ -516,15 +514,10 @@ double Detector::getScore(double distance, double radius)
 //! For pistol only
 void Detector::transformImage()
 {
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start = std::chrono::high_resolution_clock::now();
-
-#ifdef CAMERA
-	m_camera.retrieve(m_image);
-#else
-	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
-#endif
 	
-	const int MAX_FEATURES = 18000;
+	const int MAX_FEATURES = 1000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
@@ -578,32 +571,27 @@ void Detector::transformImage()
 	// Use homography to warp image
 	warpPerspective(m_image, m_image, h, m_img_ref.size());
 	end = std::chrono::high_resolution_clock::now();
-	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
-//#ifdef DEBUG
+	std::cout << "TransformImage: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
+#ifdef DEBUG
 	cv::imshow("Transformed",m_image);
 	cv::waitKey();
 	cv::imwrite("transformed.jpg", m_image);
-//#endif
+#endif
 }
 
 
 void Detector::transformRifle()
 {
-#ifdef CAMERA
-	m_camera.retrieve(m_image);
-#else
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
-#endif
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	start = std::chrono::high_resolution_clock::now();
 
 	//get 4 corner points of m_image
-	cv::Mat hsv, gray, out;
+	cv::Mat hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
-
-	cv::Mat channels[3];
-	cv::split(hsv, channels);
 
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(3, 3));
+	//TODO: fix hsv range
 	cv::inRange(hsv, cv::Vec3b(90,0,0), cv::Vec3b(255,70,255), op2);
 	cv::imshow("Filtered", op2);
 	cv::waitKey();
@@ -613,7 +601,8 @@ void Detector::transformRifle()
 	kernel = cv::Mat(3, 3, CV_8U, cv::Scalar(1));
 	cv::morphologyEx(op2, morph, cv::MORPH_ERODE, kernel);
 	cv::imshow("Kernel", morph);
-	cv::waitKey(); */
+	cv::waitKey();
+	*/
 
 	std::vector<std::vector<cv::Point>> contours;
 	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -643,36 +632,33 @@ void Detector::transformRifle()
 #endif
 	}
 
-	cv::approxPolyDP(contours[pos], out, 0.05*cv::arcLength(contours[pos], true), true);
+	cv::approxPolyDP(contours[pos], corners, 0.05*cv::arcLength(contours[pos], true), true);
+
 #if defined(DEBUG)
-	std::cout << "Out: " << out << "\n";
-	cv::drawContours(m_image, out, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	std::cout << "Out: " << corners << "\n";
+	cv::drawContours(m_image, corners, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 	cv::imshow("Image", m_image);
 	cv::waitKey();
-#endif
 
-	start = std::chrono::high_resolution_clock::now();
-	std::array<cv::Point, 4> corners = {out.at<cv::Point>(0),
-										out.at<cv::Point>(1),
-										out.at<cv::Point>(2),
-										out.at<cv::Point>(3)};
+	std::vector<cv::Point> corner_points;
+	corner_points.push_back(corners.at<cv::Point>(0));
+	corner_points.push_back(corners.at<cv::Point>(1));
+	corner_points.push_back(corners.at<cv::Point>(2));
+	corner_points.push_back(corners.at<cv::Point>(3));
 
-#ifdef DEBUG
-	const cv::Point* point = &corners[0];
-	int n = (int)corners.size();
+	const cv::Point* point = &corner_points[0];
+	int n = corner_points.size();
 	cv::Mat draw = m_image.clone();
 	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
 	imwrite("TargetContour.jpg", draw);
 #endif
 
-	cv::Point2f src_vertices[3];
-	src_vertices[0] = corners[0];
-	src_vertices[1] = corners[1];
-	src_vertices[2] = corners[2];
-	src_vertices[3] = corners[3];
+	cv::Point2f src_vertices[4];
+	orderCorners(corners, src_vertices);
 
 
-	cv::Point2f dst_vertices[3];
+
+	cv::Point2f dst_vertices[4];
 	dst_vertices[0] = cv::Point(0, 0);
 	dst_vertices[1] = cv::Point(0, 1190);
 	dst_vertices[2] = cv::Point(1190, 1190);
@@ -682,10 +668,10 @@ void Detector::transformRifle()
 	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
 
 	end = std::chrono::high_resolution_clock::now();
-	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+	std::cout << "TransformRifle: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
 
 #if defined(DEBUG)
-	cv::imshow("Cut", m_image);
+	cv::imshow("Transform result", m_image);
 	cv::waitKey();
 #endif
 }
@@ -694,22 +680,17 @@ void Detector::transformRifle()
 
 void Detector::transformPistol()
 {
-#ifdef CAMERA
-	m_camera.retrieve(m_image);
-#else
-	m_image = cv::imread("../images/new/226434_n.png", cv::IMREAD_COLOR);  // 226434_n 226431_n
-#endif
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	start = std::chrono::high_resolution_clock::now();
 
 	//get 4 corner points of m_image
-	cv::Mat hsv, gray, out;
+	cv::Mat hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
-
-	cv::Mat channels[3];
-	cv::split(hsv, channels);
 
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(3, 3));
-	cv::inRange(hsv, cv::Vec3b(90,0,0), cv::Vec3b(255,70,255), op2);
+	//TODO: try to get range
+	cv::inRange(hsv, cv::Vec3b(70,0,0), cv::Vec3b(255,255,255), op2);
 	cv::imshow("Filtered", op2);
 	cv::waitKey();
 	exit(2);
@@ -748,36 +729,31 @@ void Detector::transformPistol()
 #endif
 	}
 
-	cv::approxPolyDP(contours[pos], out, 0.05*cv::arcLength(contours[pos], true), true);
+	cv::approxPolyDP(contours[pos], corners, 0.05*cv::arcLength(contours[pos], true), true);
+
 #if defined(DEBUG)
-	std::cout << "Out: " << out << "\n";
-	cv::drawContours(m_image, out, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	std::cout << "Out: " << corners << "\n";
+	cv::drawContours(m_image, corners, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 	cv::imshow("Image", m_image);
 	cv::waitKey();
-#endif
 
-	start = std::chrono::high_resolution_clock::now();
-	std::array<cv::Point, 4> corners = {out.at<cv::Point>(0),
-										out.at<cv::Point>(1),
-										out.at<cv::Point>(2),
-										out.at<cv::Point>(3)};
-
-#ifdef DEBUG
-	const cv::Point* point = &corners[0];
-	int n = (int)corners.size();
+	std::vector<cv::Point> corner_points(4);
+	corner_points.push_back(corners.at<cv::Point>(0));
+	corner_points.push_back(corners.at<cv::Point>(1));
+	corner_points.push_back(corners.at<cv::Point>(2));
+	corner_points.push_back(corners.at<cv::Point>(3));
+	
+	const cv::Point* point = &corner_points[0];
+	int n = (int)corner_points.size();
 	cv::Mat draw = m_image.clone();
 	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
 	imwrite("TargetContour.jpg", draw);
 #endif
 
-	cv::Point2f src_vertices[3];
-	src_vertices[0] = corners[0];
-	src_vertices[1] = corners[1];
-	src_vertices[2] = corners[2];
-	src_vertices[3] = corners[3];
+	cv::Point2f src_vertices[4];
+	orderCorners(corners, src_vertices);
 
-
-	cv::Point2f dst_vertices[3];
+	cv::Point2f dst_vertices[4];
 	dst_vertices[0] = cv::Point(0, 0);
 	dst_vertices[1] = cv::Point(0, 1190);
 	dst_vertices[2] = cv::Point(1190, 1190);
@@ -787,10 +763,57 @@ void Detector::transformPistol()
 	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
 
 	end = std::chrono::high_resolution_clock::now();
-	std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+	std::cout << "TransformPistol: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
 
 #if defined(DEBUG)
-	cv::imshow("Cut", m_image);
+	cv::imshow("Transform result", m_image);
 	cv::waitKey();
 #endif
+}
+
+void Detector::getCapture()
+{
+#ifdef CAMERA
+	while(!m_camera.grab())
+		usleep(100);
+
+	while(!m_camera.retrieve(m_image))
+		usleep(100);
+#else
+	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
+#endif
+}
+
+void Detector::orderCorners(cv::Mat &input, cv::Point2f* output)
+{
+	if (input.total() != 4)
+		throw std::runtime_error("orderCorners input != 4 points");
+
+	cv::Point avg(0,0);
+	for (size_t i = 0; i < 4; i++)
+	{
+		avg += input.at<cv::Point>(i);
+	}
+	avg /= 4;
+	for (size_t i = 0; i < 4; i++)
+	{
+		int x = input.at<cv::Point>(i).x;
+		int y = input.at<cv::Point>(i).y;
+
+		if (x < avg.x)
+		{
+			if (y < avg.y)
+				output[0] = cv::Point(x,y);
+			else
+				output[1] = cv::Point(x,y);
+		}
+		else
+		{
+			if (y > avg.y)
+				output[2] = cv::Point(x,y);
+			else
+				output[3] = cv::Point(x,y);
+		}
+	}
+	
 }

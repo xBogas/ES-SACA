@@ -125,6 +125,12 @@ private:
 	void
 	transformPistol();
 
+	void
+	getCapture();
+
+	void
+	orderCorners(cv::Mat& input, cv::Point2f* output);
+
 	/// @brief Io handle
 	boost::asio::io_context io_context;
 	/// @brief Tcp socket
