@@ -17,10 +17,14 @@ RifleWindow::RifleWindow(QWidget *parent) :
     titulos << "Lugar" << "Atleta" << "Num. de Tiros" << "Pont.(Int)" << "Pont.(Dec)";
     ui->tableWidget->setHorizontalHeaderLabels(titulos);
     ui->tableWidget->verticalHeader()->setVisible(0);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4,QHeaderView::Stretch);
     ui->tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 20pt; }");
-    fnt.setPointSize(16);
+    fnt.setPointSize(18);
 
     practiceSignal = false;
     matchSignal = false;
@@ -257,7 +261,6 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
     
     int idx=0;
     int cnt=0;
-    int zr=0;
     int zz=1;
     nm=QString::fromStdString(nome);
 
@@ -327,17 +330,14 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
                         else{
                             if(pontuações[i]<pontuações[d]){
                                 i=d;
-                                zr=1;
-                                break;
-                            }
-                            else{
-                                zr=0;
+                                continue;
                             }
                         }
                     }
                 }
-                cnt=i;
-                if(zr==0 || zr==1  || lug_igual==1){
+
+                if(d==jogadores.size() || lug_igual==1){
+                    cnt=i;
                     if(z==1){
                         lug_1=i;
                         break;
@@ -492,17 +492,14 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
                         else{
                             if(pontuações[i]<pontuações[d]){
                                 i=d;
-                                zr=1;
-                                break;
-                            }
-                            else{
-                                zr=0;
+                                continue;
                             }
                         }
                     }
                 }
-                cnt=i;
-                if(zr==0 || zr==1  || lug_igual==1){
+
+                if(d==jogadores.size() || lug_igual==1){
+                    cnt=i;
                     if(z==1){
                         lug_1=i;
                         break;
@@ -610,6 +607,7 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
             ui->tableWidget->item(z-1,Inte)->setFont(fnt);
             ui->tableWidget->item(z-1,Dec)->setTextAlignment(Qt::AlignCenter);
             ui->tableWidget->item(z-1,Dec)->setFont(fnt);
+
             cnt=0;
             lug_igual=0;
         }
@@ -626,6 +624,11 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
     lug_9=-1;
     lug_10=-1;
     
+}
+
+void PistolWindow::limparTabela(){
+    ui->tableWidget->clear();                    //Apaga dados da tabela 
+    ui->tableWidget->setHorizontalHeaderLabels(titulos);
 }
 
 void RifleWindow::limparTabela(){
