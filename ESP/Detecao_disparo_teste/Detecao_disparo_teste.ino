@@ -19,7 +19,7 @@ bool connected = false, oldConnected = false;
 bool newBut = false, oldBut = false;
 double distance = 0;
 unsigned long timeToRotate;
-String message, subMessage;
+String message = "";
 
 typedef struct {
   int state, new_state;
@@ -73,36 +73,35 @@ void loop() {
     connected = true;
   }
 
-  newBut = digitalRead(buttonPin);
+  /*newBut = digitalRead(buttonPin);
   if(newBut && !oldBut){
     dist_papel = 50;
+    EEPROM.begin(12);
     EEPROM.put(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    EEPROM.end();
+
     Serial.print("Distance reset: "); Serial.println(dist_papel);
-  }
+  }*/
 
   if(connected && !oldConnected){
     //initialize EEPROM
-    EEPROM.begin(12);
+    /*EEPROM.begin(12);
+    EEPROM.get(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    Serial.print("dist_papel when connected = "); Serial.println(dist_papel);*/
+    dist_papel = 50;
 
     Serial.println("Client connected");
-
-    //read the EEPROM value of dist_papel
-    EEPROM.get(DISTANCE_EEPROM_ADDRESS, dist_papel);
-    Serial.print("dist_papel when connected = "); Serial.println(dist_papel);
   }
   else if (!connected && oldConnected){
-    dist_papel = 30;
+    //dist_papel = 30;
     Serial.println("Client disconnected");
-    EEPROM.put(DISTANCE_EEPROM_ADDRESS, dist_papel);
-    //write the EEPROM value of dist_papel
 
-    EEPROM.end();
+    /*EEPROM.put(DISTANCE_EEPROM_ADDRESS, dist_papel);
+    EEPROM.end();*/
     Serial.print("dist_papel when disconnected = "); Serial.println(dist_papel);
   }
 
   if(connected) {
-    message = "";
-
     // Update tis for all state machines
     unsigned long cur_time = millis();   // Just one call to millis()
     fsm0.tis = cur_time - fsm0.tes;
@@ -122,6 +121,7 @@ void loop() {
       message = "";
     }
     else if(fsm0.state == 1 && (message.length() >= 5)){
+      Serial.println("AQUIIIII");
       set_state(fsm0, 2); 
 
       distance = (getDistance(message)/1000)*30;
@@ -143,7 +143,7 @@ void loop() {
       //Serial.println("actual state -> 0");
     }
     else if(fsm0.state == 1){
-      //Serial.println("actual state -> 1");
+      Serial.println("actual state -> 1");
       client.println("disparo");
       message = client.readStringUntil('\n');
       Serial.println("Received message: " + message);
@@ -151,7 +151,7 @@ void loop() {
     else if(fsm0.state == 2){
       rotate(distance);
       stopRotate = true;
-      //Serial.println("actual state -> 2");
+      Serial.println("actual state -> 2");
     }
 
     //update old values
