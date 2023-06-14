@@ -34,7 +34,7 @@ public:
 	changeMode(int type);
 
 signals: // This params should be a custom struct has they will always be sent together
-	void new_score(int x, int y, double radius, double score);
+	void new_score(double x, double y, double radius, double score);
 
 private:
 	enum class Target
@@ -124,6 +124,12 @@ private:
 
 	void
 	transformPistol();
+
+	void
+	getCapture();
+
+	void
+	orderCorners(cv::Mat& input, cv::Point2f* output);
 
 	/// @brief Io handle
 	boost::asio::io_context io_context;

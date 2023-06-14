@@ -62,7 +62,9 @@
 
 //     Database my_db;
 //     my_db.db_EXPORT_Athletes("ines", "/home/ines");
-//     //my_db.db_EXPORT_CompetitionResults(3000002, "BRAGA_12.02.2021_P", "ines", "/home/ines");
+//     my_db.db_IMPORT("/home/ines", "ines");
+ 
+//     my_db.db_EXPORT_CompetitionResults(3000002, "BRAGA_12.02.2021_P", "ines", "/home/ines");
 //     //my_db.db_INSERT_Competition("Natal", "Braga", "12.02.2021", "P");
 //     // my_db.db_INSERT_Athlete(3000002, "Joana", "FGB", "", "", "12.2.2010", "PORTUGAL", "");
 //     // my_db.db_INSERT_Series(5, 3000002, "BRAGA_12.02.2021_P", false);

@@ -102,8 +102,8 @@ public:
 			jac.coeffRef(i,0) = (u1 - x1)/dis;
 			jac.coeffRef(i,1) = (u2 - x2)/dis;
 #ifdef DEBUG
-			if (jac.coeffRef(i,0) == 0 || jac.coeffRef(i,1) == 0)
-				throw std::runtime_error("Jac = 0");
+			/* if (jac.coeffRef(i,0) == 0 || jac.coeffRef(i,1) == 0)
+				throw std::runtime_error("Jac = 0"); */
 #endif	
 		}
 	}

@@ -246,7 +246,7 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, double pontuaçã
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
         item->setScale(0.04);
-        item->setPos(x*(455*2)/1050,y*(450*2)/1050);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setPos(x,y);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 
@@ -266,7 +266,7 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, double pontuaçã
         //Código para fazer zoom onde houve o disparo.
         if(timezoom==0){
             ui->Target->setTransform(QTransform::fromScale(3,3));
-            ui->Target->centerOn(QPointF(x*(455*2)/1050,y*(450*2)/1050));
+            ui->Target->centerOn(QPointF(x,y));
         }
 
         nim=nim+1;

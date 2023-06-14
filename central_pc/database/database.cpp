@@ -103,15 +103,23 @@ string Database::get_name_from_id(int ID){
 
 bool Database::db_IMPORT(string file_loc, string user){
 
-
     try{
         //give permission
+        ifstream file(file_loc + "/Atletas.csv");
+        
+        cout << file_loc + "/Atletas.csv" << endl;
+
+        if(!file) {
+            cout << "não existe" << endl;
+            return false; 
+        }
+
         string command1 = "sudo chown postgres /home/" + user +"\n";
         command1 += "sudo chgrp postgres /home/" + user;
         system(command1.c_str());
 
         //create command
-        string sql = "COPY temp FROM '" + file_loc + "' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
+        string sql = "COPY temp FROM '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
         sql += "UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\"; ";
         sql += "INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
         
@@ -128,8 +136,11 @@ bool Database::db_IMPORT(string file_loc, string user){
         cout << "Imported successfully" << endl;
 
     }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return false;
+        string command3 = "sudo chown " + user + " /home/" + user + "\n";
+        command3 += "sudo chgrp " + user + " /home/" + user;
+        system(command3.c_str());
+        cerr << e.what() << std::endl;
+        return false;
     }
 
 
@@ -147,12 +158,11 @@ bool Database::db_EXPORT_CompetitionResults(int licenseid, string competitionid,
         string command1 = "sudo chown postgres /home/" + user +"\n";
         command1 += "sudo chgrp postgres /home/" + user;
         system(command1.c_str());
-        
-        string sql = "COPY (SELECT \"Coordinates\".coordinatex, \"Coordinates\".coordinatey, \"Coordinates\".score FROM \"Coordinates\" WHERE \"Coordinates\".seriesid = '" 
-                    + seriesid_f + "' OR \"Coordinates\".seriesid = '" 
-                    + seriesid_q + "' ORDER BY \"Coordinates\".coordinatesid DESC) TO '" + file_loc + "/" + to_string(licenseid) + "_" + name + "_" 
+
+        string sql = "COPY (SELECT CASE WHEN \"Series\".isFinal = true THEN 'Final' WHEN \"Series\".isFinal = false THEN 'Qualificação' END AS \"Tipo\", \"Coordinates\".coordinatex AS \"X\", \"Coordinates\".coordinatey AS \"Y\", \"Coordinates\".score AS \"Pontuação\", \"Series\".finalscore AS \"Pontuação Final\" FROM \"Coordinates\" JOIN \"Series\" ON \"Coordinates\".seriesid = \"Series\".seriesid WHERE \"Coordinates\".seriesid IN (SELECT \"Series\".seriesid FROM \"Series\" WHERE isFinal = false) AND \"Coordinates\".seriesid = '" 
+        + seriesid_q + "' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL UNION ALL SELECT CASE WHEN \"Series\".isFinal = true THEN 'Final' WHEN \"Series\".isFinal = false THEN 'Qualificação' END AS \"Tipo\", \"Coordinates\".coordinatex AS \"X\", \"Coordinates\".coordinatey AS \"Y\", \"Coordinates\".score AS \"Pontuação\", \"Series\".finalscore AS \"Pontuação Final\" FROM \"Coordinates\" JOIN \"Series\" ON \"Coordinates\".seriesid = \"Series\".seriesid WHERE \"Coordinates\".seriesid IN (SELECT \"Series\".seriesid FROM \"Series\" WHERE isFinal = true) AND \"Coordinates\".seriesid = '" 
+        + seriesid_f + "') TO '" + file_loc + "/" + to_string(licenseid) + "_" + name + "_" 
                     + competitionid + ".csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
-        cout << sql << endl;
         execute(sql, false);
 
         //retrieve permission
@@ -163,8 +173,11 @@ bool Database::db_EXPORT_CompetitionResults(int licenseid, string competitionid,
         return true;
 
     }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return false;
+        string command3 = "sudo chown " + user + " /home/" + user + "\n";
+        command3 += "sudo chgrp " + user + " /home/" + user;
+        system(command3.c_str());
+        cerr << e.what() << std::endl;
+        return false;
     }
 }
 
@@ -174,23 +187,34 @@ bool Database::db_EXPORT_Athletes(string user, string file_loc){
 
         //give permission
         string command1 = "sudo chown postgres /home/" + user +"\n";
-        command1 += "sudo chgrp postgres /home/" + user;
+        command1 += "sudo chgrp postgres /home/" + user + "\n";
+
+        ifstream file(file_loc + "/Atletas.csv");
+        if(!file) {
+            command1 += "sudo chown postgres /home/" + user + "/Atletas.csv \n";
+            command1 += "sudo chgrp postgres /home/" + user + "/Atletas.csv"; 
+        }
+
         system(command1.c_str());
         
-        string sql = "COPY (SELECT * FROM \"Athlete\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
-        cout << sql << endl;
+        string sql = "COPY (SELECT * FROM \"Athlete\" ORDER BY \"Athlete\".\"Licença\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
         execute(sql, false);
 
         //retrieve permission
         string command2 = "sudo chown " + user + " /home/" + user + "\n";
-        command2 += "sudo chgrp " + user + " /home/" + user;
+        command2 += "sudo chgrp " + user + " /home/" + user + "\n";
+        command2 += "sudo chown " + user + " /home/" + user + "/Atletas.csv\n";
+        command2 += "sudo chgrp " + user + " /home/" + user + "/Atletas.csv";
         system(command2.c_str());
 
         return true;
 
     }catch (const std::exception &e) {
-      cerr << e.what() << std::endl;
-      return false;
+        string command3 = "sudo chown " + user + " /home/" + user + "\n";
+        command3 += "sudo chgrp " + user + " /home/" + user;
+        system(command3.c_str());
+        cerr << e.what() << std::endl;
+        return false;
     }
 }
 

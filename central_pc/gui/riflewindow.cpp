@@ -704,11 +704,6 @@ void RifleWindow::tabelalugar(float pontuação, std::string nome, int numtiros)
     
 }
 
-void PistolWindow::limparTabela(){
-    ui->tableWidget->clear();                    //Apaga dados da tabela 
-    ui->tableWidget->setHorizontalHeaderLabels(titulos);
-}
-
 void RifleWindow::limparTabela(){
     ui->tableWidget->clear();                    //Apaga dados da tabela 
     ui->tableWidget->setHorizontalHeaderLabels(titulos);

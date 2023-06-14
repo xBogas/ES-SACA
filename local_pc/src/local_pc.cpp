@@ -38,7 +38,7 @@ double score;
 bool shot = false;
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow, Detector *detector);
-void handle_new_score(int x, int y, double radius, double score);
+void handle_new_score(double distance, double angle, double radius, double score);
 void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& continueRunning);
 
 int main(int argc, char *argv[]){
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]){
     });
 
     // Connect the signal to a slot (a member function or a lambda)
-    QObject::connect(detector, &Detector::new_score, [](int x, int y, double radius, double shotScore) {
-        handle_new_score(x, y, radius, shotScore);
+    QObject::connect(detector, &Detector::new_score, [](double distance, double angle, double radius, double shotScore) {
+        handle_new_score(distance, angle, radius, shotScore);
     });
 
     return a.exec();;
@@ -75,17 +75,18 @@ void handle_ESP_communication(Detector *detector, bool& finishESPThread, bool& c
     detector->onMain(finishESPThread, continueReading);
 }
 
-void handle_new_score(int x, int y, double radius, double shotScore){
+void handle_new_score(double distance, double angle, double radius, double shotScore){
     if(!continueReading)
         return;
-        
-    coordinateX = x;
-    coordinateY = y;
+
+    //rifle (465, 465)
+    coordinateX = 465 + distance * cos(angle);
+    coordinateY = 465 + distance * sin(angle);
     score = shotScore; 
     shot = true;
 
     std::cout << "Shot detected in local_pc!" << std::endl;
-    std::cout << "x: " << x << " y: " << y << " radius: " << radius << " score: " << score << std::endl;
+    std::cout << "x: " << coordinateX << " y: " << coordinateY << " radius: " << radius << " score: " << score << std::endl;
 }
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow, Detector *detector){
@@ -94,8 +95,8 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
         int delay_ms;
 
         tcp::resolver resolver(io_context);
-        // tcp::resolver::results_type endpoints = resolver.resolve("192.168.0.1", "8080");
-        tcp::resolver::results_type endpoints = resolver.resolve("10.0.2.15", "8080");
+        tcp::resolver::results_type endpoints = resolver.resolve("192.168.0.1", "8080");
+        // tcp::resolver::results_type endpoints = resolver.resolve("10.0.2.15", "8080");
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);
 
