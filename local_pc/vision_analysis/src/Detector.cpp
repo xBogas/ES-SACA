@@ -2,7 +2,7 @@
 #include <vector>
 #include <chrono>
 
-#define DEBUG
+//#define DEBUG
 #define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
@@ -613,10 +613,12 @@ void Detector::transformRifle()
 	blur(hsv, hsv, cv::Size(3, 3));
 	//TODO: fix hsv range
 	cv::inRange(hsv, cv::Vec3b(120,0,0), cv::Vec3b(255,85,255), op2);
+
+#ifdef DEBUG
 	cv::imshow("Filtered", op2);
 	cv::waitKey();
 	cv::imwrite("Captured.png", m_image);
-
+#endif
 	/* 
 	cv::Mat morph, kernel;
 	kernel = cv::Mat(3, 3, CV_8U, cv::Scalar(1));
