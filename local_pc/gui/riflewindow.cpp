@@ -276,49 +276,6 @@ void RifleWindow::Disparo(int coordenada_x, int coordenada_y, double pontuação
     }
 }
 
-
-//Botão temorário para simular disparo.
-void RifleWindow::on_ShootButton_clicked(){
-    x=ui->doubleSpinBox->value();               //coordenadas x, substituir o que está depois do igual para as coordenadas obtidas pela camera.
-    y=ui->doubleSpinBox_2->value();             //coordenadas y, substituir o que está depois do igual para as coordenadas obtidas pela camera.
-    //intshot=                                  //pontuação sem casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
-    //decshot=                                  //pontuação com casas decimais, descomentar e adicionar depois do igual a pontuação obtidas pela camera.
-    QPixmap RedDot(":/resources/img/Red Dot.png");
-
-    //if(procss==1){
-        timedzoom.start(400); 
-
-        //Inserir imagem
-        item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.085);
-        item->setPos(x*(440*2)/1190,y*(430*2)/1190);          //Pode ser necessário fazer ajustes por não estarem na mesma escala.
-        //item->setPos(x+434.0,y+434.0);
-        scene->addItem(item);
-
-        //Código para preencher a tabela e os labels abaixo da tabela.
-        totalintshot=totalintshot+intshot;
-        totaldecshot=totaldecshot+decshot;
-        ui->lastshot->setText(QString::number(decshot));
-        ui->total_int->setText(QString::number(nim));
-        ui->total_dec->setText(QString::number(totalintshot));
-        ui->total_dec_2->setText(QString::number(totaldecshot));
-        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Tiro,new QTableWidgetItem(QString::number(nim)));
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Inte,new QTableWidgetItem(QString::number(intshot)));
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,Dec,new QTableWidgetItem(QString::number(decshot)));
-
-
-        //Código para fazer zoom onde houve o disparo.
-        if(timezoom==0){
-            ui->Target->setTransform(QTransform::fromScale(5,5));
-            ui->Target->centerOn(QPointF(x*(445.0*2)/1190,y*(445.0*2)/1190));
-            //ui->Target->centerOn(QPointF(x+445.0,y+(445.0)));
-        }
-        
-        nim=nim+1;
-    //}
-}
-
 //Código para alternar o ponto entre vermelho e azul enquanto está a fazer zoom onde houve o disparo. Também termina o zoom após algum tempo.
 void RifleWindow::shootzoom()
 {   
