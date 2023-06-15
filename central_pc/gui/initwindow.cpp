@@ -43,7 +43,7 @@ ExportWindow* InitWindow::getExportWindow(){
 }
 
 void InitWindow::on_importButton_clicked(){
-    bool verification = database->db_IMPORT("/home/saca/Atletas.csv", "saca");
+    bool verification = database->db_IMPORT("/home/saca", "saca");
     if(verification)
         QMessageBox::information(this, "Sucesso", "Atletas importados com sucesso!");
     else
