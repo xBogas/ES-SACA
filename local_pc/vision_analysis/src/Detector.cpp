@@ -379,8 +379,8 @@ Detector::getPoints()
 			cv::Point2d shot(x,y);
 
 			double distance = cv::norm(m_center - shot);
-			double angle = atan2((m_center.y-shot.y),(m_center.x-shot.x));
-			std::cout << "Shot distance " << distance << " pixels\n";
+			double angle = atan2((m_center.x-shot.x),(m_center.y-shot.y));
+			std::cout << "Shot distance " << distance*930/1190 << " pixels\n";
 			double score = getScore(distance, shot_radius);
 			if (score == m_lastScore)
 			{
@@ -390,7 +390,7 @@ Detector::getPoints()
 			else
 				m_lastScore = score;
 
-			emit new_score(distance, angle, shot_radius, score);
+			emit new_score(distance*930/1190, angle, shot_radius, score);
 			if (distance > m_center_radius+shot_radius) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";

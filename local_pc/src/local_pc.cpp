@@ -86,7 +86,7 @@ void handle_new_score(double distance, double angle, double radius, double shotS
     shot = true;
 
     std::cout << "Shot detected in local_pc!" << std::endl;
-    //std::cout << "x: " << coordinateX << " y: " << coordinateY << " radius: " << radius << " score: " << score << std::endl;
+    std::cout << "x: " << coordinateX << " y: " << coordinateY << " radius: " << radius << " score: " << score << std::endl;
 }
 
 void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rflwindow, Detector *detector){
