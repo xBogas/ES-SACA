@@ -3,7 +3,7 @@
 #include <chrono>
 
 #define DEBUG
-//#define CAMERA
+#define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -46,7 +46,10 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	start = std::chrono::high_resolution_clock::now();
 	//transformImage();
 	//transformPistol();
-	transformRifle();
+	if(type == 1)
+		transformRifle();
+	else
+		transformImage();
 	getCenter();
 	getPoints();
 	end = std::chrono::high_resolution_clock::now();
@@ -126,14 +129,15 @@ void Detector::getCenter()
 	cv::imshow("edge contours", edge);
 	cv::waitKey();
 #endif
-	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		// above 200 for pistol -> 1050
 		// above 950 for rifle -> 1190
-		if (contours[i].size() > 950)
+		double min_area = (m_target == Target::Pistol)? 70'000 : 100;
+		if (contours[i].size() > 100 && cv::contourArea(contours[i]) > min_area)
 		{
 			if (m_target == Target::Pistol) //! Review
 				m_center_radius = 185;		//TODO: change /* 30 * image.size/170 */
@@ -170,7 +174,7 @@ void Detector::getCenter()
 			m_center.x = x, m_center.y = y;
 			centers.emplace_back(x, y);
 #if defined(VISION_TEST) && defined(DEBUG)
-			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << "\n";
+			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << " and area " << cv::contourArea(contours[i]) << "\n";
 
 			cv::circle(alt, m_center, m_center_radius, cv::Scalar(0, 0, 255));
 			cv::imshow("Center detection", alt);
@@ -300,11 +304,11 @@ Detector::getPoints()
 	display = m_image.clone();
 #endif
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
-	
+
 	// HSV color space
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5));
-	cv::inRange(hsv, cv::Vec3b(100,0,200), cv::Vec3b(255,255,255), op2);
+	cv::inRange(hsv, cv::Vec3b(0,0,240), cv::Vec3b(255,70,255), op2);
 
 #ifdef DEBUG
 	cv::imshow("Points hsv", op2);
@@ -317,7 +321,7 @@ Detector::getPoints()
 #endif
 
 	std::vector<std::vector<cv::Point>> contours;
-	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
 #ifdef DEBUG
 	std::cout << "Found " << contours.size() << "\n";
@@ -325,7 +329,9 @@ Detector::getPoints()
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (cv::contourArea(contours[i]) > 300 && contours[i].size() < 700)
+		double area = cv::contourArea(contours[i]);
+		double max_area = (m_target == Target::Pistol)? 500 : 1'000; 
+		if (/* area > 300 && area < 500 &&  */contours[i].size() < 700)
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -517,7 +523,7 @@ void Detector::transformImage()
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start = std::chrono::high_resolution_clock::now();
 	
-	const int MAX_FEATURES = 1000;
+	const int MAX_FEATURES = 2500;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
@@ -588,13 +594,28 @@ void Detector::transformRifle()
 	//get 4 corner points of m_image
 	cv::Mat hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
+	cv::blur(hsv, hsv, cv::Size(3,3));
+
+#ifdef DEBUG
+	cv::Mat chann[3];
+	cv::split(hsv, chann);
+	cv::imshow("H", chann[0]);
+	cv::imwrite("H.png", chann[0]);
+
+	cv::imshow("S", chann[1]);
+	cv::imwrite("S.png", chann[1]);
+
+	cv::imshow("V", chann[2]);
+	cv::imwrite("V.png", chann[2]);
+#endif
 
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(3, 3));
 	//TODO: fix hsv range
-	cv::inRange(hsv, cv::Vec3b(90,0,0), cv::Vec3b(255,70,255), op2);
+	cv::inRange(hsv, cv::Vec3b(120,0,0), cv::Vec3b(255,85,255), op2);
 	cv::imshow("Filtered", op2);
 	cv::waitKey();
+	cv::imwrite("Captured.png", m_image);
 
 	/* 
 	cv::Mat morph, kernel;
@@ -672,6 +693,7 @@ void Detector::transformRifle()
 
 #if defined(DEBUG)
 	cv::imshow("Transform result", m_image);
+	cv::imwrite("transformed.png", m_image);
 	cv::waitKey();
 #endif
 }
