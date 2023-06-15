@@ -307,9 +307,20 @@ Detector::getPoints()
 	// HSV color space
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5));
-	cv::inRange(hsv, cv::Vec3b(0,0,240), cv::Vec3b(255,70,255), op2);
+	cv::inRange(hsv, cv::Vec3b(100,0,240), cv::Vec3b(255,50,255), op2);
 
 #ifdef DEBUG
+	cv::Mat chann[3];
+	cv::split(hsv, chann);
+	cv::imshow("H_cut", chann[0]);
+	cv::imwrite("H_cut.png", chann[0]);
+	
+	cv::imshow("S_cut", chann[1]);
+	cv::imwrite("S_cut.png", chann[1]);
+
+	cv::imshow("V_cut", chann[2]);
+	cv::imwrite("V_cut.png", chann[2]);
+
 	cv::imshow("Points hsv", op2);
 
 	cv::Mat res1 = m_image.clone();
@@ -373,6 +384,7 @@ Detector::getPoints()
 			cv::circle(display, cv::Point(x,y), shot_radius, cv::Scalar(0,0,255));
 			cv::circle(display, cv::Point(x,y), 0, cv::Scalar(0,255,255));
 			cv::imshow("Shot detection", display);
+			cv::imwrite("Shot.png", display);
 			cv::waitKey();
 #endif
 
@@ -401,12 +413,12 @@ Detector::getPoints()
 			}
 			else if (distance < m_center_radius-shot_radius)
 			{
-				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
+				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 				if (m_target == Target::Pistol)  //! Review
-					move_ESP *= TargetSize::Pistol/(double)m_image.cols;
+					move_ESP *= TargetSize::Pistol/(float)m_image.cols;
 
 				else
-					move_ESP *= 30.5f/(double)364; //TargetSize::Rifle/(double)m_image.cols;
+					move_ESP *= 30.5f/(float)364; //TargetSize::Rifle/(float)m_image.cols;
 
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 
@@ -421,13 +433,13 @@ Detector::getPoints()
 			{
 				std::cout << "Shot at limit\nMust mask and move ESP\n";
 
-				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
+				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 
 				if (m_target == Target::Pistol)  //! Review
-					move_ESP *= TargetSize::Pistol/(double)m_image.cols; // verify image ref size
+					move_ESP *= TargetSize::Pistol/(float)m_image.cols; // verify image ref size
 
 				else
-					move_ESP *= 30.5f/(double)364; //TargetSize::Rifle/(double)m_image.cols;
+					move_ESP *= 30.5f/(float)364; //TargetSize::Rifle/(float)m_image.cols;
 				
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 				std::cout << msg << std::endl;
@@ -462,7 +474,7 @@ double Detector::getScore(double distance, double radius)
 		}
 		else if(distance <= 77.75)
 		{
-			double delta = 0.8;
+			double delta = 0.3;
 			distance = 72-(distance-5.75);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
@@ -470,16 +482,27 @@ double Detector::getScore(double distance, double radius)
 	}
 	else
 	{
-		distance = (distance-radius)*30.5f/364;
+		distance = (distance-radius)*100/1190;
 		std::cout << "Distance " << distance << " mm\n";
 		if(distance <= 0.25)
 		{
-			score = 10;
+			if (distance < 0)
+			{
+				score = 10.9f;
+			}	
+			else
+			{
+				score = 10;
+				int dec = (0.25-distance)/(0.025);
+				score = score + dec*0.1;
+				std::cout << score + dec*0.1 << "\n";
+			}
 		}
 		else if(distance <= 22.75)
 		{
-			double delta = 0.5;
+			double delta = 0.25;
 			distance = 22.5-(distance-0.25);
+			std::cout << "Distance to 1.0 " << distance << " mm\n";
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
 		}
@@ -594,14 +617,14 @@ void Detector::transformRifle()
 	//get 4 corner points of m_image
 	cv::Mat hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
-	cv::blur(hsv, hsv, cv::Size(3,3));
+	cv::blur(hsv, hsv, cv::Size(5,5));	
 
-#ifdef DEBUG
 	cv::Mat chann[3];
 	cv::split(hsv, chann);
+#ifdef DEBUG
 	cv::imshow("H", chann[0]);
 	cv::imwrite("H.png", chann[0]);
-
+	
 	cv::imshow("S", chann[1]);
 	cv::imwrite("S.png", chann[1]);
 
@@ -613,6 +636,7 @@ void Detector::transformRifle()
 	blur(hsv, hsv, cv::Size(3, 3));
 	//TODO: fix hsv range
 	cv::inRange(hsv, cv::Vec3b(120,0,0), cv::Vec3b(255,85,255), op2);
+	//cv::inRange(chann[0], cv::Scalar(55), cv::Scalar(255), op2);
 
 #ifdef DEBUG
 	cv::imshow("Filtered", op2);

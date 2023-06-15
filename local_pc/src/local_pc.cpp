@@ -81,7 +81,7 @@ void handle_new_score(double distance, double angle, double radius, double shotS
 
     //rifle (465, 465)
     coordinateX = 465 + distance * cos(angle);
-    coordinateY = 465 + distance * sin(angle);
+    coordinateY = 465 - distance * sin(angle);
     score = shotScore; 
     shot = true;
 
