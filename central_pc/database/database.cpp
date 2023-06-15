@@ -37,7 +37,7 @@ bool Database::update_rank(string competitionid, bool isFinal){
     int i = 0;
 
     try{
-        string sql = "SELECT \"Athlete\".\"Licença\", \"Series\".finalscore FROM \"Athlete\" JOIN \"Series\" ON \"Series\".licenseid = \"Athlete\".\"Licença\" WHERE \"Series\".competitionid = '" 
+        string sql = "SELECT \"Athlete\".\"Licenca\", \"Series\".finalscore FROM \"Athlete\" JOIN \"Series\" ON \"Series\".licenseid = \"Athlete\".\"Licenca\" WHERE \"Series\".competitionid = '" 
                     + competitionid + "' ORDER BY \"Series\".finalscore DESC;";
 
         vector<vector<string>> rows = execute(sql, true);
@@ -59,17 +59,17 @@ bool Database::update_rank(string competitionid, bool isFinal){
 
     //ordenar atletas por rank com outros parametros
 
-    // SELECT "Rank".place AS "Rank", "Athlete"."Nome" AS "Nome", "Athlete"."Licença" AS "Licença", "Series".finalscore AS "Pontuação"   
+    // SELECT "Rank".place AS "Rank", "Athlete"."Nome" AS "Nome", "Athlete"."Licenca" AS "Licenca", "Series".finalscore AS "Pontuação"   
     // FROM "Athlete"
-    // JOIN "Rank" ON "Rank".licenseid = "Athlete"."Licença"
-    // JOIN "Series" ON "Series".licenseid = "Athlete"."Licença"
+    // JOIN "Rank" ON "Rank".licenseid = "Athlete"."Licenca"
+    // JOIN "Series" ON "Series".licenseid = "Athlete"."Licenca"
     // ORDER BY "Rank".place;
 }
 
 bool Database::verify_id(int ID){
 
     try{
-        string sql = "SELECT * FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
+        string sql = "SELECT * FROM \"Athlete\" WHERE \"Licenca\" = " + to_string(ID) + ";";
         vector<vector<string>> rows = execute(sql, true);
 
         return !rows.empty();
@@ -85,7 +85,7 @@ bool Database::verify_id(int ID){
 string Database::get_name_from_id(int ID){
 
     try{
-        string sql = "SELECT \"Nome\" FROM \"Athlete\" WHERE \"Licença\" = " + to_string(ID) + ";";
+        string sql = "SELECT \"Nome\" FROM \"Athlete\" WHERE \"Licenca\" = " + to_string(ID) + ";";
 
         vector<vector<string>> rows = execute(sql, true);
 
@@ -107,12 +107,8 @@ bool Database::db_IMPORT(string file_loc, string user){
         //give permission
         ifstream file(file_loc + "/Atletas.csv");
         
-        cout << file_loc + "/Atletas.csv" << endl;
 
-        if(!file) {
-            cout << "não existe" << endl;
-            return false; 
-        }
+        if(!file) return false;
 
         string command1 = "sudo chown postgres /home/" + user +"\n";
         command1 += "sudo chgrp postgres /home/" + user;
@@ -120,8 +116,8 @@ bool Database::db_IMPORT(string file_loc, string user){
 
         //create command
         string sql = "COPY temp FROM '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
-        sql += "UPDATE \"Athlete\" SET \"Licença\" = temp.\"Licença\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licença\" = temp.\"Licença\"; ";
-        sql += "INSERT INTO \"Athlete\" (\"Licença\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licença\" = temp.\"Licença\");";
+        sql += "UPDATE \"Athlete\" SET \"Licenca\" = temp.\"Licenca\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\"; ";
+        sql += "INSERT INTO \"Athlete\" (\"Licenca\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\");";
         
         execute(sql, false);
 
@@ -159,7 +155,7 @@ bool Database::db_EXPORT_CompetitionResults(int licenseid, string competitionid,
         command1 += "sudo chgrp postgres /home/" + user;
         system(command1.c_str());
 
-        string sql = "COPY (SELECT CASE WHEN \"Series\".isFinal = true THEN 'Final' WHEN \"Series\".isFinal = false THEN 'Qualificação' END AS \"Tipo\", \"Coordinates\".coordinatex AS \"X\", \"Coordinates\".coordinatey AS \"Y\", \"Coordinates\".score AS \"Pontuação\", \"Series\".finalscore AS \"Pontuação Final\" FROM \"Coordinates\" JOIN \"Series\" ON \"Coordinates\".seriesid = \"Series\".seriesid WHERE \"Coordinates\".seriesid IN (SELECT \"Series\".seriesid FROM \"Series\" WHERE isFinal = false) AND \"Coordinates\".seriesid = '" 
+        string sql = "COPY (SELECT CASE WHEN \"Series\".isFinal = true THEN 'Final' WHEN \"Series\".isFinal = false THEN 'Qualificacao' END AS \"Tipo\", \"Coordinates\".coordinatex AS \"X\", \"Coordinates\".coordinatey AS \"Y\", \"Coordinates\".score AS \"Pontuacao do Tiro\", \"Series\".finalscore AS \"Pontuacao Final\" FROM \"Coordinates\" JOIN \"Series\" ON \"Coordinates\".seriesid = \"Series\".seriesid WHERE \"Coordinates\".seriesid IN (SELECT \"Series\".seriesid FROM \"Series\" WHERE isFinal = false) AND \"Coordinates\".seriesid = '" 
         + seriesid_q + "' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL UNION ALL SELECT CASE WHEN \"Series\".isFinal = true THEN 'Final' WHEN \"Series\".isFinal = false THEN 'Qualificação' END AS \"Tipo\", \"Coordinates\".coordinatex AS \"X\", \"Coordinates\".coordinatey AS \"Y\", \"Coordinates\".score AS \"Pontuação\", \"Series\".finalscore AS \"Pontuação Final\" FROM \"Coordinates\" JOIN \"Series\" ON \"Coordinates\".seriesid = \"Series\".seriesid WHERE \"Coordinates\".seriesid IN (SELECT \"Series\".seriesid FROM \"Series\" WHERE isFinal = true) AND \"Coordinates\".seriesid = '" 
         + seriesid_f + "') TO '" + file_loc + "/" + to_string(licenseid) + "_" + name + "_" 
                     + competitionid + ".csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
@@ -190,14 +186,14 @@ bool Database::db_EXPORT_Athletes(string user, string file_loc){
         command1 += "sudo chgrp postgres /home/" + user + "\n";
 
         ifstream file(file_loc + "/Atletas.csv");
-        if(!file) {
+        if(file) {
             command1 += "sudo chown postgres /home/" + user + "/Atletas.csv \n";
             command1 += "sudo chgrp postgres /home/" + user + "/Atletas.csv"; 
         }
 
         system(command1.c_str());
         
-        string sql = "COPY (SELECT * FROM \"Athlete\" ORDER BY \"Athlete\".\"Licença\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
+        string sql = "COPY (SELECT * FROM \"Athlete\" ORDER BY \"Athlete\".\"Licenca\") TO '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1');";
         execute(sql, false);
 
         //retrieve permission

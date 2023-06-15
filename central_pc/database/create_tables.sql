@@ -1,13 +1,13 @@
 CREATE TABLE "Athlete"(
-	"Licença" INT NOT NULL,
+	"Licenca" INT NOT NULL,
 	"Nome" VARCHAR NOT NULL,
 	"Clube" VARCHAR NOT NULL,
 	"Disciplina" VARCHAR,
-	"Escalão" VARCHAR,
+	"Escalao" VARCHAR,
 	"Data de Nascimento" DATE,
-	"País" VARCHAR,
-	"Observações" VARCHAR,
-	CONSTRAINT PK_Athlete PRIMARY KEY ("Licença")
+	"Pais" VARCHAR,
+	"Observacoes" VARCHAR,
+	CONSTRAINT PK_Athlete PRIMARY KEY ("Licenca")
 );
 
 CREATE TABLE temp AS TABLE "Athlete" WITH NO DATA;
@@ -51,7 +51,7 @@ CREATE TABLE "Rank"(
 );
 
 ALTER TABLE "Series"
-ADD CONSTRAINT FK_SeriesAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" ("Licença") ON DELETE NO ACTION ON UPDATE NO ACTION;			
+ADD CONSTRAINT FK_SeriesAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" ("Licenca") ON DELETE NO ACTION ON UPDATE NO ACTION;			
 ALTER TABLE "Series"
 ADD CONSTRAINT FK_SeriesCompetitionID FOREIGN KEY (competitionid) REFERENCES "Competition" (competitionid) ON DELETE NO ACTION ON UPDATE NO ACTION;			
 
@@ -59,7 +59,7 @@ ALTER TABLE "Coordinates"
 ADD CONSTRAINT FK_CoordinatesSeriesID FOREIGN KEY (seriesid) REFERENCES "Series" (seriesid) ON DELETE NO ACTION ON UPDATE NO ACTION;	
 
 ALTER TABLE "Rank"
-ADD CONSTRAINT FK_RankAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" ("Licença") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ADD CONSTRAINT FK_RankAthleteID FOREIGN KEY (licenseid) REFERENCES "Athlete" ("Licenca") ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE "Rank"
 ADD CONSTRAINT FK_RankCompetitionID FOREIGN KEY (competitionid) REFERENCES "Competition" (competitionid) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
@@ -67,9 +67,9 @@ ADD CONSTRAINT FK_RankCompetitionID FOREIGN KEY (competitionid) REFERENCES "Comp
 
 WHERE "Competition".competitionid = 
 
-SELECT "Athlete"."Licença", "Series".finalscore 
+SELECT "Athlete"."Licenca", "Series".finalscore 
 FROM "Athlete"
-JOIN "Series" ON "Series".licenseid = "Athlete"."Licença"
+JOIN "Series" ON "Series".licenseid = "Athlete"."Licenca"
 WHERE "Series".competitionid = 'BRAGA_12.02.2021_P'
 ORDER BY "Series".finalscore DESC;
 
