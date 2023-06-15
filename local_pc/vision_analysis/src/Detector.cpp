@@ -2,7 +2,6 @@
 #include <vector>
 #include <chrono>
 
-//#define DEBUG
 #define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
@@ -124,7 +123,7 @@ void Detector::getCenter()
 	std::vector<std::vector<cv::Point>> contours;
 	//cv::cvtColor(alt, alt, cv::COLOR_BGR2GRAY);
 	//cv::blur(alt, alt, cv::Size(5,5));
-	cv::Canny(m_image, edge, 200, 500);
+	cv::Canny(m_image, edge, 200, 500); // for pistol 200, 500
 #if defined(VISION_TEST) && defined(DEBUG)
 	cv::imshow("edge contours", edge);
 	cv::waitKey();
@@ -137,7 +136,7 @@ void Detector::getCenter()
 		// above 200 for pistol -> 1050
 		// above 950 for rifle -> 1190
 		double min_area = (m_target == Target::Pistol)? 70'000 : 100;
-		if (contours[i].size() > 100 && cv::contourArea(contours[i]) > min_area)
+		if (contours[i].size() > 300 && cv::contourArea(contours[i]) > min_area)
 		{
 			if (m_target == Target::Pistol) //! Review
 				m_center_radius = 185;		//TODO: change /* 30 * image.size/170 */
@@ -330,8 +329,8 @@ Detector::getPoints()
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		double area = cv::contourArea(contours[i]);
-		double max_area = (m_target == Target::Pistol)? 500 : 1'000; 
-		if (/* area > 300 && area < 500 &&  */contours[i].size() < 700)
+		double max_area = (m_target == Target::Pistol)? 500 : 7'000;
+		if ( area > 300 && area < max_area &&  contours[i].size() < 700)
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -379,9 +378,10 @@ Detector::getPoints()
 
 			cv::Point2d shot(x,y);
 
-			double result = cv::norm(m_center - shot);
-			std::cout << "Shot distance " << result << " pixels\n";
-			double score = getScore(result, shot_radius);
+			double distance = cv::norm(m_center - shot);
+			double angle = atan2((m_center.y-shot.y),(m_center.x-shot.x));
+			std::cout << "Shot distance " << distance << " pixels\n";
+			double score = getScore(distance, shot_radius);
 			if (score == m_lastScore)
 			{
 				std::cout << "Same as before not sending\n";
@@ -390,8 +390,8 @@ Detector::getPoints()
 			else
 				m_lastScore = score;
 
-			emit new_score(x, y, shot_radius, score);
-			if (result > m_center_radius+shot_radius) // 185 -> center circle
+			emit new_score(distance, angle, shot_radius, score);
+			if (distance > m_center_radius+shot_radius) // 185 -> center circle
 			{
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
@@ -399,7 +399,7 @@ Detector::getPoints()
 				boost::asio::write(socket, boost::asio::buffer("NO\n"));
 #endif
 			}
-			else if (result < m_center_radius-shot_radius)
+			else if (distance < m_center_radius-shot_radius)
 			{
 				double move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 				if (m_target == Target::Pistol)  //! Review
