@@ -116,8 +116,8 @@ bool Database::db_IMPORT(string file_loc, string user){
 
         //create command
         string sql = "COPY temp FROM '" + file_loc + "/Atletas.csv' WITH (FORMAT csv, HEADER, DELIMITER ',',ENCODING 'ISO-8859-1'); ";
-        sql += "UPDATE \"Athlete\" SET \"Licenca\" = temp.\"Licenca\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalão\" = temp.\"Escalão\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"País\" = temp.\"País\", \"Observações\" = temp.\"Observações\" FROM temp WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\"; ";
-        sql += "INSERT INTO \"Athlete\" (\"Licenca\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalão\", \"Data de Nascimento\", \"País\", \"Observações\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\");";
+        sql += "UPDATE \"Athlete\" SET \"Licenca\" = temp.\"Licenca\", \"Nome\" = temp.\"Nome\", \"Clube\" = temp.\"Clube\", \"Disciplina\" = temp.\"Disciplina\", \"Escalao\" = temp.\"Escalao\", \"Data de Nascimento\" = temp.\"Data de Nascimento\", \"Pais\" = temp.\"Pais\", \"Observacoes\" = temp.\"Observacoes\" FROM temp WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\"; ";
+        sql += "INSERT INTO \"Athlete\" (\"Licenca\", \"Nome\", \"Clube\", \"Disciplina\", \"Escalao\", \"Data de Nascimento\", \"Pais\", \"Observacoes\") SELECT * FROM temp WHERE NOT EXISTS (SELECT 1 FROM \"Athlete\" WHERE \"Athlete\".\"Licenca\" = temp.\"Licenca\");";
         
         execute(sql, false);
 
