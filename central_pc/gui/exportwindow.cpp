@@ -40,6 +40,8 @@ void ExportWindow::on_exportButton_clicked(){
         QMessageBox::critical(this, "Erro", "Exportado sem sucesso!");
         return;
     }
+    else    
+        QMessageBox::information(this, "Sucesso", "Exportado com sucesso!");
 
     this->close();
 }
