@@ -129,6 +129,7 @@ void Detector::getCenter()
 	cv::Canny(m_image, edge, 200, 500); // for pistol 200, 500
 #if defined(VISION_TEST) && defined(DEBUG)
 	cv::imshow("edge contours", edge);
+	cv::imwrite("edge.png", edge);
 	cv::waitKey();
 #endif
 	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -178,7 +179,8 @@ void Detector::getCenter()
 #if defined(VISION_TEST) && defined(DEBUG)
 			std::cout << "Center " << m_center << " and radius " << m_center_radius << " " << contours[i].size() << " and area " << cv::contourArea(contours[i]) << "\n";
 
-			cv::circle(alt, m_center, m_center_radius, cv::Scalar(0, 0, 255));
+			cv::circle(alt, m_center, m_center_radius, cv::Scalar(0, 0, 255), 2);
+			cv::imwrite("center.png", alt);
 			cv::imshow("Center detection", alt);
 			cv::waitKey();
 			alt = m_image.clone();
@@ -325,11 +327,13 @@ Detector::getPoints()
 	cv::imwrite("V_cut.png", chann[2]);
 
 	cv::imshow("Points hsv", op2);
+	
 
 	cv::Mat res1 = m_image.clone();
 	cv::bitwise_and(m_image, cv::Scalar(0,0,255), res1, op2);
 
 	cv::imshow("Img1", res1);
+	cv::imwrite("points.png", res1);
 	cv::waitKey();
 #endif
 
@@ -384,8 +388,8 @@ Detector::getPoints()
 			std::cout.setf(std::ios::fixed,std::ios::floatfield);
     		std::cout.precision(3);
 			std::cout << "Center[" << i << "] (" << x << " , " << y << ") with radius " << shot_radius << " and "<< cv::contourArea(contours[i]) << " contours area\n";
-			cv::circle(display, cv::Point(x,y), shot_radius, cv::Scalar(0,0,255));
-			cv::circle(display, cv::Point(x,y), 0, cv::Scalar(0,255,255));
+			cv::circle(display, cv::Point(x,y), shot_radius, cv::Scalar(0,0,255), 2);
+			cv::circle(display, cv::Point(x,y), 0, cv::Scalar(0,0,255), 2);
 			cv::imshow("Shot detection", display);
 			cv::imwrite("Shot.png", display);
 			cv::waitKey();
@@ -834,8 +838,8 @@ void Detector::getCapture()
 	while(!m_camera.retrieve(m_image))
 		usleep(100);
 #else
-	m_image = cv::imread("../images/new/226431_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
-	std::cout << "../images/new/226431_n.png\n";
+	m_image = cv::imread("../images/new/098896_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
+	std::cout << "../images/new/098896_n.png\n";
 #endif
 }
 
