@@ -37,7 +37,7 @@
         <property name="minimumSize">
          <size>
           <width>41</width>
-          <height>0</height>
+          <height>32</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -64,9 +64,15 @@
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>1</horstretch>
+          <horstretch>6</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="font">
          <font>
@@ -83,6 +89,9 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
         <property name="text">
          <string>TREINO</string>
         </property>
@@ -95,7 +104,7 @@
        <widget class="QLabel" name="Start">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>11</horstretch>
+          <horstretch>14</horstretch>
           <verstretch>7</verstretch>
          </sizepolicy>
         </property>
@@ -114,6 +123,9 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
         <property name="text">
          <string>EXECUTANDO</string>
         </property>
@@ -122,38 +134,6 @@
         </property>
        </widget>
       </item>
-      <item row="11" column="6">
-       <spacer name="verticalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>28</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="5" column="10">
-       <spacer name="horizontalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="12" column="1">
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
@@ -161,6 +141,12 @@
           <horstretch>1</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>41</width>
+          <height>30</height>
+         </size>
         </property>
         <property name="text">
          <string>Tiros</string>
@@ -192,6 +178,9 @@
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>4</number>
         </property>
         <property name="text">
          <string>FINAL</string>
@@ -264,7 +253,7 @@
        <widget class="QGraphicsView" name="Target">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>6</horstretch>
+          <horstretch>7</horstretch>
           <verstretch>6</verstretch>
          </sizepolicy>
         </property>
@@ -361,6 +350,12 @@
           <verstretch>1</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>41</width>
+          <height>31</height>
+         </size>
+        </property>
         <property name="text">
          <string>Dec</string>
         </property>
@@ -407,6 +402,9 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
         <property name="text">
          <string>QUALIFICAÇÃO</string>
         </property>
@@ -426,7 +424,7 @@
         <property name="minimumSize">
          <size>
           <width>41</width>
-          <height>0</height>
+          <height>32</height>
          </size>
         </property>
         <property name="baseSize">
@@ -453,8 +451,8 @@
        <widget class="QSlider" name="horizontalSlider">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>2</horstretch>
-          <verstretch>1</verstretch>
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimum">
@@ -499,38 +497,6 @@
         </property>
        </widget>
       </item>
-      <item row="13" column="6">
-       <spacer name="verticalSpacer_8">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>28</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="12" column="6">
-       <spacer name="verticalSpacer_7">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>27</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="3" column="11">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
@@ -542,7 +508,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>60</height>
+          <height>80</height>
          </size>
         </property>
        </spacer>
@@ -628,7 +594,7 @@
         <property name="minimumSize">
          <size>
           <width>41</width>
-          <height>0</height>
+          <height>32</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -687,6 +653,12 @@
           <verstretch>1</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>41</width>
+          <height>31</height>
+         </size>
+        </property>
         <property name="text">
          <string>Int</string>
         </property>
@@ -706,7 +678,7 @@
         <property name="minimumSize">
          <size>
           <width>41</width>
-          <height>0</height>
+          <height>32</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -733,49 +705,6 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="11">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QDoubleSpinBox" name="doubleSpinBox">
-          <property name="decimals">
-           <number>3</number>
-          </property>
-          <property name="minimum">
-           <double>-1500.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>1500.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
-          <property name="decimals">
-           <number>3</number>
-          </property>
-          <property name="minimum">
-           <double>-800.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>800.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="ShootButton">
-          <property name="text">
-           <string>Shoot</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
       <item row="12" column="5">
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
@@ -786,7 +715,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>80</width>
           <height>20</height>
          </size>
         </property>
@@ -808,6 +737,22 @@
           <normaloff>resource/img/exit.png</normaloff>resource/img/exit.png</iconset>
         </property>
        </widget>
+      </item>
+      <item row="5" column="10" colspan="2">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </item>
