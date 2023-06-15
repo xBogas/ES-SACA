@@ -31,6 +31,17 @@ public:
 	onMain(bool& isRunning, bool& continueReading);
 
 	void
+	testMain()
+	{
+		getCapture();
+		if(m_target == Target::Rifle)
+			transformRifle();
+		transformImage();
+		getCenter();
+		getPoints();
+	}
+
+	void
 	changeMode(int type);
 
 signals: // This params should be a custom struct has they will always be sent together

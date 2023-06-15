@@ -2,7 +2,10 @@
 #include <vector>
 #include <chrono>
 
-#define CAMERA
+#ifdef CAMERA
+	#undef CAMERA
+#endif
+//#define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context)
 {
@@ -341,7 +344,7 @@ Detector::getPoints()
 	{
 		double area = cv::contourArea(contours[i]);
 		double max_area = (m_target == Target::Pistol)? 500 : 7'000;
-		if ( area > 300 && area < max_area &&  contours[i].size() < 700)
+		if ( area > 100 && area < max_area &&  contours[i].size() < 700)
 		{
 			//? 15 for pistol		4.5/2 * m_image.rows/ref_size;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -391,8 +394,10 @@ Detector::getPoints()
 			cv::Point2d shot(x,y);
 
 			double distance = cv::norm(m_center - shot);
-			double angle = atan2((m_center.x-shot.x),(m_center.y-shot.y));
-			std::cout << "Shot distance " << distance*930/1190 << " pixels\n";
+			double angle = atan2(-1*(shot.y-m_center.y), (shot.x-m_center.x));
+			
+			
+			std::cout << "Shot distance " << distance*930/1190 << " pixels and angle " << angle << "\n";
 			double score = getScore(distance, shot_radius);
 			if (score == m_lastScore)
 			{
@@ -474,7 +479,7 @@ double Detector::getScore(double distance, double radius)
 		}
 		else if(distance <= 77.75)
 		{
-			double delta = 0.3;
+			double delta = 0.8;
 			distance = 72-(distance-5.75);
 			int sc = distance/delta +10;
 			score = (float)sc/(10.0f);
@@ -546,7 +551,7 @@ void Detector::transformImage()
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start = std::chrono::high_resolution_clock::now();
 	
-	const int MAX_FEATURES = 2500;
+	const int MAX_FEATURES = 10000;
 	const float GOOD_MATCH_PERCENT = 0.15f;
 
 	// Convert images to grayscale
@@ -602,7 +607,7 @@ void Detector::transformImage()
 	end = std::chrono::high_resolution_clock::now();
 	std::cout << "TransformImage: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
 #ifdef DEBUG
-	cv::imshow("Transformed",m_image);
+	cv::imshow("Transformed Image",m_image);
 	cv::waitKey();
 	cv::imwrite("transformed.jpg", m_image);
 #endif
@@ -615,6 +620,7 @@ void Detector::transformRifle()
 	start = std::chrono::high_resolution_clock::now();
 
 	//get 4 corner points of m_image
+	std::cout << "transformRifle()\n";
 	cv::Mat hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
 	cv::blur(hsv, hsv, cv::Size(5,5));	
@@ -828,7 +834,8 @@ void Detector::getCapture()
 	while(!m_camera.retrieve(m_image))
 		usleep(100);
 #else
-	m_image = cv::imread("../images/new/098899_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
+	m_image = cv::imread("../images/new/226431_n.png", cv::IMREAD_COLOR);  // 226434_n 098899_n 098896_n
+	std::cout << "../images/new/226431_n.png\n";
 #endif
 }
 
