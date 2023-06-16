@@ -9,7 +9,7 @@ set(CMAKE_AUTOUIC ON)
 
 option(ESP_COMS	"Esp communication"	OFF)
 option(TESTING	"Testing"			ON)
-option(DEBUG ON)
+option(DEBUG OFF)
 
 project( vision )
 find_package( OpenCV REQUIRED )
@@ -25,10 +25,10 @@ if(TESTING)
 	add_definitions(-DVISION_TEST)
 endif(TESTING)
 
-if(TESTING)
+if(DEBUG)
 	message("Compiling with flag DEBUG")
 	add_definitions(-DDEBUG)
-endif(TESTING)
+endif(DEBUG)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()

@@ -31,18 +31,18 @@ public:
 	onMain(bool& isRunning, bool& continueReading);
 
 	void
-	testMain()
+	testMain(bool changePhoto)
 	{
-		getCapture();
-		if(m_target == Target::Rifle)
-			transformRifle();
-		else
-		{
-			fakeTransform();
+		m_path = "../images/new/" + getFile(curr_index);
+		m_image = cv::imread(m_path, cv::IMREAD_COLOR);
+		std::cout << m_path << "\n";
+		fakeTransform();
+		if(changePhoto)
 			curr_index++;
-		}
+
 		getCenter();
 		getPoints();
+		cv::destroyAllWindows();
 	}
 
 

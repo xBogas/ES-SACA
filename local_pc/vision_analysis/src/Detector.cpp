@@ -40,13 +40,16 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	m_camera.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
 	m_camera.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 #endif
+/* testMain(false);
+testMain(true);
+exit(1); */
 }
 
 void Detector::onMain(bool& finish, bool& continueReading)
 {
 	char buffer[1024];
     boost::system::error_code error;
-	bool newRead = false, oldRead = false;
+	bool newRead = false, oldRead = false, changePhoto = false;
 	while (!finish)
 	{
 		std::cout << "[Waiting for data...]" << std::endl;
@@ -62,16 +65,26 @@ void Detector::onMain(bool& finish, bool& continueReading)
 			std::string message(buffer, length);
 			std::cout << "Response: " << message << std::endl;
 			
-			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			//newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			newRead = message.size() >= 4;
 			if (newRead && !oldRead)
 			{
-				getCapture();
+				std::cout << "DETECTDETECTDETECTDETECTDETECTDETECTDETECTDETECTDETECTDETECTDETECT\n";
 				if (m_target == Target::Pistol)
-					transformImage(); // transformPistol();
+				{
+					testMain(changePhoto);
+					changePhoto = !changePhoto;
+				}
 				else
-					transformRifle();
-				getCenter();
-				getPoints();
+				{
+					getCapture();
+					if (m_target == Target::Pistol)
+						transformImage(); // transformPistol();
+					else
+						transformRifle();
+					getCenter();
+					getPoints();
+				}
 			}
 			oldRead = newRead;
 		}
@@ -329,20 +342,25 @@ Detector::getPoints()
 
 #ifdef DEBUG
 	std::cout << "Found " << contours.size() << "\n";
+	cv::destroyAllWindows();
 #endif
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		double area = cv::contourArea(contours[i]);
-		double max_area = (m_target == Target::Pistol)? 800 : 7'000;
+		double max_area = (m_target == Target::Pistol)? 900 : 7'000;
+		int max_size = (m_target == Target::Pistol)? 100 : 170;
+		/* if(contours[i].size() > 200 || contours[i].size() < 40)
+			continue;
 
-		/* cv::Mat alt = m_image.clone();
+		cv::Mat alt = m_image.clone();
 		cv::drawContours(alt, contours, i, cv::Scalar(0, 0, 255), 2);
 		cv::imshow("contour's", alt);
 		cv::waitKey();
 		std::cout << "[" << i << "] size " << contours[i].size() << " and " << cv::contourArea(contours[i]) << " contours area\n"; */
+
 		//TODO: Check contours
-		if ( area > 400 && area < max_area && contours[i].size() < 100 /* && contours[i].size() > 60 */)
+		if ( area > 400 && area < max_area && contours[i].size() < max_size /* && contours[i].size() > 60 */)
 		{
 			//? 16 for pistol		4.5/2 * 1190/170;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -408,7 +426,7 @@ Detector::getPoints()
 
 			emit new_score(distance*930/1190, angle, shot_radius, score);
 			if (distance > m_center_radius+shot_radius) // 185 -> center circle
-			{
+			{	
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
 #ifdef ESP_COMS
@@ -419,10 +437,10 @@ Detector::getPoints()
 			{
 				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 				if (m_target == Target::Pistol)
-					move_ESP *= 170/1190;
+					move_ESP *= 170.0f/1190.0f;
 
 				else
-					move_ESP *= 100/1190;
+					move_ESP *= 100.0f/1190.0f;
 
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 
@@ -440,10 +458,10 @@ Detector::getPoints()
 				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 
 				if (m_target == Target::Pistol)
-					move_ESP *= 170/1190;
+					move_ESP *= 170.0f/1190.0f;
 
 				else
-					move_ESP *= 100/1190;
+					move_ESP *= 100.0f/1190.0f;
 				
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 				std::cout << msg << std::endl;

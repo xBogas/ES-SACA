@@ -245,8 +245,8 @@ void PistolWindow::Disparo(int coordenada_x, int coordenada_y, double pontuaçã
         
         //Inserir imagem
         item = new QGraphicsPixmapItem(RedDot);
-        item->setScale(0.065);
-        item->setPos(x-0.065*315,y-0.065*315);           //Pode ser necessário fazer ajustes por não estarem na mesma escala.
+        item->setScale(0.05);
+        item->setPos(x-0.05*315,y-0.05*315);           //Pode ser necessário fazer ajustes por não estarem na mesma escala.
         scene->addItem(item);
 
 

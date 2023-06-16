@@ -9,7 +9,12 @@ int main(int argc, char const *argv[])
 	std::cin >> type; */
 	Detector det(0, 8888, "127.0.0.1");
 
-	det.testMain();
+	
+	for(int i = 0; i < 4 ; i++)
+	{
+		det.testMain(false);
+		det.testMain(true);
+	}
 
 	return 0;
 }
