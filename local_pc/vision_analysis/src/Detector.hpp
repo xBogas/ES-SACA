@@ -36,10 +36,15 @@ public:
 		getCapture();
 		if(m_target == Target::Rifle)
 			transformRifle();
-		transformImage();
+		else
+		{
+			fakeTransform();
+			curr_index++;
+		}
 		getCenter();
 		getPoints();
 	}
+
 
 	void
 	changeMode(int type);
@@ -57,7 +62,7 @@ private:
 	enum TargetSize
 	{
 		Pistol = 170,
-		Rifle = 80	// 30.5 mm -> 364 pixels
+		Rifle = 100
 	};
 
 
@@ -142,6 +147,31 @@ private:
 	void
 	orderCorners(cv::Mat& input, cv::Point2f* output);
 
+	void
+	fakeTransform();
+
+	std::string
+	getFile(int index)
+	{
+		switch (index)
+		{
+		case 0:
+			return "226429_1.png";
+
+		case 1:
+			return "226435_1.png";
+
+		case 2:
+			return "226436_1.png";
+
+		case 3:
+			return "226439_1.png";
+
+		default:
+			return "226429_1.png";
+		}
+	}
+
 	/// @brief Io handle
 	boost::asio::io_context io_context;
 	/// @brief Tcp socket
@@ -166,6 +196,8 @@ private:
 	Target m_target;
 
 	float m_lastScore;
+	std::string m_path;
+	int curr_index;
 };
 
 #endif
