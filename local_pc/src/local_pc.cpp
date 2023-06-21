@@ -327,7 +327,6 @@ void client_thread(MainWindow *window, PistolWindow *ptlwindow, RifleWindow *rfl
                     entry = true;
                     readSignal = true;
                     shot = false;
-                    continueReading = false;
                 }
 
                 if(readSignal){

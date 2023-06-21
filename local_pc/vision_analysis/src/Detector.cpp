@@ -40,13 +40,17 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	m_camera.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
 	m_camera.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 #endif
+/* testMain(false);
+testMain(true);
+exit(1); */
+transformPistol();
 }
 
 void Detector::onMain(bool& finish, bool& continueReading)
 {
 	char buffer[1024];
     boost::system::error_code error;
-	bool newRead = false, oldRead = false;
+	bool newRead = false, oldRead = false, changePhoto = false;
 	while (!finish)
 	{
 		std::cout << "[Waiting for data...]" << std::endl;
@@ -62,16 +66,25 @@ void Detector::onMain(bool& finish, bool& continueReading)
 			std::string message(buffer, length);
 			std::cout << "Response: " << message << std::endl;
 			
-			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			//newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			newRead = message.size() >= 4;
 			if (newRead && !oldRead)
 			{
-				getCapture();
 				if (m_target == Target::Pistol)
-					transformImage(); // transformPistol();
+				{
+					testMain(changePhoto);
+					changePhoto = !changePhoto;
+				}
 				else
-					transformRifle();
-				getCenter();
-				getPoints();
+				{
+					getCapture();
+					if (m_target == Target::Pistol)
+						transformImage(); // transformPistol();
+					else
+						transformRifle();
+					getCenter();
+					getPoints();
+				}
 			}
 			oldRead = newRead;
 		}
@@ -329,20 +342,25 @@ Detector::getPoints()
 
 #ifdef DEBUG
 	std::cout << "Found " << contours.size() << "\n";
+	cv::destroyAllWindows();
 #endif
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		double area = cv::contourArea(contours[i]);
-		double max_area = (m_target == Target::Pistol)? 800 : 7'000;
+		double max_area = (m_target == Target::Pistol)? 900 : 7'000;
+		int max_size = (m_target == Target::Pistol)? 100 : 170;
+		/* if(contours[i].size() > 200 || contours[i].size() < 40)
+			continue;
 
-		/* cv::Mat alt = m_image.clone();
+		cv::Mat alt = m_image.clone();
 		cv::drawContours(alt, contours, i, cv::Scalar(0, 0, 255), 2);
 		cv::imshow("contour's", alt);
 		cv::waitKey();
 		std::cout << "[" << i << "] size " << contours[i].size() << " and " << cv::contourArea(contours[i]) << " contours area\n"; */
+
 		//TODO: Check contours
-		if ( area > 400 && area < max_area && contours[i].size() < 100 /* && contours[i].size() > 60 */)
+		if ( area > 400 && area < max_area && contours[i].size() < max_size /* && contours[i].size() > 60 */)
 		{
 			//? 16 for pistol		4.5/2 * 1190/170;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -408,7 +426,7 @@ Detector::getPoints()
 
 			emit new_score(distance*930/1190, angle, shot_radius, score);
 			if (distance > m_center_radius+shot_radius) // 185 -> center circle
-			{
+			{	
 				std::cout << "Create mask for pixels at " << shot << "\n";
 				std::cout << "ESP should not move\n";
 #ifdef ESP_COMS
@@ -419,10 +437,10 @@ Detector::getPoints()
 			{
 				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 				if (m_target == Target::Pistol)
-					move_ESP *= 170/1190;
+					move_ESP *= 170.0f/1190.0f;
 
 				else
-					move_ESP *= 100/1190;
+					move_ESP *= 100.0f/1190.0f;
 
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 
@@ -440,10 +458,10 @@ Detector::getPoints()
 				float move_ESP = m_center.y + std::sqrt(std::pow(m_center_radius,2) - std::pow(m_center.x - shot.x,2)) - shot.y + shot_radius;
 
 				if (m_target == Target::Pistol)
-					move_ESP *= 170/1190;
+					move_ESP *= 170.0f/1190.0f;
 
 				else
-					move_ESP *= 100/1190;
+					move_ESP *= 100.0f/1190.0f;
 				
 				std::string msg = "MOVE " + std::to_string(move_ESP) + "\n";
 				std::cout << msg << std::endl;
@@ -733,241 +751,59 @@ void Detector::transformRifle()
 
 void Detector::transformPistol()
 {
-	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	start = std::chrono::high_resolution_clock::now();
-
-	//get 4 corner points of m_image
-	//cv::bilateralFilter(m_image.clone(), m_image, 5, 150, 150);
-
-	cv::Mat morph_x, morph_y, out, kernel, gray;
-	/* kernel = cv::Mat(7, 7, CV_8U, cv::Scalar(1));
-	cv::morphologyEx(m_image, m_image, cv::MORPH_ERODE, kernel); */
-
-	cv::inRange(m_image, cv::Vec3b(50, 150, 50), cv::Vec3b(255, 255, 255), gray);
-	cv::imshow("Filtered values", gray);
 
 
-	cv::Mat negative;
-	cv::bitwise_not(gray, negative);
-	cv::bitwise_and(m_image, cv::Scalar(0,0,0), m_image, negative);
-
-	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
-
-	cv::Sobel(gray, morph_x, CV_8U, 1, 0, 1);
-	cv::imshow("sobel x", morph_x);
-	cv::waitKey();
-
-	double threshold = cv::threshold(morph_x, out, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-
-	/* kernel = cv::Mat(7, 7, CV_8U, cv::Scalar(1));
-	cv::morphologyEx(m_image, m_image, cv::MORPH_ERODE, kernel); */
-
-	cv::imshow("??", out);
-	cv::waitKey();
-
-	{
-		std::vector<std::vector<cv::Point>> contours;
-		cv::findContours(out, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-		std::cout << "Found " << contours.size() << "\n";
-		for (size_t i = 0; i < contours.size(); i++)
-		{
-			if (contours[i].size() < 550 )
-				continue;
-			
-			cv::Mat display = m_image.clone();
-			std::cout << "Area " << cv::contourArea(contours[i]) << " and size " << contours[i].size() << "\n";
-			cv::drawContours(display, contours, i, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
-			cv::imshow("Image", display);
-			cv::waitKey();
-		}
-	}
-	
-	cv::Mat hsv, chann[3];
+	m_image = cv::imread("../images/new/ref.png");
+	cv::Mat gray, hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL);
-
-	cv::Mat hue;
-	cv::inRange(hsv, cv::Scalar(0,0,0), cv::Scalar(45,255,255), hue);
-	cv::imshow("hue", hue);
-	cv::waitKey();
-
-	//cv::GaussianBlur(hue, hue, cv::Size(5,5), 0);
-	cv::Sobel(hue, morph_x, CV_8U, 1, 0, 1);
-	cv::imshow("sobel x", morph_x);
-	cv::waitKey();
-
-	threshold = cv::threshold(morph_x, out, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-
-	/* kernel = cv::Mat(7, 7, CV_8U, cv::Scalar(1));
-	cv::morphologyEx(m_image, m_image, cv::MORPH_ERODE, kernel); */
-
-	cv::imshow("??", out);
-	cv::waitKey();
-
-	{
-		std::vector<std::vector<cv::Point>> contours;
-		cv::findContours(out, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-		std::cout << "Found " << contours.size() << "\n";
-		for (size_t i = 0; i < contours.size(); i++)
-		{
-			if (contours[i].size() < 650 )
-				continue;
-			
-			cv::Mat display = m_image.clone();
-			std::cout << "Area " << cv::contourArea(contours[i]) << " and size " << contours[i].size() << "\n";
-			cv::drawContours(display, contours, i, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
-			cv::imshow("Image 2", display);
-			cv::waitKey();
-		}
-	}
-
-	cv::Mat saturation;
-	cv::inRange(hsv, cv::Scalar(0,0,0), cv::Scalar(255,40,255), saturation);
-	cv::imshow("Saturation", saturation);
-	cv::waitKey();
-
-	cv::Sobel(saturation, morph_y, CV_8U, 0, 1, 1);
-	cv::imshow("sobel y", morph_y);
-	cv::waitKey();
-
-	threshold = cv::threshold(morph_y, out, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-
-	cv::imshow("sobel y out", out);
-	cv::waitKey();
-	exit(1);
-
-
-	/* cv::Mat hsv, corners;
-	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL); 
-
-	cv::Mat out_0, out_1, out_2, op2, b, g, r;
-	blur(hsv, hsv, cv::Size(3, 3));
-	//TODO: try to get range
-	cv::Mat chann[3];
+	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
+	cv::bilateralFilter(m_image.clone(), m_image, 5, 150, 150);
+	cv::Mat chann[3], color;
 	cv::split(hsv, chann);
 
-	cv::Mat bgr[3];
-	cv::split(m_image, bgr);
-#ifdef DEBUG
 	cv::imshow("H", chann[0]);
-	cv::imwrite("H.png", chann[0]);
-
 	cv::imshow("S", chann[1]);
-	cv::imwrite("S.png", chann[1]);
-
 	cv::imshow("V", chann[2]);
-	cv::imwrite("V.png", chann[2]);
+	cv::imshow("gray", gray);
 
-	cv::imshow("B", bgr[0]);
-	cv::imwrite("B.png", bgr[0]);
+	cv::threshold(chann[1], gray, 20, 255, cv::THRESH_BINARY_INV);
+	cv::imshow("gray 2", gray);
 
-	cv::imshow("G", bgr[1]);
-	cv::imwrite("G.png", bgr[1]);
 
-	cv::imshow("R", bgr[2]);
-	cv::imwrite("R.png", bgr[2]);
-#endif
+	cv::inRange(m_image, cv::Scalar(150, 0, 0), cv::Scalar(255, 255, 255), color);
+	cv::imshow("filter blue", color);
 
-	cv::inRange(bgr[0], cv::Scalar(175), cv::Scalar(220), b);
-	cv::imshow("Filtered blue", b);
+	cv::inRange(hsv, cv::Scalar(150, 0, 0), cv::Scalar(255, 255, 255), color);
+	cv::imshow("filter hue", color);
+	cv::waitKey();
 
-	cv::inRange(bgr[2], cv::Scalar(100), cv::Scalar(255), r);
-	cv::imshow("Filtered red", r);
-
-	cv::inRange(chann[0], cv::Scalar(90), cv::Scalar(255), out_0);
-	cv::imshow("Filtered 0", out_0);
-
-	cv::bitwise_and(b, out_0, op2);
-	cv::imshow("b and h", op2);
-
-	cv::inRange(chann[1], cv::Scalar(0), cv::Scalar(20), out_1);
-	cv::imshow("Filtered 1", out_1);
-
-	cv::bitwise_and(out_0, out_1, op2);
-	cv::imshow("1 and 2", op2);
+	cv::Mat kernel = cv::Mat(3, 3, CV_8U, cv::Scalar(1));
+	cv::morphologyEx(color, color, cv::MORPH_ERODE, kernel);
+	cv::imshow("morph hue", color);
+	cv::waitKey();
 	
-	cv::inRange(chann[2], cv::Scalar(150), cv::Scalar(200), out_2);
-	cv::imshow("Filtered 2", out_2);
-	cv::waitKey();
-
-	cv::bitwise_and(m_image, cv::Scalar(0), m_image, r);
-	//cv::bitwise_and(m_image, m_image, m_image, morph_x);
-	cv::imshow("&&", m_image);
-	cv::waitKey();
-
-
-
-	exit(2); 
-
-	std::vector<std::vector<cv::Point>> contours;
-	cv::findContours(op2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-	std::cout << "Found " << contours.size() << "\n";
-	double max_area = 0;
-	int pos = 0;
+	std::vector<std::vector<cv::Point>> contours, merged_contour(1);
+	cv::findContours(color, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() < 700)
-			continue;
-
-		double area = cv::contourArea(contours[i]);
-		if( area < 10'000)
-			continue;
-		if (area > max_area)
+		if (contours[i].size() > 25)
 		{
-			max_area = area;
-			pos = i;
+			merged_contour[0].reserve(contours[i].size());
+			for (size_t j = 0; j < contours[i].size(); j++)
+				merged_contour[0].push_back(contours[i][j]);
 		}
-#if defined(DEBUG)
-		cv::Mat display = m_image.clone();
-		std::cout << "Area " << area << " and size " << contours[i].size() << "\n";
-		cv::drawContours(display, contours, i, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
-		cv::imshow("Image", display);
-		cv::waitKey();
-#endif
 	}
-
-	cv::approxPolyDP(contours[pos], corners, 0.05*cv::arcLength(contours[pos], true), true);
-
-#if defined(DEBUG)
-	std::cout << "Out: " << corners << "\n";
-	cv::drawContours(m_image, corners, -1, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	
+	cv::Mat display = m_image.clone();
+	cv::drawContours(display, merged_contour, 0, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+	cv::imshow("merged", display);
+	cv::waitKey();
+	std::cout << "1 " << 0.05*cv::arcLength(merged_contour[0], false) << " 2 " << 0.05*cv::arcLength(merged_contour[0], true) << "\n";
+	cv::approxPolyDP(merged_contour[0], corners, 30, true);
+	cv::drawContours(m_image, corners, -1, cv::Scalar(0, 255, 0), 5, cv::LINE_AA);
 	cv::imshow("Image", m_image);
 	cv::waitKey();
-
-	std::vector<cv::Point> corner_points(4);
-	corner_points.push_back(corners.at<cv::Point>(0));
-	corner_points.push_back(corners.at<cv::Point>(1));
-	corner_points.push_back(corners.at<cv::Point>(2));
-	corner_points.push_back(corners.at<cv::Point>(3));
-	
-	const cv::Point* point = &corner_points[0];
-	int n = (int)corner_points.size();
-	cv::Mat draw = m_image.clone();
-	cv::polylines(draw, &point, &n, 1, true, cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
-	imwrite("TargetContour.jpg", draw);
-#endif
-
-	cv::Point2f src_vertices[4];
-	orderCorners(corners, src_vertices);
-
-	cv::Point2f dst_vertices[4];
-	dst_vertices[0] = cv::Point(0, 0);
-	dst_vertices[1] = cv::Point(0, 1190);
-	dst_vertices[2] = cv::Point(1190, 1190);
-	dst_vertices[3] = cv::Point(1190, 0);
-
-	cv::Mat warpPerspectiveMatrix = getPerspectiveTransform(src_vertices, dst_vertices);
-	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
-
-	end = std::chrono::high_resolution_clock::now();
-	std::cout << "TransformPistol: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
-
-#if defined(DEBUG)
-	cv::imshow("Transform result", m_image);
-	cv::waitKey();
-#endif*/
+	exit(1);
 }
 
 void Detector::getCapture()
