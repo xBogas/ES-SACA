@@ -2,10 +2,8 @@
 #include <vector>
 #include <chrono>
 
-#ifdef CAMERA
-	#undef CAMERA
-#endif
-//#define CAMERA
+
+#define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context), curr_index(0)
 {
@@ -40,10 +38,6 @@ Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	m_camera.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
 	m_camera.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 #endif
-/* testMain(false);
-testMain(true);
-exit(1); */
-transformPistol();
 }
 
 void Detector::onMain(bool& finish, bool& continueReading)
@@ -66,9 +60,9 @@ void Detector::onMain(bool& finish, bool& continueReading)
 			std::string message(buffer, length);
 			std::cout << "Response: " << message << std::endl;
 			
-			//newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
-			newRead = message.size() >= 4;
-			if (newRead && !oldRead)
+			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
+			//newRead = message.size() >= 4;
+			if (newRead)
 			{
 				if (m_target == Target::Pistol)
 				{
@@ -86,7 +80,7 @@ void Detector::onMain(bool& finish, bool& continueReading)
 					getPoints();
 				}
 			}
-			oldRead = newRead;
+			//oldRead = newRead;
 		}
 		else{
 			boost::asio::write(socket, boost::asio::buffer("NO\n"));
@@ -128,14 +122,28 @@ void Detector::getCenter()
 	cv::imwrite("edge.png", edge);
 	cv::waitKey();
 #endif
-	cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	if(m_target == Target::Pistol)
+		cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	else
+		cv::findContours(edge, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 	std::vector<cv::Point2d> centers;
 
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		// above 200 for pistol -> 1050
 		// above 950 for rifle -> 1190
+
+		/* if(contours[i].size() > 100'000 || contours[i].size() < 40)
+			continue;
+
+		cv::Mat alt = m_image.clone();
+		cv::drawContours(alt, contours, i, cv::Scalar(0, 0, 255), 2);
+		cv::imshow("contour's", alt);
+		cv::waitKey();
+		std::cout << "[" << i << "] size " << contours[i].size() << " and " << cv::contourArea(contours[i]) << " contours area\n"; */
+
 		double min_area = (m_target == Target::Pistol)? 70'000 : 100;
+		double min_size = m_target == Target::Pistol? 300 : 1'000;
 		if (contours[i].size() > 300 && cv::contourArea(contours[i]) > min_area)
 		{
 			if (m_target == Target::Pistol)
@@ -193,6 +201,7 @@ void Detector::getCenter()
 	m_center = mean(centers);
 #ifdef VISION_TEST
 	std::cout << "Avg center " << m_center << " and radius " << m_center_radius << "\n";
+	cv::destroyAllWindows();
 #endif
 }
 
@@ -309,7 +318,7 @@ Detector::getPoints()
 	cv::Mat op2;
 	blur(hsv, hsv, cv::Size(5,5));
 	if (m_target == Target::Rifle)
-		cv::inRange(hsv, cv::Vec3b(100,0,240), cv::Vec3b(255,50,255), op2); //TODO: Check contours
+		cv::inRange(hsv, cv::Vec3b(40,0,240), cv::Vec3b(255,120,255), op2); //TODO: Check contours
 	else
 		cv::inRange(hsv, cv::Vec3b(0,0,240), cv::Vec3b(255,255,255), op2);
 		
@@ -349,7 +358,8 @@ Detector::getPoints()
 	{
 		double area = cv::contourArea(contours[i]);
 		double max_area = (m_target == Target::Pistol)? 900 : 7'000;
-		int max_size = (m_target == Target::Pistol)? 100 : 170;
+		double min_area = (m_target == Target::Pistol)? 400 : 1'700;
+		int max_size = (m_target == Target::Pistol)? 100 : 220;
 		/* if(contours[i].size() > 200 || contours[i].size() < 40)
 			continue;
 
@@ -360,7 +370,7 @@ Detector::getPoints()
 		std::cout << "[" << i << "] size " << contours[i].size() << " and " << cv::contourArea(contours[i]) << " contours area\n"; */
 
 		//TODO: Check contours
-		if ( area > 400 && area < max_area && contours[i].size() < max_size /* && contours[i].size() > 60 */)
+		if ( area > min_area && area < max_area /*&& contours[i].size() < max_size && contours[i].size() > 60 */)
 		{
 			//? 16 for pistol		4.5/2 * 1190/170;
 			//? 27 for rifle		4.5/2 * 1190/100
@@ -751,9 +761,9 @@ void Detector::transformRifle()
 
 void Detector::transformPistol()
 {
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	start = std::chrono::high_resolution_clock::now();
 
-
-	m_image = cv::imread("../images/new/ref.png");
 	cv::Mat gray, hsv, corners;
 	cv::cvtColor(m_image, hsv, cv::COLOR_BGR2HSV_FULL);
 	cv::cvtColor(m_image, gray, cv::COLOR_BGR2GRAY);
@@ -786,7 +796,7 @@ void Detector::transformPistol()
 	cv::findContours(color, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 	for (size_t i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 25)
+		if (contours[i].size() > 40)
 		{
 			merged_contour[0].reserve(contours[i].size());
 			for (size_t j = 0; j < contours[i].size(); j++)
@@ -798,17 +808,38 @@ void Detector::transformPistol()
 	cv::drawContours(display, merged_contour, 0, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 	cv::imshow("merged", display);
 	cv::waitKey();
-	std::cout << "1 " << 0.05*cv::arcLength(merged_contour[0], false) << " 2 " << 0.05*cv::arcLength(merged_contour[0], true) << "\n";
-	cv::approxPolyDP(merged_contour[0], corners, 30, true);
-	cv::drawContours(m_image, corners, -1, cv::Scalar(0, 255, 0), 5, cv::LINE_AA);
-	cv::imshow("Image", m_image);
+	cv::approxPolyDP(merged_contour[0], corners, 500, true);
+
+	cv::Point2f src_vertices[4];
+	orderCorners(corners, src_vertices);
+
+	cv::Point2f dst_vertices[4];
+	dst_vertices[0] = cv::Point(0, 0);
+	dst_vertices[1] = cv::Point(0, 1190);
+	dst_vertices[2] = cv::Point(1190, 1190);
+	dst_vertices[3] = cv::Point(1190, 0);
+
+	cv::Mat warpPerspectiveMatrix = getPerspectiveTransform(src_vertices, dst_vertices);
+	warpPerspective(m_image, m_image, warpPerspectiveMatrix, cv::Size(1190, 1190), cv::INTER_LINEAR, cv::BORDER_CONSTANT);
+
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "TransformRifle: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " µs\n";
+
+#if defined(DEBUG)
+	cv::imshow("Transform result", m_image);
+	cv::imwrite("transformed.png", m_image);
 	cv::waitKey();
-	exit(1);
+#endif
 }
 
 void Detector::getCapture()
 {
 #ifdef CAMERA
+	m_camera.release();
+	if(!m_camera.open("/dev/video0"))
+		throw std::runtime_error("Failed to open camera");
+	m_camera.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+	m_camera.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 	while(!m_camera.grab())
 		usleep(100);
 

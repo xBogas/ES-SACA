@@ -33,18 +33,31 @@ public:
 	void
 	testMain(bool changePhoto)
 	{
-		m_path = "../images/new/" + getFile(curr_index);
-		m_image = cv::imread(m_path, cv::IMREAD_COLOR);
-		std::cout << m_path << "\n";
-		fakeTransform();
-		if(changePhoto)
-			curr_index++;
-
+		if(m_target == Target::Pistol)
+		{
+			m_path = "../images/new/" + getFile(curr_index);
+			m_image = cv::imread(m_path, cv::IMREAD_COLOR);
+			std::cout << m_path << "\n";
+			fakeTransform();
+			if(changePhoto)
+				curr_index++;
+		}
+		else
+		{
+			getCapture();
+			transformRifle();
+		}
 		getCenter();
 		getPoints();
 		cv::destroyAllWindows();
 	}
 
+	void
+	testPistol()
+	{
+		getCapture();
+		transformPistol();
+	}
 
 	void
 	changeMode(int type);
