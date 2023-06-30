@@ -1,6 +1,7 @@
 #include "Detector.hpp"
 #include <vector>
 #include <chrono>
+#include <iostream>
 
 
 // #define CAMERA
@@ -45,9 +46,11 @@ void Detector::onMain(bool& finish, bool& continueReading)
 	char buffer[1024];
     boost::system::error_code error;
 	bool newRead = false, oldRead = false, changePhoto = false;
+	bool entry = true;
+	long long initial_millis;
 	while (!finish)
 	{
-		std::cout << "[Waiting for data...]" << std::endl;
+		/* std::cout << "[Waiting for data...]" << std::endl;
 		size_t length = socket.read_some(boost::asio::buffer(buffer), error);
 		if (error == boost::asio::error::eof) {
 			std::cout << "Connection closed by server." << std::endl;
@@ -55,14 +58,22 @@ void Detector::onMain(bool& finish, bool& continueReading)
 		} else if (error) {
 			std::cout << "Error: " << error.message() << std::endl;
 			break;
+		} */
+		sleep(0.1);
+		if(entry){
+			auto initial = std::chrono::system_clock::now();
+			auto initial_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(initial);
+			initial_millis = initial_ms.time_since_epoch().count();
+
+			entry = false;
 		}
+
+		auto now = std::chrono::system_clock::now();
+		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+		long long now_millis = now_ms.time_since_epoch().count();
+
 		if(continueReading){
-			std::string message(buffer, length);
-			std::cout << "Response: " << message << std::endl;
-			
-			newRead = (std::strncmp(buffer, "disparo", std::strlen("disparo")) == 0);
-			//newRead = message.size() >= 4;
-			if (newRead)
+			if ((now_millis - initial_millis > 10000))
 			{
 				if (m_target == Target::Pistol)
 				{
@@ -79,12 +90,14 @@ void Detector::onMain(bool& finish, bool& continueReading)
 					getCenter();
 					getPoints();
 				}
+
+				entry = true;
 			}
 			//oldRead = newRead;
 		}
-		else{
+		/* else{
 			boost::asio::write(socket, boost::asio::buffer("NO\n"));
-		}
+		} */
 	}
 }
 
