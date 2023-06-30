@@ -3,7 +3,7 @@
 #include <chrono>
 
 
-#define CAMERA
+// #define CAMERA
 Detector::Detector(int type, int port, const char* addr, QObject *parent)
 	: QObject(parent), m_approx(525, 525), socket(io_context), curr_index(0)
 {
